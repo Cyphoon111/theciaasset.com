@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Open Graph Meta Tags for Text Message / Social Media Preview -->
+  <meta property="og:title" content="Donate: The CIA Asset & The Man Who Didn't Take The Bait">
+  <meta property="og:description" content="Support this book by Jason Sullivan">
+  <meta property="og:image" content="https://theciaasset.com/book_cover.jpg">
+  <meta property="og:image:width" content="800">
+  <meta property="og:image:height" content="1200">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://theciaasset.com">
+
+  <!-- Twitter Card Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Donate: The CIA Asset & The Man Who Didn't Take The Bait">
+  <meta name="twitter:description" content="Support this book by Jason Sullivan">
+  <meta name="twitter:image" content="https://theciaasset.com/book_cover.jpg">
+
+  <!-- Standard Meta -->
+  <meta name="description" content="Support this book by Jason Sullivan">
+
+  <title>Donate: The CIA Asset & The Man Who Didn't Take The Bait</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+
+  <div class="donation-container">
+
+    <!-- Book Cover -->
+    <div class="book-cover-wrapper">
+      <img 
+        src="book_cover.jpg" 
+        alt="The CIA Asset & The Man Who Didn't Take The Bait — Book Cover" 
+        class="book-cover"
+      >
+    </div>
+
+    <!-- Title -->
+    <div class="title-section">
+      <h1>The CIA Asset<br>& The Man Who Didn't Take The Bait</h1>
+      <p class="subtitle">by Jason Sullivan & Peter Ticktin</p>
+    </div>
+
+    <!-- Donation Card -->
+    <div class="donation-card">
+
+      <h2 class="card-heading">Support This Book</h2>
+
+      <!-- Preset Amount Buttons -->
+      <div class="amount-grid" id="amount-grid">
+        <button class="amount-btn" data-amount="100" onclick="selectAmount(100, this)">$100</button>
+        <button class="amount-btn" data-amount="500" onclick="selectAmount(500, this)">$500</button>
+        <button class="amount-btn" data-amount="1000" onclick="selectAmount(1000, this)">$1,000</button>
+        <button class="amount-btn" data-amount="2000" onclick="selectAmount(2000, this)">$2,000</button>
+        <button class="amount-btn" data-amount="3000" onclick="selectAmount(3000, this)">$3,000</button>
+      </div>
+
+      <!-- Custom Amount -->
+      <div class="custom-amount-wrapper" id="custom-wrapper">
+        <span class="dollar-sign">$</span>
+        <input 
+          type="number" 
+          class="custom-amount-input" 
+          id="custom-amount" 
+          placeholder="Enter custom amount" 
+          min="1" 
+          step="1"
+          onfocus="handleCustomFocus()"
+          onblur="handleCustomBlur()"
+          oninput="handleCustomInput()"
+        >
+      </div>
+
+      <!-- Selected Amount Display -->
+      <div class="selected-display" id="selected-display"></div>
+
+      <!-- Donate Button -->
+      <button class="donate-btn" id="donate-btn" onclick="handleDonate()" disabled>
+        Donate Now
+      </button>
+
+      <!-- Secure Badge -->
+      <div class="secure-badge">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+        <span>Secured by Stripe</span>
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>&copy; 2025 Jason Sullivan. All rights reserved.</p>
+    </div>
+
+  </div>
+
+  <script>
+// ============================================
+// DONATION PAGE — Stripe Payment Link Integration
+// ============================================
+
+// Stripe Payment Link base URL (from Stripe Dashboard)
+const STRIPE_DONATE_LINK = 'https://donate.stripe.com/6oUfZi4NdcYa7Yh2ZO08g01';
+
+// State
+let selectedAmount = null;
+
+// ---- Amount Selection ----
+function selectAmount(amount, btnElement) {
+  document.getElementById('custom-amount').value = '';
+  document.getElementById('custom-wrapper').classList.remove('focused');
+  document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
+  btnElement.classList.add('selected');
+  selectedAmount = amount;
+  updateSelectedDisplay();
+  updateDonateButton();
+}
+
+function handleCustomFocus() {
+  document.getElementById('custom-wrapper').classList.add('focused');
+  document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
+}
+
+function handleCustomBlur() {
+  const input = document.getElementById('custom-amount');
+  if (!input.value) {
+    document.getElementById('custom-wrapper').classList.remove('focused');
+  }
+}
+
+function handleCustomInput() {
+  const input = document.getElementById('custom-amount');
+  const value = parseFloat(input.value);
+  document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
+  if (value && value >= 1) {
+    selectedAmount = value;
+  } else {
+    selectedAmount = null;
+  }
+  updateSelectedDisplay();
+  updateDonateButton();
+}
+
+// ---- UI Updates ----
+function updateSelectedDisplay() {
+  const display = document.getElementById('selected-display');
+  if (selectedAmount) {
+    const formatted = formatCurrency(selectedAmount);
+    display.innerHTML = `You're donating <span>${formatted}</span>`;
+  } else {
+    display.innerHTML = '';
+  }
+}
+
+function updateDonateButton() {
+  const btn = document.getElementById('donate-btn');
+  if (selectedAmount && selectedAmount >= 1) {
+    btn.disabled = false;
+    const formatted = formatCurrency(selectedAmount);
+    btn.textContent = `Donate ${formatted}`;
+  } else {
+    btn.disabled = true;
+    btn.textContent = 'Donate Now';
+  }
+}
+
+function formatCurrency(amount) {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+}
+
+// ---- Checkout — Redirect to Stripe Payment Link ----
+function handleDonate() {
+  if (!selectedAmount || selectedAmount < 1) return;
+
+  const btn = document.getElementById('donate-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Redirecting to Stripe...';
+
+  // Convert to cents for Stripe's __prefilled_amount parameter
+  const amountInCents = Math.round(selectedAmount * 100);
+
+  // Build the Stripe Payment Link URL with prefilled amount (double underscore!)
+  const donateUrl = `${STRIPE_DONATE_LINK}?__prefilled_amount=${amountInCents}`;
+
+  // Redirect to Stripe's hosted payment page
+  window.location.href = donateUrl;
+}
+  </script>
+</body>
+</html>
