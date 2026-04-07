@@ -45,7 +45,15 @@
         src="book_cover.jpg" 
         alt="The CIA Asset & The Man Who Didn't Take The Bait — Book Cover" 
         class="book-cover"
+        onclick="openLightbox()"
+        style="cursor: zoom-in;"
       >
+    </div>
+    
+    <!-- Lightbox Overlay -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
+      <img src="book_cover.jpg" alt="The CIA Asset & The Man Who Didn't Take The Bait — Book Cover" class="lightbox-image" onclick="event.stopPropagation()">
     </div>
 
     <!-- Title -->
@@ -351,6 +359,30 @@ function copyCryptoAddress() {
     }, 2000);
   });
 }
+
+// ---- Lightbox for Book Cover ----
+function openLightbox() {
+  const lightbox = document.getElementById('lightbox');
+  lightbox.style.display = 'flex';
+  setTimeout(() => lightbox.classList.add('active'), 10);
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  const lightbox = document.getElementById('lightbox');
+  lightbox.classList.remove('active');
+  setTimeout(() => {
+    lightbox.style.display = 'none';
+    document.body.style.overflow = '';
+  }, 300);
+}
+
+// Close lightbox on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeLightbox();
+  }
+});
 
 // ---- Confetti Effect for $3,000 Rockstar Button ----
 function createConfetti(buttonElement) {
