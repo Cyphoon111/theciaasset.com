@@ -818,8 +818,10 @@ body::before {
 }
 
 .lightbox-image {
-  max-width: 90vw;
-  max-height: 90vh;
+  max-width: 85vw;
+  max-height: 85vh;
+  width: auto;
+  height: auto;
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
@@ -829,6 +831,22 @@ body::before {
 
 .lightbox.active .lightbox-image {
   transform: scale(1);
+}
+
+/* Mobile-friendly lightbox */
+@media (max-width: 768px) {
+  .lightbox-image {
+    max-width: 92vw;
+    max-height: 75vh;
+  }
+  
+  .lightbox-close {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+  }
 }
 
 .lightbox-close {
