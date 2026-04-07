@@ -134,6 +134,10 @@
             <span class="crypto-icon eth-icon">Ξ</span>
             <span class="crypto-name">Ethereum</span>
           </button>
+          <button class="crypto-btn" onclick="showCryptoAddress('xrp')">
+            <span class="crypto-icon xrp-icon">✕</span>
+            <span class="crypto-name">XRP</span>
+          </button>
         </div>
 
         <!-- Crypto Address Display -->
@@ -145,6 +149,13 @@
             <code id="crypto-address"></code>
             <button class="copy-btn" onclick="copyCryptoAddress()">
               <span id="copy-text">Copy</span>
+            </button>
+          </div>
+          <div class="crypto-memo-box" id="crypto-memo-box" style="display: none;">
+            <span class="crypto-memo-label">Destination Tag (Memo):</span>
+            <code id="crypto-memo"></code>
+            <button class="copy-btn" onclick="copyCryptoMemo()">
+              <span id="copy-memo-text">Copy</span>
             </button>
           </div>
           <p class="crypto-network" id="crypto-network"></p>
@@ -220,6 +231,13 @@ const CRYPTO_ADDRESSES = {
     address: '0xAA9624E278C17EDEBbae2d817bF3346EA290f79e',
     network: 'Ethereum Network',
     color: '#627EEA'
+  },
+  xrp: {
+    name: 'XRP',
+    address: 'rwnYLUsoBQX3ECa1A5bSKLdbPoHKnqf63J',
+    memo: '301154530',
+    network: 'XRPL Network',
+    color: '#23292F'
   }
 };
 
@@ -353,6 +371,15 @@ function showCryptoAddress(crypto) {
   document.getElementById('crypto-address').textContent = data.address;
   document.getElementById('crypto-network').textContent = `Network: ${data.network}`;
 
+  // Handle memo field for XRP
+  const memoBox = document.getElementById('crypto-memo-box');
+  if (data.memo) {
+    document.getElementById('crypto-memo').textContent = data.memo;
+    memoBox.style.display = 'flex';
+  } else {
+    memoBox.style.display = 'none';
+  }
+
   // Generate QR code using a public API
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data.address)}`;
   document.getElementById('crypto-qr').innerHTML = `<img src="${qrUrl}" alt="QR Code" style="border-radius: 8px;">`;
@@ -373,6 +400,17 @@ function copyCryptoAddress() {
     document.getElementById('copy-text').textContent = 'Copied!';
     setTimeout(() => {
       document.getElementById('copy-text').textContent = 'Copy';
+    }, 2000);
+  });
+}
+
+function copyCryptoMemo() {
+  if (!currentCrypto || !currentCrypto.memo) return;
+  
+  navigator.clipboard.writeText(currentCrypto.memo).then(() => {
+    document.getElementById('copy-memo-text').textContent = 'Copied!';
+    setTimeout(() => {
+      document.getElementById('copy-memo-text').textContent = 'Copy';
     }, 2000);
   });
 }
