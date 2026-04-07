@@ -563,12 +563,9 @@ body::before {
 
 .crypto-section {
   width: 100%;
-  background: var(--dark-card);
-  border: 1px solid var(--dark-border);
-  border-radius: var(--radius);
-  padding: 2rem 1.75rem;
-  box-shadow: var(--shadow-card);
+  padding: 1.5rem 0;
   margin-top: 0.5rem;
+  border-top: 1px solid var(--dark-border);
 }
 
 .crypto-heading {

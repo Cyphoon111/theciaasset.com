@@ -90,6 +90,41 @@
         >
       </div>
 
+      <!-- Crypto Donation Section -->
+      <div class="crypto-section">
+        <h2 class="crypto-heading">💰 Donate Crypto</h2>
+        <p class="crypto-subtitle">Prefer cryptocurrency? Select an option below to get the wallet address.</p>
+        
+        <div class="crypto-buttons">
+          <button class="crypto-btn" onclick="showCryptoAddress('usdc')">
+            <span class="crypto-icon usdc-icon">$</span>
+            <span class="crypto-name">USDC</span>
+          </button>
+          <button class="crypto-btn" onclick="showCryptoAddress('btc')">
+            <span class="crypto-icon btc-icon">₿</span>
+            <span class="crypto-name">Bitcoin</span>
+          </button>
+          <button class="crypto-btn" onclick="showCryptoAddress('eth')">
+            <span class="crypto-icon eth-icon">Ξ</span>
+            <span class="crypto-name">Ethereum</span>
+          </button>
+        </div>
+
+        <!-- Crypto Address Display -->
+        <div class="crypto-address-display" id="crypto-address-display" style="display: none;">
+          <button class="crypto-close-btn" onclick="closeCryptoAddress()">×</button>
+          <h3 id="crypto-title"></h3>
+          <div class="crypto-qr" id="crypto-qr"></div>
+          <div class="crypto-address-box">
+            <code id="crypto-address"></code>
+            <button class="copy-btn" onclick="copyCryptoAddress()">
+              <span id="copy-text">Copy</span>
+            </button>
+          </div>
+          <p class="crypto-network" id="crypto-network"></p>
+        </div>
+      </div>
+
       <!-- Event Invitation Section -->
       <div class="invitation-section">
         <p class="invitation-hook">💥 Your exclusive invitation awaits — but only for those who dare to show up.</p>
@@ -128,41 +163,6 @@
         <span>Secured by Stripe</span>
       </div>
 
-    </div>
-
-    <!-- Crypto Donation Section -->
-    <div class="crypto-section">
-      <h2 class="crypto-heading">💰 Donate Crypto</h2>
-      <p class="crypto-subtitle">Prefer cryptocurrency? Select an option below to get the wallet address.</p>
-      
-      <div class="crypto-buttons">
-        <button class="crypto-btn" onclick="showCryptoAddress('usdc')">
-          <span class="crypto-icon usdc-icon">$</span>
-          <span class="crypto-name">USDC</span>
-        </button>
-        <button class="crypto-btn" onclick="showCryptoAddress('btc')">
-          <span class="crypto-icon btc-icon">₿</span>
-          <span class="crypto-name">Bitcoin</span>
-        </button>
-        <button class="crypto-btn" onclick="showCryptoAddress('eth')">
-          <span class="crypto-icon eth-icon">Ξ</span>
-          <span class="crypto-name">Ethereum</span>
-        </button>
-      </div>
-
-      <!-- Crypto Address Display -->
-      <div class="crypto-address-display" id="crypto-address-display" style="display: none;">
-        <button class="crypto-close-btn" onclick="closeCryptoAddress()">×</button>
-        <h3 id="crypto-title"></h3>
-        <div class="crypto-qr" id="crypto-qr"></div>
-        <div class="crypto-address-box">
-          <code id="crypto-address"></code>
-          <button class="copy-btn" onclick="copyCryptoAddress()">
-            <span id="copy-text">Copy</span>
-          </button>
-        </div>
-        <p class="crypto-network" id="crypto-network"></p>
-      </div>
     </div>
 
     <!-- Footer -->
