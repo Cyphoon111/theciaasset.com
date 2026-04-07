@@ -211,9 +211,18 @@ let selectedAmount = null;
 function selectAmount(amount, btnElement) {
   document.getElementById('custom-amount').value = '';
   document.getElementById('custom-wrapper').classList.remove('focused');
-  document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
-  btnElement.classList.add('selected');
-  selectedAmount = amount;
+  
+  // If clicking the already selected button, unselect it
+  if (btnElement.classList.contains('selected')) {
+    btnElement.classList.remove('selected');
+    selectedAmount = null;
+  } else {
+    // Otherwise, select this button
+    document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
+    btnElement.classList.add('selected');
+    selectedAmount = amount;
+  }
+  
   updateSelectedDisplay();
   updateDonateButton();
 }
