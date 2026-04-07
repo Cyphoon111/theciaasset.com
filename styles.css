@@ -120,6 +120,11 @@ body::before {
   text-shadow: 0 2px 8px rgba(201, 168, 76, 0.2);
 }
 
+.title-section h1 .title-subtitle {
+  white-space: nowrap;
+  display: inline-block;
+}
+
 .title-section .subtitle {
   font-size: 0.95rem;
   color: var(--text-secondary);
