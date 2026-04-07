@@ -50,6 +50,7 @@
     <div class="title-section">
       <h1>The CIA Asset<br>& The Man Who Didn't Take The Bait</h1>
       <p class="subtitle">by Jason Sullivan & Peter Ticktin</p>
+      <p class="tagline">Secure your signed copy now—personally inscribed exactly how you want it—and be among the very first to own this book before it's released to the public.</p>
     </div>
 
     <!-- Donation Card -->
@@ -59,11 +60,18 @@
 
       <!-- Preset Amount Buttons -->
       <div class="amount-grid" id="amount-grid">
+        <button class="amount-btn" data-amount="25" onclick="selectAmount(25, this)">$25</button>
+        <button class="amount-btn" data-amount="50" onclick="selectAmount(50, this)">$50</button>
         <button class="amount-btn" data-amount="100" onclick="selectAmount(100, this)">$100</button>
         <button class="amount-btn" data-amount="500" onclick="selectAmount(500, this)">$500</button>
         <button class="amount-btn" data-amount="1000" onclick="selectAmount(1000, this)">$1,000</button>
         <button class="amount-btn" data-amount="2000" onclick="selectAmount(2000, this)">$2,000</button>
-        <button class="amount-btn" data-amount="3000" onclick="selectAmount(3000, this)">$3,000</button>
+      </div>
+
+      <!-- Rockstar Button -->
+      <div class="rockstar-row">
+        <button class="amount-btn rockstar-btn" data-amount="3000" onclick="selectAmount(3000, this)">$3,000</button>
+        <span class="rockstar-label">🎸 You Are A Rockstar!</span>
       </div>
 
       <!-- Custom Amount -->
@@ -82,6 +90,30 @@
         >
       </div>
 
+      <!-- Event Invitation Section -->
+      <div class="invitation-section">
+        <p class="invitation-hook">💥 Your exclusive invitation awaits — but only for those who dare to show up.</p>
+        
+        <p class="invitation-text">Donate $100 or more and unlock access to the most electric book launch Las Vegas has ever seen.</p>
+        
+        <p class="invitation-text">This isn't a signing table and a cheese platter. This is a private, high-energy evening with Jason Sullivan and Peter Ticktin — in the flesh, in the city that never sleeps, ready to pour everything they've got into one unforgettable night.</p>
+        
+        <div class="invitation-perks">
+          <p>✍️ Personalized book signings. Direct from the authors.</p>
+          <p>🥂 Exceptional food and top-shelf spirits.</p>
+          <p>🎵 Live music that sets the room on fire.</p>
+          <p>🎰 Las Vegas as your backdrop — because nothing less would do.</p>
+        </div>
+        
+        <p class="invitation-bold">One night. Zero regrets.</p>
+        
+        <p class="invitation-text">This is more than a book launch. It's the kind of night people talk about for years — and you're on the short list to be there.</p>
+        
+        <p class="invitation-cta">Secure your spot now. Once it's gone, it's gone. 🔥</p>
+        
+        <p class="invitation-rallycry">Together, we are going to break the Deep State once and for all!</p>
+      </div>
+
       <!-- Selected Amount Display -->
       <div class="selected-display" id="selected-display"></div>
 
@@ -98,6 +130,41 @@
 
     </div>
 
+    <!-- Crypto Donation Section -->
+    <div class="crypto-section">
+      <h2 class="crypto-heading">💰 Donate Crypto</h2>
+      <p class="crypto-subtitle">Prefer cryptocurrency? Select an option below to get the wallet address.</p>
+      
+      <div class="crypto-buttons">
+        <button class="crypto-btn" onclick="showCryptoAddress('usdc')">
+          <span class="crypto-icon usdc-icon">$</span>
+          <span class="crypto-name">USDC</span>
+        </button>
+        <button class="crypto-btn" onclick="showCryptoAddress('btc')">
+          <span class="crypto-icon btc-icon">₿</span>
+          <span class="crypto-name">Bitcoin</span>
+        </button>
+        <button class="crypto-btn" onclick="showCryptoAddress('eth')">
+          <span class="crypto-icon eth-icon">Ξ</span>
+          <span class="crypto-name">Ethereum</span>
+        </button>
+      </div>
+
+      <!-- Crypto Address Display -->
+      <div class="crypto-address-display" id="crypto-address-display" style="display: none;">
+        <button class="crypto-close-btn" onclick="closeCryptoAddress()">×</button>
+        <h3 id="crypto-title"></h3>
+        <div class="crypto-qr" id="crypto-qr"></div>
+        <div class="crypto-address-box">
+          <code id="crypto-address"></code>
+          <button class="copy-btn" onclick="copyCryptoAddress()">
+            <span id="copy-text">Copy</span>
+          </button>
+        </div>
+        <p class="crypto-network" id="crypto-network"></p>
+      </div>
+    </div>
+
     <!-- Footer -->
     <div class="footer">
       <p>&copy; 2025 Jason Sullivan. All rights reserved.</p>
@@ -112,6 +179,30 @@
 
 // Stripe Payment Link base URL (from Stripe Dashboard)
 const STRIPE_DONATE_LINK = 'https://donate.stripe.com/6oUfZi4NdcYa7Yh2ZO08g01';
+
+// Crypto wallet addresses
+const CRYPTO_ADDRESSES = {
+  usdc: {
+    name: 'USDC',
+    address: '0xD312278d42be52ee3C69f2376b2De7C871162773',
+    network: 'Ethereum Network',
+    color: '#2775CA'
+  },
+  btc: {
+    name: 'Bitcoin (BTC)',
+    address: '3LC7SZdXox87GXmgkwZiTM8WC8swsdtsaJ',
+    network: 'Bitcoin Network',
+    color: '#F7931A'
+  },
+  eth: {
+    name: 'Ethereum (ETH)',
+    address: '0xAA9624E278C17EDEBbae2d817bF3346EA290f79e',
+    network: 'Ethereum Network',
+    color: '#627EEA'
+  }
+};
+
+let currentCrypto = null;
 
 // State
 let selectedAmount = null;
@@ -200,6 +291,41 @@ function handleDonate() {
 
   // Redirect to Stripe's hosted payment page
   window.location.href = donateUrl;
+}
+
+// ---- Crypto Functions ----
+function showCryptoAddress(crypto) {
+  const data = CRYPTO_ADDRESSES[crypto];
+  if (!data) return;
+  
+  currentCrypto = data;
+  
+  document.getElementById('crypto-title').textContent = `Send ${data.name}`;
+  document.getElementById('crypto-address').textContent = data.address;
+  document.getElementById('crypto-network').textContent = `Network: ${data.network}`;
+  
+  // Generate QR code using a public API
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data.address)}`;
+  document.getElementById('crypto-qr').innerHTML = `<img src="${qrUrl}" alt="QR Code" style="border-radius: 8px;">`;
+  
+  document.getElementById('crypto-address-display').style.display = 'block';
+  document.getElementById('copy-text').textContent = 'Copy';
+}
+
+function closeCryptoAddress() {
+  document.getElementById('crypto-address-display').style.display = 'none';
+  currentCrypto = null;
+}
+
+function copyCryptoAddress() {
+  if (!currentCrypto) return;
+  
+  navigator.clipboard.writeText(currentCrypto.address).then(() => {
+    document.getElementById('copy-text').textContent = 'Copied!';
+    setTimeout(() => {
+      document.getElementById('copy-text').textContent = 'Copy';
+    }, 2000);
+  });
 }
   </script>
 </body>

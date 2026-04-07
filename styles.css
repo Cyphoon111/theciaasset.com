@@ -126,6 +126,19 @@ body::before {
   font-weight: 400;
 }
 
+.title-section .tagline {
+  font-size: 0.95rem;
+  color: var(--gold-light);
+  font-weight: 400;
+  font-style: italic;
+  margin-top: 1rem;
+  line-height: 1.7;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
+  opacity: 0.9;
+}
+
 /* Donation Card */
 .donation-card {
   width: 100%;
@@ -268,6 +281,115 @@ body::before {
 
 .amount-btn.selected .frequency-hint {
   color: var(--gold-dark);
+}
+
+/* Rockstar Row */
+.rockstar-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.donation-card .rockstar-row .amount-btn.rockstar-btn {
+  background: linear-gradient(135deg, #1a7a2e, #22a53a);
+  border: 2px solid #2ecc40;
+  color: #fff;
+  font-size: 1.15rem;
+  padding: 0.95rem 2rem;
+  min-width: 140px;
+  box-shadow: 0 0 20px rgba(46, 204, 64, 0.25);
+}
+
+.donation-card .rockstar-row .amount-btn.rockstar-btn:hover {
+  background: linear-gradient(135deg, #22a53a, #2ecc40);
+  border-color: #4cdf5a;
+  box-shadow: 0 0 30px rgba(46, 204, 64, 0.4);
+  transform: translateY(-2px);
+}
+
+.donation-card .rockstar-row .amount-btn.rockstar-btn.selected {
+  background: linear-gradient(135deg, #22a53a, #2ecc40);
+  border-color: #4cdf5a;
+  color: #fff;
+  box-shadow: 0 0 35px rgba(46, 204, 64, 0.5);
+}
+
+.rockstar-label {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #2ecc40;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* Invitation Section */
+.invitation-section {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--dark-border);
+  text-align: left;
+}
+
+.invitation-hook {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold);
+  text-align: center;
+  margin-bottom: 1rem;
+  line-height: 1.6;
+}
+
+.invitation-text {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.75;
+  margin-bottom: 1rem;
+}
+
+.invitation-perks {
+  margin: 1.25rem 0;
+  padding-left: 0.25rem;
+}
+
+.invitation-perks p {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin-bottom: 0.6rem;
+  padding-left: 0.25rem;
+}
+
+.invitation-bold {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--gold-light);
+  text-align: center;
+  margin: 1.25rem 0;
+  letter-spacing: 0.03em;
+}
+
+.invitation-cta {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gold);
+  text-align: center;
+  margin: 1.25rem 0;
+}
+
+.invitation-rallycry {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  margin-top: 1.25rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.15), rgba(201, 168, 76, 0.05));
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.02em;
+  line-height: 1.6;
 }
 
 /* Custom Amount Input */
@@ -433,6 +555,178 @@ body::before {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   CRYPTO DONATION SECTION
+   ============================================ */
+
+.crypto-section {
+  width: 100%;
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius);
+  padding: 2rem 1.75rem;
+  box-shadow: var(--shadow-card);
+  margin-top: 0.5rem;
+}
+
+.crypto-heading {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gold-light);
+  margin-bottom: 0.5rem;
+}
+
+.crypto-subtitle {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.crypto-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.crypto-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--dark-surface);
+  border: 2px solid var(--dark-border);
+  border-radius: var(--radius-sm);
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: inherit;
+}
+
+.crypto-btn:hover {
+  border-color: var(--gold-dark);
+  background: rgba(201, 168, 76, 0.06);
+  transform: translateY(-2px);
+}
+
+.crypto-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.usdc-icon {
+  background: linear-gradient(135deg, #2775CA, #3B82F6);
+  color: white;
+}
+
+.btc-icon {
+  background: linear-gradient(135deg, #F7931A, #FFB84D);
+  color: white;
+}
+
+.eth-icon {
+  background: linear-gradient(135deg, #627EEA, #8B9FEF);
+  color: white;
+}
+
+.crypto-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Crypto Address Display */
+.crypto-address-display {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: var(--dark-surface);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+  position: relative;
+}
+
+.crypto-close-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+  transition: var(--transition);
+}
+
+.crypto-close-btn:hover {
+  color: var(--text-primary);
+}
+
+.crypto-address-display h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.crypto-qr {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.crypto-address-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.crypto-address-box code {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  word-break: break-all;
+  text-align: left;
+}
+
+.copy-btn {
+  background: var(--gold);
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--dark);
+  cursor: pointer;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.copy-btn:hover {
+  background: var(--gold-light);
+}
+
+.crypto-network {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-style: italic;
 }
 
 /* Responsive */
