@@ -34,6 +34,8 @@
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas>
 
   <div class="donation-container">
 
@@ -221,6 +223,11 @@ function selectAmount(amount, btnElement) {
     document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
     btnElement.classList.add('selected');
     selectedAmount = amount;
+    
+    // Trigger confetti for $3,000 rockstar donation!
+    if (amount === 3000) {
+      createConfetti(btnElement);
+    }
   }
   
   updateSelectedDisplay();
@@ -343,6 +350,99 @@ function copyCryptoAddress() {
       document.getElementById('copy-text').textContent = 'Copy';
     }, 2000);
   });
+}
+
+// ---- Confetti Effect for $3,000 Rockstar Button ----
+function createConfetti(buttonElement) {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Set canvas size
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  
+  // Get button position
+  const rect = buttonElement.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  
+  // Confetti colors - gold, green, white
+  const colors = ['#FFD700', '#FFA500', '#00FF00', '#FFFFFF', '#FF6B6B', '#4ECDC4'];
+  
+  // Create confetti particles
+  const particles = [];
+  const particleCount = 80;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const angle = (Math.PI * 2 / particleCount) * i + Math.random() * 0.5;
+    const velocity = 8 + Math.random() * 8;
+    
+    particles.push({
+      x: centerX,
+      y: centerY,
+      vx: Math.cos(angle) * velocity,
+      vy: Math.sin(angle) * velocity - 5,
+      size: 6 + Math.random() * 8,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      rotation: Math.random() * 360,
+      rotationSpeed: (Math.random() - 0.5) * 15,
+      gravity: 0.3,
+      opacity: 1,
+      shape: Math.random() > 0.5 ? 'rect' : 'circle'
+    });
+  }
+  
+  // Animate confetti
+  let animationId;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    let activeParticles = 0;
+    
+    particles.forEach(p => {
+      if (p.opacity <= 0) return;
+      
+      activeParticles++;
+      
+      // Update position
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.gravity;
+      p.vx *= 0.99;
+      p.rotation += p.rotationSpeed;
+      
+      // Fade out
+      if (p.y > centerY + 50) {
+        p.opacity -= 0.02;
+      }
+      
+      // Draw particle
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
+      ctx.globalAlpha = Math.max(0, p.opacity);
+      ctx.fillStyle = p.color;
+      
+      if (p.shape === 'rect') {
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+      } else {
+        ctx.beginPath();
+        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      
+      ctx.restore();
+    });
+    
+    if (activeParticles > 0) {
+      animationId = requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      cancelAnimationFrame(animationId);
+    }
+  }
+  
+  animate();
 }
   </script>
 </body>
