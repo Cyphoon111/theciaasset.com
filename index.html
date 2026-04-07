@@ -331,17 +331,23 @@ function handleDonate() {
 function showCryptoAddress(crypto) {
   const data = CRYPTO_ADDRESSES[crypto];
   if (!data) return;
-  
+
+  // If clicking the same crypto that's already open, close it (toggle)
+  if (currentCrypto && currentCrypto.address === data.address) {
+    closeCryptoAddress();
+    return;
+  }
+
   currentCrypto = data;
-  
+
   document.getElementById('crypto-title').textContent = `Send ${data.name}`;
   document.getElementById('crypto-address').textContent = data.address;
   document.getElementById('crypto-network').textContent = `Network: ${data.network}`;
-  
+
   // Generate QR code using a public API
   const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data.address)}`;
   document.getElementById('crypto-qr').innerHTML = `<img src="${qrUrl}" alt="QR Code" style="border-radius: 8px;">`;
-  
+
   document.getElementById('crypto-address-display').style.display = 'block';
   document.getElementById('copy-text').textContent = 'Copy';
 }
