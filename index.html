@@ -258,8 +258,10 @@ function updateSelectedDisplay() {
   if (selectedAmount) {
     const formatted = formatCurrency(selectedAmount);
     display.innerHTML = `You're donating <span>${formatted}</span>`;
+    display.style.display = 'block';
   } else {
     display.innerHTML = '';
+    display.style.display = 'none';
   }
 }
 
@@ -274,7 +276,10 @@ function updateDonateButton() {
     btn.disabled = true;
     btn.textContent = 'Donate Now';
     // Clear the selected display when no amount is selected
-    if (display) display.innerHTML = '';
+    if (display) {
+      display.innerHTML = '';
+      display.style.display = 'none';
+    }
   }
 }
 
