@@ -265,6 +265,7 @@ function updateSelectedDisplay() {
 
 function updateDonateButton() {
   const btn = document.getElementById('donate-btn');
+  const display = document.getElementById('selected-display');
   if (selectedAmount && selectedAmount >= 1) {
     btn.disabled = false;
     const formatted = formatCurrency(selectedAmount);
@@ -272,6 +273,8 @@ function updateDonateButton() {
   } else {
     btn.disabled = true;
     btn.textContent = 'Donate Now';
+    // Clear the selected display when no amount is selected
+    if (display) display.innerHTML = '';
   }
 }
 
