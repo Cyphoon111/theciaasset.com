@@ -392,6 +392,71 @@ body::before {
   line-height: 1.6;
 }
 
+/* Flip Card for Rally Cry */
+.flip-card {
+  perspective: 1000px;
+  margin-top: 1.25rem;
+  cursor: pointer;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  min-height: 80px;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+.flip-card.flipped .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  position: absolute;
+  width: 100%;
+  min-height: 80px;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+.flip-card-front {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.15), rgba(201, 168, 76, 0.05));
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  letter-spacing: 0.02em;
+  line-height: 1.6;
+}
+
+.flip-card-front p {
+  margin: 0;
+}
+
+.flip-card-back {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--gold);
+  text-align: center;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.25), rgba(201, 168, 76, 0.1));
+  border: 2px solid var(--gold);
+  transform: rotateY(180deg);
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+}
+
+.flip-card-back p {
+  margin: 0;
+}
+
 /* Custom Amount Input */
 .custom-amount-wrapper {
   position: relative;
