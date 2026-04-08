@@ -128,7 +128,7 @@
           placeholder="your@email.com"
           autocomplete="email"
         >
-        <p class="email-note">Minimum $25 donation required for the sneak peek PDF.</p>
+        <p class="email-note">Minimum $1 donation required for the sneak peek PDF.</p>
       </div>
 
       <!-- Donate Button -->
@@ -199,7 +199,7 @@
               >
               <button class="crypto-email-btn" onclick="handleCryptoPDFRequest()">Send PDF</button>
             </div>
-            <p class="email-note">Enter the amount you donated and your email. Minimum $25 required.</p>
+            <p class="email-note">Enter the amount you donated and your email. Minimum $1 required.</p>
             <div class="crypto-amount-row">
               <span class="dollar-sign">$</span>
               <input 
@@ -428,7 +428,7 @@ function handleDonate() {
   const btn = document.getElementById('donate-btn');
   
   // Store email and amount for after Stripe redirect
-  if (email && email.includes('@') && selectedAmount >= 25) {
+  if (email && email.includes('@') && selectedAmount >= 1) {
     localStorage.setItem('donorEmail', email);
     localStorage.setItem('donorAmount', selectedAmount);
     localStorage.setItem('donorType', 'card');
@@ -458,7 +458,7 @@ function handleDonate() {
     const amount = localStorage.getItem('donorAmount');
     const type = localStorage.getItem('donorType');
     
-    if (email && amount && parseFloat(amount) >= 25) {
+    if (email && amount && parseFloat(amount) >= 1) {
       sendPDFViaGitHub(email, amount, type || 'card');
       localStorage.removeItem('donorEmail');
       localStorage.removeItem('donorAmount');
@@ -483,8 +483,8 @@ function handleCryptoPDFRequest() {
     return;
   }
 
-  if (!amountInput || isNaN(amount) || amount < 25) {
-    alert('A minimum donation of $25 is required to receive the sneak peek PDF. Please enter the amount you donated.');
+  if (!amountInput || isNaN(amount) || amount < 1) {
+    alert('A minimum donation of $1 is required to receive the sneak peek PDF. Please enter the amount you donated.');
     return;
   }
 
