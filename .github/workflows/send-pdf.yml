@@ -71,7 +71,8 @@ jobs:
               "html": html,
               "attachments": [{
                   "filename": "The-CIA-Asset-Sneak-Peek.pdf",
-                  "content": pdf_b64
+                  "content": pdf_b64,
+                  "type": "application/pdf"
               }]
           }
 
