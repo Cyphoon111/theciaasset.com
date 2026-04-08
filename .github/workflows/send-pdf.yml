@@ -75,21 +75,31 @@ jobs:
               }]
           }
 
-          resp = requests.post(
-              "https://api.resend.com/emails",
-              headers={
-                  "Authorization": f"Bearer {api_key}",
-                  "Content-Type": "application/json"
-              },
-              json=payload
-          )
+          # Try custom domain first, fallback to onboarding@resend.dev
+          from_addresses = [
+              "The CIA Asset <donations@theciaasset.com>",
+              "The CIA Asset <onboarding@resend.dev>"
+          ]
 
-          print(f"Response: {resp.status_code}")
-          print(resp.json())
-
-          if resp.status_code == 200:
-              print(f"Email sent successfully to {email}!")
+          for from_addr in from_addresses:
+              payload["from"] = from_addr
+              resp = requests.post(
+                  "https://api.resend.com/emails",
+                  headers={
+                      "Authorization": f"Bearer {api_key}",
+                      "Content-Type": "application/json"
+                  },
+                  json=payload
+              )
+              print(f"From: {from_addr}")
+              print(f"Response: {resp.status_code}")
+              print(resp.json())
+              if resp.status_code == 200:
+                  print(f"Email sent successfully to {email}!")
+                  break
+              else:
+                  print(f"Failed with {from_addr}, trying next...")
           else:
-              print(f"Failed to send email: {resp.text}")
+              print(f"All send attempts failed")
               exit(1)
           PYEOF
