@@ -1,0 +1,95 @@
+name: Send PDF to Donor
+
+on:
+  repository_dispatch:
+    types: [send-pdf]
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Validate and Send Email
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DONOR_EMAIL: ${{ github.event.client_payload.email }}
+          DONATION_AMOUNT: ${{ github.event.client_payload.amount }}
+          DONATION_TYPE: ${{ github.event.client_payload.type }}
+        run: |
+          python3 << 'PYEOF'
+          import os, json, base64, requests
+
+          email = os.environ.get("DONOR_EMAIL", "")
+          amount = os.environ.get("DONATION_AMOUNT", "0")
+          dtype = os.environ.get("DONATION_TYPE", "card")
+          api_key = os.environ.get("RESEND_API_KEY", "")
+
+          print(f"Processing: {email}, ${amount}, type={dtype}")
+
+          # Validate email
+          if not email or "@" not in email:
+              print(f"Invalid email: {email}")
+              exit(1)
+
+          # Validate minimum
+          try:
+              amt = float(amount)
+          except:
+              amt = 0
+          if amt < 25:
+              print(f"Amount ${amt} below $25 minimum. Skipping.")
+              exit(0)
+
+          # Read and encode PDF
+          with open("The-CIA-Asset-Print.pdf", "rb") as f:
+              pdf_b64 = base64.b64encode(f.read()).decode()
+
+          # Build HTML
+          html = f"""<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#0a0a0a;color:#e0e0e0;padding:40px 30px;border:1px solid #333;">
+          <div style="text-align:center;margin-bottom:30px;">
+          <h1 style="color:#C9A84C;font-size:24px;margin-bottom:5px;">The CIA Asset</h1>
+          <h2 style="color:#C0C0C0;font-size:18px;font-weight:normal;margin-top:0;">& The Man Who Didn&#39;t Take The Bait</h2>
+          </div>
+          <p style="font-size:16px;line-height:1.8;color:#e0e0e0;">Thank you for your generous donation of <strong style="color:#C9A84C;">${amt:.0f}</strong>.</p>
+          <p style="font-size:16px;line-height:1.8;color:#e0e0e0;">As promised, attached is your exclusive <strong>sneak peek of the first few chapters</strong> of <em style="color:#C9A84C;">The CIA Asset & The Man Who Didn&#39;t Take The Bait</em>.</p>
+          <p style="font-size:16px;line-height:1.8;color:#e0e0e0;">This is not a true-crime story about Jeffrey Epstein and his island. This book starts at the true beginning &#8212; and what you&#39;re about to read will change everything you thought you knew.</p>
+          <div style="text-align:center;margin:30px 0;padding:20px;border:1px solid #C9A84C;border-radius:8px;">
+          <p style="color:#C9A84C;font-size:18px;font-weight:bold;margin:0;">Together, we are going to break the Deep State once and for all!</p>
+          </div>
+          <p style="font-size:14px;color:#888;text-align:center;">&#169; 2026 Jason Sullivan. All rights reserved.</p>
+          </div>"""
+
+          payload = {
+              "from": "The CIA Asset <donations@theciaasset.com>",
+              "to": email,
+              "subject": "Your Sneak Peek - The CIA Asset & The Man Who Didn't Take The Bait",
+              "html": html,
+              "attachments": [{
+                  "filename": "The-CIA-Asset-Sneak-Peek.pdf",
+                  "content": pdf_b64
+              }]
+          }
+
+          resp = requests.post(
+              "https://api.resend.com/emails",
+              headers={
+                  "Authorization": f"Bearer {api_key}",
+                  "Content-Type": "application/json"
+              },
+              json=payload
+          )
+
+          print(f"Response: {resp.status_code}")
+          print(resp.json())
+
+          if resp.status_code == 200:
+              print(f"Email sent successfully to {email}!")
+          else:
+              print(f"Failed to send email: {resp.text}")
+              exit(1)
+          PYEOF
