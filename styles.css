@@ -184,6 +184,25 @@ body::before {
   font-style: italic;
 }
 
+/* Contribution Callout */
+.contribution-callout {
+  max-width: 600px;
+  margin: 0 auto 1.5rem auto;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, rgba(201, 168, 76, 0.15) 0%, rgba(180, 150, 60, 0.1) 100%);
+  border: 1px solid var(--gold);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.contribution-callout p {
+  font-size: 1rem;
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-weight: 500;
+  margin: 0;
+}
+
 /* Donation Card */
 .donation-card {
   width: 100%;
