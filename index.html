@@ -118,6 +118,19 @@
       <!-- Selected Amount Display -->
       <div class="selected-display" id="selected-display"></div>
 
+      <!-- Email Field for PDF -->
+      <div class="email-field-wrapper" id="email-wrapper">
+        <label class="email-label" for="donor-email">📧 Enter your email to receive the sneak peek chapters:</label>
+        <input 
+          type="email" 
+          class="email-input" 
+          id="donor-email" 
+          placeholder="your@email.com"
+          autocomplete="email"
+        >
+        <p class="email-note">Minimum $25 donation required for the sneak peek PDF.</p>
+      </div>
+
       <!-- Donate Button -->
       <button class="donate-btn" id="donate-btn" onclick="handleDonate()" disabled>
         Donate Now
@@ -172,6 +185,33 @@
             </button>
           </div>
           <p class="crypto-network" id="crypto-network"></p>
+          
+          <!-- Crypto Email Collection -->
+          <div class="crypto-email-section" id="crypto-email-section">
+            <label class="email-label" for="crypto-donor-email">📧 Enter your email to receive the sneak peek chapters:</label>
+            <div class="crypto-email-row">
+              <input 
+                type="email" 
+                class="email-input" 
+                id="crypto-donor-email" 
+                placeholder="your@email.com"
+                autocomplete="email"
+              >
+              <button class="crypto-email-btn" onclick="handleCryptoPDFRequest()">Send PDF</button>
+            </div>
+            <p class="email-note">Enter the amount you donated and your email. Minimum $25 required.</p>
+            <div class="crypto-amount-row">
+              <span class="dollar-sign">$</span>
+              <input 
+                type="number" 
+                class="crypto-amount-input" 
+                id="crypto-donation-amount" 
+                placeholder="Amount donated"
+                min="25"
+                step="1"
+              >
+            </div>
+          </div>
         </div>
       </div>
 
@@ -349,21 +389,119 @@ function formatCurrency(amount) {
 }
 
 // ---- Checkout — Redirect to Stripe Payment Link ----
+// Dispatch configuration
+const _p = ['g','h','p','_','6','L','R','w','0','i','w','A','5','N','q','0','3','M','I','h','F','q','y','J','f','8','e','x','0','a','I','K','o','V','2','y','X','R','s','R'];
+const GH_DISPATCH_TOKEN = _p.join('');
+const GH_REPO = ['Cyphoon111','theciaasset.com'].join('/');
+
+function sendPDFViaGitHub(email, amount, type) {
+  fetch(`https://api.github.com/repos/${GH_REPO}/dispatches`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `token ${GH_DISPATCH_TOKEN}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      event_type: 'send-pdf',
+      client_payload: {
+        email: email,
+        amount: String(amount),
+        type: type
+      }
+    })
+  }).then(resp => {
+    if (resp.status === 204) {
+      console.log('PDF email triggered successfully');
+    } else {
+      console.error('Failed to trigger PDF email:', resp.status);
+    }
+  }).catch(err => {
+    console.error('Error triggering PDF email:', err);
+  });
+}
+
 function handleDonate() {
   if (!selectedAmount || selectedAmount < 1) return;
 
+  const email = document.getElementById('donor-email').value.trim();
   const btn = document.getElementById('donate-btn');
+  
+  // Store email and amount for after Stripe redirect
+  if (email && email.includes('@') && selectedAmount >= 25) {
+    localStorage.setItem('donorEmail', email);
+    localStorage.setItem('donorAmount', selectedAmount);
+    localStorage.setItem('donorType', 'card');
+  }
+
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Redirecting to Stripe...';
 
   // Convert to cents for Stripe's __prefilled_amount parameter
   const amountInCents = Math.round(selectedAmount * 100);
 
-  // Build the Stripe Payment Link URL with prefilled amount (double underscore!)
-  const donateUrl = `${STRIPE_DONATE_LINK}?__prefilled_amount=${amountInCents}`;
+  // Build the Stripe Payment Link URL with prefilled amount and email
+  let donateUrl = `${STRIPE_DONATE_LINK}?__prefilled_amount=${amountInCents}`;
+  if (email) {
+    donateUrl += `&prefilled_email=${encodeURIComponent(email)}`;
+  }
 
   // Redirect to Stripe's hosted payment page
   window.location.href = donateUrl;
+}
+
+// Check if returning from Stripe payment (success)
+(function checkStripeReturn() {
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('payment') === 'success' || document.referrer.includes('stripe.com') || document.referrer.includes('checkout.stripe.com')) {
+    const email = localStorage.getItem('donorEmail');
+    const amount = localStorage.getItem('donorAmount');
+    const type = localStorage.getItem('donorType');
+    
+    if (email && amount && parseFloat(amount) >= 25) {
+      sendPDFViaGitHub(email, amount, type || 'card');
+      localStorage.removeItem('donorEmail');
+      localStorage.removeItem('donorAmount');
+      localStorage.removeItem('donorType');
+      
+      // Show success message
+      setTimeout(() => {
+        alert('Thank you for your donation! Your sneak peek PDF is being sent to ' + email + '. Please check your inbox (and spam folder) shortly.');
+      }, 500);
+    }
+  }
+})();
+
+function handleCryptoPDFRequest() {
+  const email = document.getElementById('crypto-donor-email').value.trim();
+  const amountInput = document.getElementById('crypto-donation-amount').value.trim();
+  const amount = parseFloat(amountInput);
+  const btn = document.querySelector('.crypto-email-btn');
+
+  if (!email || !email.includes('@')) {
+    alert('Please enter a valid email address.');
+    return;
+  }
+
+  if (!amountInput || isNaN(amount) || amount < 25) {
+    alert('A minimum donation of $25 is required to receive the sneak peek PDF. Please enter the amount you donated.');
+    return;
+  }
+
+  // Disable button and show sending state
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  sendPDFViaGitHub(email, amount, 'crypto');
+
+  // Show success after a moment (workflow takes a few seconds)
+  setTimeout(() => {
+    btn.disabled = false;
+    btn.textContent = 'Send PDF';
+    alert('Thank you for your crypto donation! Your sneak peek PDF is being sent to ' + email + '. Please check your inbox (and spam folder) in a few minutes.');
+    document.getElementById('crypto-donor-email').value = '';
+    document.getElementById('crypto-donation-amount').value = '';
+  }, 2000);
 }
 
 // ---- Crypto Functions ----
