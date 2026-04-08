@@ -41,8 +41,8 @@ jobs:
               amt = float(amount)
           except:
               amt = 0
-          if amt < 25:
-              print(f"Amount ${amt} below $25 minimum. Skipping.")
+          if amt < 1:
+              print(f"Amount ${amt} below $1 minimum. Skipping.")
               exit(0)
 
           # Read and encode PDF
