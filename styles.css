@@ -149,6 +149,41 @@ body::before {
   opacity: 0.9;
 }
 
+/* Book Introduction Section */
+.introduction-section {
+  max-width: 600px;
+  margin: 0 auto 1.5rem auto;
+  padding: 1.5rem;
+  background: linear-gradient(145deg, rgba(30, 35, 45, 0.8) 0%, rgba(20, 25, 35, 0.9) 100%);
+  border: 1px solid var(--dark-border);
+  border-radius: var(--radius-md);
+}
+
+.introduction-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 0.15em;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.introduction-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.introduction-text:last-child {
+  margin-bottom: 0;
+}
+
+.introduction-text em {
+  color: var(--gold-light);
+  font-style: italic;
+}
+
 /* Donation Card */
 .donation-card {
   width: 100%;
