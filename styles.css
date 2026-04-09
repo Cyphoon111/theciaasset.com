@@ -80,9 +80,9 @@ body::before {
 .book-cover-container {
   width: 100%;
   display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 0.75rem;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
 }
 
 .book-cover-wrapper {
@@ -92,12 +92,35 @@ body::before {
 }
 
 .tap-hint {
-  color: #888;
-  font-size: 11px;
-  line-height: 1.4;
-  text-align: left;
-  margin-top: 10px;
+  color: #666;
+  font-size: 10px;
+  line-height: 1.3;
+  text-align: center;
+  margin-top: 8px;
   font-style: italic;
+}
+
+/* On desktop, show hint to the left of the image */
+@media (min-width: 768px) {
+  .book-cover-container {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .book-cover-wrapper {
+    order: 2;
+  }
+  
+  .tap-hint {
+    order: 1;
+    text-align: right;
+    margin-top: 12px;
+    margin-right: 0;
+    writing-mode: horizontal-tb;
+    max-width: 70px;
+  }
 }
 
 .book-cover {
