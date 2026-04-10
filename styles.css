@@ -92,7 +92,7 @@ body::before {
 .tap-hint {
   position: absolute;
   left: -48px;
-  top: 55%;
+  top: 65%;
   transform: translateY(-50%);
   width: 40px;
   color: #C9A84C;
