@@ -64,18 +64,18 @@ jobs:
           <p style="font-size:14px;color:#888;text-align:center;">&#169; 2026 Jason Sullivan. All rights reserved.</p>
           </div>"""
 
-          # Build plain-text version (improves deliverability — multipart emails score higher)
-          plain_text = f"""The CIA Asset & The Man Who Didn't Take The Bait
-
-Thank you for your generous donation of ${amt:.0f}.
-
-As promised, attached is your exclusive sneak peek of the first few chapters of The CIA Asset & The Man Who Didn't Take The Bait.
-
-This is not a true-crime story about Jeffrey Epstein and his island. This book starts at the true beginning — and what you're about to read will change everything you thought you knew.
-
-Together, we are going to break the Deep State once and for all!
-
-© 2026 Jason Sullivan. All rights reserved."""
+          # Build plain-text version (improves deliverability - multipart emails score higher)
+          plain_text = (
+              "The CIA Asset & The Man Who Didn't Take The Bait\n\n"
+              f"Thank you for your generous donation of ${amt:.0f}.\n\n"
+              "As promised, attached is your exclusive sneak peek of the first few chapters "
+              "of The CIA Asset & The Man Who Didn't Take The Bait.\n\n"
+              "This is not a true-crime story about Jeffrey Epstein and his island. "
+              "This book starts at the true beginning - and what you're about to read "
+              "will change everything you thought you knew.\n\n"
+              "Together, we are going to break the Deep State once and for all!\n\n"
+              "(c) 2026 Jason Sullivan. All rights reserved."
+          )
 
           # Build Resend API payload with deliverability best practices
           payload = {
