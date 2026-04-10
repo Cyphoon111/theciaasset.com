@@ -1,0 +1,123 @@
+name: Send Promotional Email
+
+on:
+  repository_dispatch:
+    types: [send-promo]
+
+jobs:
+  send-promo:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Send Promotional Email
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RECIPIENT_EMAIL: ${{ github.event.client_payload.email }}
+          RECIPIENT_NAME: ${{ github.event.client_payload.name }}
+        run: |
+          python3 << 'PYEOF'
+          import os, json, requests
+
+          recipient = os.environ.get("RECIPIENT_EMAIL", "")
+          name = os.environ.get("RECIPIENT_NAME", "")
+          api_key = os.environ.get("RESEND_API_KEY", "")
+
+          if not recipient or "@" not in recipient:
+              print(f"Invalid email: {recipient}")
+              exit(1)
+
+          # Read the promo email HTML template
+          with open("promo-email.html", "r") as f:
+              html = f.read()
+
+          # Plain-text version for deliverability
+          plain_text = (
+              "THE CIA ASSET & THE MAN WHO DIDN'T TAKE THE BAIT\n"
+              "by Jason Sullivan & Peter Ticktin\n\n"
+              "Secure your signed copy now - personally inscribed exactly how you "
+              "want it - and be among the very first to own this book before it's "
+              "released to the public.\n\n"
+              "---\n\n"
+              "INTRODUCTION\n\n"
+              "This is not a true-crime story about Jeffrey Epstein and his island. "
+              "Every prior treatment begins at the end - with the girls, the flight "
+              "logs, the famous names - and works backward, never reaching a "
+              "satisfying origin.\n\n"
+              "The CIA Asset & The Man Who Didn't Take The Bait starts at the true "
+              "beginning: the covert intelligence and financial apparatus the United "
+              "States government constructed during World War II, how it was funded "
+              "outside congressional oversight for eight decades, and how an "
+              "unremarkable boy from a working-class family in Brooklyn was "
+              "identified, groomed, and deployed as one of its most valuable "
+              "financial and blackmail operatives.\n\n"
+              "Epstein is not the story - he is the instrument through which the "
+              "apparatus becomes visible.\n\n"
+              "This machine did not die in a jail cell on August 10, 2019... "
+              "it is still running.\n\n"
+              "---\n\n"
+              "SUPPORT THIS BOOK\n\n"
+              "Anyone who contributes will directly accelerate the completion of "
+              "this book and will receive an immediate sneak peek of the first few "
+              "chapters delivered via email.\n\n"
+              "Donate now: https://theciaasset.com\n\n"
+              "Choose your amount:\n"
+              "  $25  - https://theciaasset.com?amount=25\n"
+              "  $50  - https://theciaasset.com?amount=50\n"
+              "  $100 - https://theciaasset.com?amount=100\n"
+              "  $500 - https://theciaasset.com?amount=500\n"
+              "  $1,000 - https://theciaasset.com?amount=1000\n"
+              "  $2,000 - https://theciaasset.com?amount=2000\n"
+              "  $3,000 - https://theciaasset.com?amount=3000\n\n"
+              "We also accept crypto: USDC, Bitcoin, Ethereum, and XRP\n"
+              "Visit https://theciaasset.com for wallet addresses.\n\n"
+              "---\n\n"
+              "EXCLUSIVE LAS VEGAS EVENT\n\n"
+              "Donate $100 or more and unlock access to the most electric book "
+              "launch Las Vegas has ever seen.\n\n"
+              "- Personalized book signings from the authors\n"
+              "- Exceptional food and top-shelf spirits\n"
+              "- Live music\n"
+              "- One night. Zero regrets.\n\n"
+              "---\n\n"
+              "Together, we are going to break the Deep State once and for all!\n\n"
+              "(c) 2026 Jason Sullivan. All rights reserved.\n\n"
+              "Unsubscribe: Reply with 'unsubscribe' or email "
+              "donations@theciaasset.com"
+          )
+
+          payload = {
+              "from": "Jason Sullivan <donations@theciaasset.com>",
+              "reply_to": "cyphoon@protonmail.com",
+              "to": recipient,
+              "subject": "The Untold Origin Story They Don't Want You to Read",
+              "html": html,
+              "text": plain_text,
+              "headers": {
+                  "List-Unsubscribe": "<mailto:donations@theciaasset.com?subject=unsubscribe>",
+                  "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+              }
+          }
+
+          resp = requests.post(
+              "https://api.resend.com/emails",
+              headers={
+                  "Authorization": f"Bearer {api_key}",
+                  "Content-Type": "application/json"
+              },
+              json=payload
+          )
+          print(f"To: {recipient}")
+          print(f"Response: {resp.status_code}")
+          print(resp.json())
+
+          if resp.status_code == 200:
+              print(f"Promotional email sent successfully to {recipient}!")
+          else:
+              print(f"Failed to send promotional email!")
+              exit(1)
+          PYEOF

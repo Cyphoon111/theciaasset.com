@@ -453,6 +453,30 @@ function handleDonate() {
   window.location.href = donateUrl;
 }
 
+// Check for URL parameters to pre-select amount
+(function checkURLParams() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const presetAmount = urlParams.get('amount');
+  if (presetAmount) {
+    const amt = parseFloat(presetAmount);
+    if (amt && amt >= 1) {
+      // Find matching preset button or use custom input
+      const matchBtn = document.querySelector(`.amount-btn[data-amount="${amt}"]`);
+      if (matchBtn) {
+        selectAmount(amt, matchBtn);
+      } else {
+        document.getElementById('custom-amount').value = amt;
+        handleCustomInput();
+        document.getElementById('custom-wrapper').classList.add('focused');
+      }
+      // Scroll to donation card
+      setTimeout(() => {
+        document.querySelector('.donation-card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    }
+  }
+})();
+
 // Check if returning from Stripe payment (success)
 (function checkStripeReturn() {
   const urlParams = new URLSearchParams(window.location.search);
