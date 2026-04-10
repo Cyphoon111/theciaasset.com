@@ -49,7 +49,7 @@ jobs:
           with open("The-CIA-Asset-Print.pdf", "rb") as f:
               pdf_b64 = base64.b64encode(f.read()).decode()
 
-          # Build HTML
+          # Build HTML email
           html = f"""<div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;background:#0a0a0a;color:#e0e0e0;padding:40px 30px;border:1px solid #333;">
           <div style="text-align:center;margin-bottom:30px;">
           <h1 style="color:#C9A84C;font-size:24px;margin-bottom:5px;">The CIA Asset</h1>
@@ -64,11 +64,31 @@ jobs:
           <p style="font-size:14px;color:#888;text-align:center;">&#169; 2026 Jason Sullivan. All rights reserved.</p>
           </div>"""
 
+          # Build plain-text version (improves deliverability — multipart emails score higher)
+          plain_text = f"""The CIA Asset & The Man Who Didn't Take The Bait
+
+Thank you for your generous donation of ${amt:.0f}.
+
+As promised, attached is your exclusive sneak peek of the first few chapters of The CIA Asset & The Man Who Didn't Take The Bait.
+
+This is not a true-crime story about Jeffrey Epstein and his island. This book starts at the true beginning — and what you're about to read will change everything you thought you knew.
+
+Together, we are going to break the Deep State once and for all!
+
+© 2026 Jason Sullivan. All rights reserved."""
+
+          # Build Resend API payload with deliverability best practices
           payload = {
               "from": "The CIA Asset <donations@theciaasset.com>",
+              "reply_to": "cyphoon@protonmail.com",
               "to": email,
               "subject": "Your Sneak Peek - The CIA Asset & The Man Who Didn't Take The Bait",
               "html": html,
+              "text": plain_text,
+              "headers": {
+                  "List-Unsubscribe": "<mailto:donations@theciaasset.com?subject=unsubscribe>",
+                  "List-Unsubscribe-Post": "List-Unsubscribe=One-Click"
+              },
               "attachments": [{
                   "filename": "The-CIA-Asset-Sneak-Peek.pdf",
                   "content": pdf_b64,
@@ -76,31 +96,23 @@ jobs:
               }]
           }
 
-          # Try custom domain first, fallback to onboarding@resend.dev
-          from_addresses = [
-              "The CIA Asset <donations@theciaasset.com>",
-              "The CIA Asset <onboarding@resend.dev>"
-          ]
+          # Send email — single verified domain only (no fallback to resend.dev)
+          resp = requests.post(
+              "https://api.resend.com/emails",
+              headers={
+                  "Authorization": f"Bearer {api_key}",
+                  "Content-Type": "application/json"
+              },
+              json=payload
+          )
+          print(f"From: donations@theciaasset.com")
+          print(f"To: {email}")
+          print(f"Response: {resp.status_code}")
+          print(resp.json())
 
-          for from_addr in from_addresses:
-              payload["from"] = from_addr
-              resp = requests.post(
-                  "https://api.resend.com/emails",
-                  headers={
-                      "Authorization": f"Bearer {api_key}",
-                      "Content-Type": "application/json"
-                  },
-                  json=payload
-              )
-              print(f"From: {from_addr}")
-              print(f"Response: {resp.status_code}")
-              print(resp.json())
-              if resp.status_code == 200:
-                  print(f"Email sent successfully to {email}!")
-                  break
-              else:
-                  print(f"Failed with {from_addr}, trying next...")
+          if resp.status_code == 200:
+              print(f"Email sent successfully to {email}!")
           else:
-              print(f"All send attempts failed")
+              print(f"Email send failed!")
               exit(1)
           PYEOF
