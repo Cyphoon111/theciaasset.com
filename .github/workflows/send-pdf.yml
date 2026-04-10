@@ -23,7 +23,7 @@ jobs:
         run: |
           python3 << 'PYEOF'
           import os, json, base64, requests
-          from datetime import datetime, timezone
+          from datetime import datetime, timezone, timedelta
 
           email = os.environ.get("DONOR_EMAIL", "")
           amount = os.environ.get("DONATION_AMOUNT", "0")
@@ -123,7 +123,10 @@ jobs:
           # ========================================
           # DONATION ALERT to Owner
           # ========================================
-          now = datetime.now(timezone.utc).strftime("%B %d, %Y at %I:%M %p UTC")
+          # Pacific Time (PDT is UTC-7, PST is UTC-8)
+          pacific_offset = timedelta(hours=-7)  # PDT
+          pacific_tz = timezone(pacific_offset)
+          now = datetime.now(timezone.utc).astimezone(pacific_tz).strftime("%B %d, %Y at %I:%M %p Pacific")
           donation_method = dtype.upper() if dtype else "CARD"
           peek_status = "YES - PDF Sent" if sneak_peek_sent else "NO"
 
