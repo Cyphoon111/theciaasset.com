@@ -318,7 +318,9 @@ function selectAmount(amount, btnElement) {
     
     // Trigger confetti for $3,000 rockstar donation!
     if (amount === 3000) {
-      createConfetti(btnElement);
+      setTimeout(() => {
+        createConfetti(btnElement);
+      }, 2000);
     }
   }
   
