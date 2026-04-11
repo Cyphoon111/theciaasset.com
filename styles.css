@@ -608,6 +608,62 @@ body::before {
   margin-bottom: 1rem;
 }
 
+/* Animated Red Arrow Callout */
+.arrow-callout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  animation: arrowPulse 1.2s ease-in-out infinite;
+}
+
+.red-arrow {
+  font-size: 2.2rem;
+  color: #ff1a1a;
+  display: inline-block;
+  animation: arrowBounce 1.2s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px rgba(255, 26, 26, 0.7));
+  line-height: 1;
+}
+
+.arrow-text {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ff1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: textFlash 1.2s ease-in-out infinite;
+}
+
+@keyframes arrowBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes textFlash {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes arrowPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
 .email-label {
   display: block;
   font-size: 0.9rem;
