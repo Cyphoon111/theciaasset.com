@@ -347,7 +347,7 @@ function handleCustomInput() {
   const value = parseFloat(input.value);
   document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
   // Track the value even if < $10 so we can show the minimum note
-  if (value && value > 0) {
+  if (!isNaN(value) && value > 0) {
     selectedAmount = value;
   } else {
     selectedAmount = null;
