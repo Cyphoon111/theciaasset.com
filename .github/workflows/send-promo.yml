@@ -96,7 +96,7 @@ jobs:
               "from": "Jason Sullivan <donations@theciaasset.com>",
               "reply_to": "cyphoon@protonmail.com",
               "to": recipient,
-              "subject": "The Untold Origin Story of Jeffrey Epstein: What They Don't Want You to Read",
+              "subject": "The Untold Origin Story of Jeffrey Epstein: The CIA Asset",
               "html": html,
               "text": plain_text,
               "headers": {
