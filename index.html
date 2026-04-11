@@ -133,7 +133,7 @@
           placeholder="your@email.com"
           autocomplete="email"
         >
-        <p class="email-note">Minimum $10 donation required for the sneak peek PDF.</p>
+        <p class="email-note" id="minimum-note" style="display: none;">Minimum $10 donation required for the sneak peek PDF.</p>
       </div>
 
       <!-- Donate Button -->
@@ -371,10 +371,12 @@ function updateSelectedDisplay() {
 function updateDonateButton() {
   const btn = document.getElementById('donate-btn');
   const display = document.getElementById('selected-display');
+  const minNote = document.getElementById('minimum-note');
   if (selectedAmount && selectedAmount >= 10) {
     btn.disabled = false;
     const formatted = formatCurrency(selectedAmount);
     btn.textContent = `Donate ${formatted}`;
+    if (minNote) minNote.style.display = 'none';
   } else {
     btn.disabled = true;
     btn.textContent = 'Donate Now';
@@ -382,6 +384,12 @@ function updateDonateButton() {
     if (display) {
       display.innerHTML = '';
       display.style.display = 'none';
+    }
+    // Show minimum note only when an amount < $10 is selected
+    if (minNote && selectedAmount && selectedAmount < 10) {
+      minNote.style.display = 'block';
+    } else if (minNote) {
+      minNote.style.display = 'none';
     }
   }
 }
