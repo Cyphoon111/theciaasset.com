@@ -231,6 +231,14 @@ body::before {
   margin: 0;
 }
 
+.contribution-callout .callout-highlight {
+  font-size: 1rem;
+  color: var(--gold);
+  line-height: 1.7;
+  font-weight: 600;
+  margin: 0.75rem 0 0 0;
+}
+
 /* Donation Card */
 .donation-card {
   width: 100%;
