@@ -66,6 +66,8 @@ jobs:
               "chapters delivered via email.\n\n"
               "Donate now: https://theciaasset.com\n\n"
               "Choose your amount:\n"
+              "  $1   - https://theciaasset.com?amount=1\n"
+              "  $10  - https://theciaasset.com?amount=10\n"
               "  $25  - https://theciaasset.com?amount=25\n"
               "  $50  - https://theciaasset.com?amount=50\n"
               "  $100 - https://theciaasset.com?amount=100\n"
