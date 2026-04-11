@@ -133,7 +133,7 @@
           placeholder="your@email.com"
           autocomplete="email"
         >
-        <p class="email-note">Minimum $1 donation required for the sneak peek PDF.</p>
+        <p class="email-note">Minimum $10 donation required for the sneak peek PDF.</p>
       </div>
 
       <!-- Donate Button -->
@@ -204,7 +204,7 @@
               >
               <button class="crypto-email-btn" onclick="handleCryptoPDFRequest()">Send PDF</button>
             </div>
-            <p class="email-note">Enter the amount you donated and your email. Minimum $1 required.</p>
+            <p class="email-note">Enter the amount you donated and your email. Minimum $10 required.</p>
             <div class="crypto-amount-row">
               <span class="dollar-sign">$</span>
               <input 
@@ -346,7 +346,7 @@ function handleCustomInput() {
   const input = document.getElementById('custom-amount');
   const value = parseFloat(input.value);
   document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
-  if (value && value >= 1) {
+  if (value && value >= 10) {
     selectedAmount = value;
   } else {
     selectedAmount = null;
@@ -371,7 +371,7 @@ function updateSelectedDisplay() {
 function updateDonateButton() {
   const btn = document.getElementById('donate-btn');
   const display = document.getElementById('selected-display');
-  if (selectedAmount && selectedAmount >= 1) {
+  if (selectedAmount && selectedAmount >= 10) {
     btn.disabled = false;
     const formatted = formatCurrency(selectedAmount);
     btn.textContent = `Donate ${formatted}`;
@@ -435,7 +435,7 @@ function handleDonate() {
   const btn = document.getElementById('donate-btn');
   
   // Store email and amount for after Stripe redirect
-  if (email && email.includes('@') && selectedAmount >= 1) {
+  if (email && email.includes('@') && selectedAmount >= 10) {
     localStorage.setItem('donorEmail', email);
     localStorage.setItem('donorAmount', selectedAmount);
     localStorage.setItem('donorType', 'card');
@@ -463,7 +463,7 @@ function handleDonate() {
   const presetAmount = urlParams.get('amount');
   if (presetAmount) {
     const amt = parseFloat(presetAmount);
-    if (amt && amt >= 1) {
+    if (amt && amt >= 10) {
       // Find matching preset button or use custom input
       const matchBtn = document.querySelector(`.amount-btn[data-amount="${amt}"]`);
       if (matchBtn) {
@@ -500,7 +500,7 @@ function handleDonate() {
     const amount = localStorage.getItem('donorAmount');
     const type = localStorage.getItem('donorType');
     
-    if (email && amount && parseFloat(amount) >= 1) {
+    if (email && amount && parseFloat(amount) >= 10) {
       sendPDFViaGitHub(email, amount, type || 'card');
       localStorage.removeItem('donorEmail');
       localStorage.removeItem('donorAmount');
@@ -526,7 +526,7 @@ function handleCryptoPDFRequest() {
   }
 
   if (!amountInput || isNaN(amount) || amount < 1) {
-    alert('A minimum donation of $1 is required to receive the sneak peek PDF. Please enter the amount you donated.');
+    alert('A minimum donation of $10 is required to receive the sneak peek PDF. Please enter the amount you donated.');
     return;
   }
 
