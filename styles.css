@@ -701,6 +701,32 @@ body::before {
   font-style: italic;
 }
 
+/* Minimum Donation Warning */
+.minimum-warning {
+  color: #ff6b6b !important;
+  font-size: 0.9rem !important;
+  font-weight: 600;
+  font-style: normal !important;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  margin-top: 0.6rem;
+  text-align: center;
+  animation: fadeInWarning 0.3s ease-in-out;
+}
+
+@keyframes fadeInWarning {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Crypto Email Section */
 .crypto-email-section {
   margin-top: 1rem;
