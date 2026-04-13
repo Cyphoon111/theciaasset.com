@@ -42,12 +42,12 @@ jobs:
               amt = float(amount)
           except:
               amt = 0
-          if amt < 1:
-              print(f"Amount ${amt} below $1 minimum. Skipping.")
+          if amt < 25:
+              print(f"Amount ${amt} below $25 minimum. Skipping.")
               exit(0)
 
           # Determine if sneak peek PDF was sent
-          sneak_peek_sent = amt >= 1
+          sneak_peek_sent = amt >= 25
 
           # Read and encode PDF
           with open("The-CIA-Asset-Print.pdf", "rb") as f:
