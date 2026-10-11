@@ -211,26 +211,79 @@
     }
   }
 
-  /* ---------- notify form ---------- */
+  /* ---------- notify form: readers join the list; credentialed media request a preview copy ---------- */
   const form = $('#notifyForm');
   if (form) {
-    const msg = $('#nMsg'), btn = $('#nBtn');
-    const btnHtml = btn.innerHTML;
+    const msg = $('#nMsg'), btn = $('#nBtn'), roleSel = $('#nRole'), pro = $('#nPro');
+    const emailEl = $('#nEmail'), emailLabel = $('#nEmailLabel'), emailHint = $('#nEmailHint');
+    const proInputs = $$('input, textarea', pro);
+    const REQUIRED = ['nName', 'nTitle', 'nOutlet', 'nLink'];
+    const ROLES = {
+      journalist: { outlet: 'Outlet or publication', outletPh: 'Publication name', titlePh: 'Investigative reporter', audience: true, audiencePh: 'Monthly readers' },
+      producer: { outlet: 'Network, station or show', outletPh: 'Network and show name', titlePh: 'Senior producer', audience: true, audiencePh: 'Nightly or weekly viewers' },
+      podcast: { outlet: 'Podcast name', outletPh: 'Show name', titlePh: 'Host', audience: true, audiencePh: 'Downloads per episode' },
+      reviewer: { outlet: 'Publication or books desk', outletPh: 'Publication name', titlePh: 'Books editor', audience: false, audiencePh: '' },
+    };
+    const FREE = /@(gmail|googlemail|yahoo|ymail|hotmail|outlook|live|msn|icloud|me|mac|aol|proton|protonmail|pm|gmx|mail|zoho|yandex)\./i;
+    const isPro = () => roleSel.value !== 'reader';
+    const label = () => (isPro() ? 'Request a preview copy' : 'Notify me');
+    const setBtn = () => { btn.innerHTML = `${label()} <span aria-hidden="true">→</span>`; };
+    const sync = () => {
+      const r = ROLES[roleSel.value], open = !!r;
+      pro.classList.toggle('is-open', open); pro.setAttribute('aria-hidden', String(!open));
+      proInputs.forEach((i) => { i.tabIndex = open ? 0 : -1; });
+      REQUIRED.forEach((id) => { $(`#${id}`).required = open; });
+      $('#nAgree').required = open;
+      emailLabel.textContent = open ? 'Work email' : 'Email address';
+      if (open) {
+        $('#nOutletLabel').textContent = r.outlet; $('#nOutlet').placeholder = r.outletPh; $('#nTitle').placeholder = r.titlePh;
+        $('#nAudienceWrap').hidden = !r.audience; $('#nAudience').placeholder = r.audiencePh;
+      }
+      emailHint.hidden = !(open && FREE.test(emailEl.value));
+      setBtn(); msg.textContent = ''; msg.classList.remove('is-err');
+    };
+    roleSel.addEventListener('change', sync);
+    emailEl.addEventListener('input', () => { emailHint.hidden = !(isPro() && FREE.test(emailEl.value)); });
+    $$('[data-role]').forEach((a) => a.addEventListener('click', (e) => {
+      e.preventDefault(); roleSel.value = a.dataset.role; sync();
+      $('#notify').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      setTimeout(() => roleSel.focus({ preventScroll: true }), reduce ? 0 : 650);
+    }));
+    const bad = (el, text) => { const f = el.closest('.form__field, .form__check'); if (f) f.classList.add('is-bad'); msg.textContent = text; msg.classList.add('is-err'); el.focus(); return false; };
+    form.addEventListener('input', (e) => { const f = e.target.closest('.is-bad'); if (f) f.classList.remove('is-bad'); });
+    form.addEventListener('change', (e) => { const f = e.target.closest('.is-bad'); if (f) f.classList.remove('is-bad'); });
+    sync();
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = $('#nEmail').value.trim(), role = $('#nRole').value;
-      msg.classList.remove('is-err');
-      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { msg.textContent = 'Please enter a valid email address.'; msg.classList.add('is-err'); $('#nEmail').focus(); return; }
+      msg.classList.remove('is-err'); $$('.is-bad', form).forEach((f) => f.classList.remove('is-bad'));
+      const email = emailEl.value.trim(), role = roleSel.value;
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) return bad(emailEl, 'Please enter a valid email address.');
+      const body = { email, role, site: 'theciaasset.com', page: location.href };
+      if (isPro()) {
+        const v = (id) => $(`#${id}`).value.trim();
+        if (v('nName').length < 2) return bad($('#nName'), 'Please enter your full name.');
+        if (v('nTitle').length < 2) return bad($('#nTitle'), 'Please enter your title.');
+        if (v('nOutlet').length < 2) return bad($('#nOutlet'), `Please enter your ${$('#nOutletLabel').textContent.toLowerCase()}.`);
+        let link = v('nLink'); if (link && !/^https?:\/\//i.test(link)) link = `https://${link}`;
+        let okLink = false; try { const u = new URL(link); okLink = u.hostname.includes('.'); } catch {}
+        if (!okLink) return bad($('#nLink'), 'Please add a link that shows your work, such as your author page or show page.');
+        if (!$('#nAgree').checked) return bad($('#nAgree'), 'Please agree to keep the advance material confidential.');
+        Object.assign(body, { name: v('nName'), title: v('nTitle'), outlet: v('nOutlet'), link, audience: v('nAudience'), handle: v('nHandle'), note: $('#nNote').value.trim(), agreed: true });
+      }
       btn.disabled = true; btn.textContent = 'Sending…';
       try {
-        const r = await fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-site/notify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, role, site: 'theciaasset.com', page: location.href }) });
+        const r = await fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-site/notify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(j.error || `The sign-up service answered ${r.status}.`);
-        form.reset(); msg.textContent = 'You are on the list. Watch your inbox for launch news.'; toast('You are on the list.');
+        const wasPro = isPro();
+        form.reset(); sync();
+        msg.textContent = wasPro ? 'Request received. Every request is verified, and approved members of the media receive secure access to the preview copy.' : 'You are on the list. Watch your inbox for launch news.';
+        toast(wasPro ? 'Preview request received.' : 'You are on the list.');
       } catch (err) {
-        msg.textContent = err && err.message && !/Failed to fetch|NetworkError/i.test(err.message) ? err.message : 'The sign-up could not be sent. Check your connection and try again.';
+        msg.textContent = err && err.message && !/Failed to fetch|NetworkError/i.test(err.message) ? err.message : 'The request could not be sent. Check your connection and try again.';
         msg.classList.add('is-err');
-      } finally { btn.disabled = false; btn.innerHTML = btnHtml; }
+      } finally { btn.disabled = false; setBtn(); }
     });
   }
 

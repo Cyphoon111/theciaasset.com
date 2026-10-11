@@ -292,6 +292,28 @@ a { color: inherit; }
 .form select { background-image: linear-gradient(45deg, transparent 50%, #a9a9b2 50%), linear-gradient(135deg, #a9a9b2 50%, transparent 50%); background-position: calc(100% - 22px) 50%, calc(100% - 16px) 50%; background-size: 6px 6px; background-repeat: no-repeat; }
 .form input:focus, .form select:focus { border-color: var(--red); box-shadow: 0 0 0 4px rgba(224,18,28,.22); }
 .form__btn { width: 100%; margin-top: 4px; }
+.notify__copy strong { color: #fff; }
+.clearance { margin-top: 24px; padding: 18px 20px; border: 1px solid rgba(201,162,75,.5); border-radius: 14px; background: linear-gradient(180deg, rgba(201,162,75,.10), rgba(201,162,75,.03)); max-width: 500px; }
+.clearance__tag { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 6px 10px 5px; border-radius: 4px; background: var(--gold); color: #0b0b0d; font: 400 12px/1 var(--stencil); letter-spacing: .12em; text-transform: uppercase; }
+.clearance__tag::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--red); box-shadow: 0 0 0 2px rgba(11,11,13,.25); }
+.clearance p { margin: 0 !important; font-size: 15px !important; line-height: 1.55; color: #d6d6dc !important; }
+.form__hint { font-size: 12.5px; color: #d9b45e; }
+.form__field em { font-style: normal; text-transform: none; letter-spacing: .02em; color: #77777f; margin-left: 6px; }
+.form textarea { min-height: 92px; border-radius: 12px; border: 1px solid #3a3a42; background: #16161a; color: #fff; padding: 14px 16px; font: 500 15px/1.5 var(--body); outline: none; resize: vertical; transition: border-color .2s, box-shadow .2s; }
+.form textarea:focus { border-color: var(--red); box-shadow: 0 0 0 4px rgba(224,18,28,.22); }
+.form__pro { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .55s var(--ease-out), opacity .35s ease; }
+.form__pro.is-open { grid-template-rows: 1fr; opacity: 1; }
+.form__pro-in { min-height: 0; overflow: hidden; display: grid; gap: 14px; }
+.form__pro.is-open .form__pro-in { padding-top: 2px; }
+.form__row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form__notice { margin: 2px 0 0; padding: 12px 14px; border: 1px solid rgba(224,18,28,.5); border-radius: 10px; background: rgba(224,18,28,.10); font-size: 13.5px; line-height: 1.5; color: #f3dcdd; }
+.form__notice b { color: #fff; }
+.form__check { display: flex; gap: 12px; align-items: flex-start; font-size: 13.5px; line-height: 1.5; color: #c9c9d0; cursor: pointer; }
+.form__check input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--red); cursor: pointer; }
+.form__fine a { color: #fff; text-underline-offset: 3px; }
+.form__field.is-bad input, .form__field.is-bad textarea, .form__check.is-bad { border-color: #ff6b72 !important; box-shadow: 0 0 0 4px rgba(255,107,114,.18); border-radius: 12px; }
+@media (max-width: 560px) { .form__row { grid-template-columns: 1fr; } .clearance { padding: 16px; } }
+
 .form__msg { min-height: 1.4em; margin: 0; font-size: 15px; color: #fff; }
 .form__msg.is-err { color: #ff8a8f; }
 .form__fine { margin: 0; font-size: 12.5px; color: #8b8b94; }
