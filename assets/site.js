@@ -146,10 +146,10 @@
       text(sndBtn.querySelector('.lens__snd-l'), s === 'off' ? 'Sound off' : 'Sound on');
       text(sndBtn.querySelector('.lens__snd-s'), s === 'off' ? 'Off' : 'On');
     };
-    const goneLive = () => {
-      GESTURES.forEach((ev) => removeEventListener(ev, onGesture, true));
-      if (!firstLive) { firstLive = true; onFirstLive(); }
-    };
+    let armed = false;
+    const arm = () => { if (armed || !AC) return; armed = true; GESTURES.forEach((ev) => addEventListener(ev, onGesture, true)); };
+    const disarm = () => { if (!armed) return; armed = false; GESTURES.forEach((ev) => removeEventListener(ev, onGesture, true)); };
+    const goneLive = () => { disarm(); if (!firstLive) { firstLive = true; onFirstLive(); } };
     const onGesture = (e) => {
       if (!soundOn() || (e.target && e.target.closest && e.target.closest('#lensSnd'))) return;
       audio(true);
@@ -164,8 +164,9 @@
         room.buffer = roomBuffer(c);
         master.connect(comp); master.connect(room); room.connect(wet); wet.connect(comp); comp.connect(c.destination);
         snd.bus = master; snd.buf = shutterBuffer(c);
-        c.onstatechange = () => { paintSnd(); if (audioLive()) goneLive(); };
-        if (audioLive()) { GESTURES.forEach((ev) => removeEventListener(ev, onGesture, true)); firstLive = true; }
+        // a phone can pause the audio later (another app, a call, a locked screen): re-arm so the next tap brings it back
+        c.onstatechange = () => { paintSnd(); if (audioLive()) goneLive(); else if (soundOn()) arm(); };
+        if (audioLive()) { disarm(); firstLive = true; }
       }
       if (snd.ctx.state !== 'running') snd.ctx.resume().catch(() => {});
       // iPhone: starting a silent sound inside the tap is what unlocks audio there
@@ -179,7 +180,9 @@
       s.connect(g); g.connect(snd.bus); s.start(Math.max(c.currentTime, when));
     };
     const whenLive = (fn) => { if (!snd.ctx) return; if (audioLive()) fn(); else snd.ctx.resume().then(() => { if (audioLive()) fn(); }).catch(() => {}); };
-    if (AC) GESTURES.forEach((ev) => addEventListener(ev, onGesture, true));
+    if (AC) arm();
+    // coming back to the tab: ask the browser to resume (allowed once the visitor has interacted with the page)
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && snd.ctx && soundOn() && !audioLive()) snd.ctx.resume().catch(() => {}); });
 
     /* geometry */
     let W = 0, H = 0, R = 90, SD = 214, x = 0, y = 0;
@@ -280,7 +283,15 @@
       for (let k = k0; k < 3; k++) clickAt(now + Math.max(0, shotsAt[k] - T));
       return true;
     };
-    const burstAt = (at) => { shotsAt = [at, at + 0.21, at + 0.42]; fired = 0; setShots(0); lens.classList.add('is-burst'); burstSound = soundShots(0); };
+    let burstNo = 0;
+    const burstAt = (at) => {
+      shotsAt = [at, at + 0.21, at + 0.42]; fired = 0; burstNo++; setShots(0); lens.classList.add('is-burst');
+      burstSound = soundShots(0);
+      if (!burstSound && snd.ctx && soundOn()) {
+        const n = burstNo;
+        snd.ctx.resume().then(() => { if (audioLive() && n === burstNo && phase === 'locked' && !burstSound && fired < 3) burstSound = soundShots(fired); }).catch(() => {});
+      }
+    };
     const lockOn = () => {
       phase = 'locked'; lockT = T;
       lens.classList.remove('is-locked'); void lens.offsetWidth; lens.classList.add('is-locked');
@@ -330,7 +341,7 @@
         if (phase === 'locked') {
           while (fired < 3 && T >= shotsAt[fired]) fire();
           if (fired === 3 && T >= shotsAt[2] + 0.2) { phase = 'hold'; holdUntil = T + 6; if (cyc === 0) setTimeout(stampIn, 120); }
-        } else if (phase === 'hold' && T >= holdUntil && !reduce) { cyc++; toFloat(); }
+        } else if (phase === 'hold' && T >= holdUntil) { cyc++; toFloat(); }
       }
 
       // handheld drift while holding, and a kick from the mirror on every frame
@@ -390,7 +401,7 @@
       });
     }
 
-    // Visitors whose device asks for reduced motion get one gentle pass (no loop, no flash, no shake); everyone else gets the loop.
+    // Every visitor gets the loop; when the device asks for reduced motion there is no flash, mirror kick or handheld drift.
     measure();
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { measure(); apply(x, y); }).observe(frame);
     x = ENTRY[0] * W; y = ENTRY[1] * H; apply(x, y);
