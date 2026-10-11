@@ -347,8 +347,7 @@
     onFirstLive = () => {
       if ((phase === 'snap' || phase === 'locked') && !burstSound && fired < 3) { burstSound = soundShots(fired); return; }
       if (!live || visRatio < 0.5) return;
-      if (phase === 'hold') { phase = 'locked'; burstAt(T + 0.2); }
-      else if (phase === 'float' || phase === 'hover' || phase === 'wait') { if (phase === 'wait') toFloat(); toSnap(); }
+      if (phase === 'hold') { phase = 'locked'; burstAt(T + 0.2); } // during a glide the burst comes at the end of it, with sound
     };
     const afterUnlock = () => whenLive(() => { paintSnd(); if ((phase === 'snap' || phase === 'locked') && !burstSound && fired < 3) burstSound = soundShots(fired); });
 
