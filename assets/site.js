@@ -143,8 +143,8 @@
       sndBtn.dataset.state = s;
       sndBtn.setAttribute('aria-pressed', String(s !== 'off'));
       sndBtn.setAttribute('aria-label', s === 'off' ? 'Turn on the shutter sound' : s === 'on' ? 'Turn off the shutter sound' : 'Play the shutter sound');
-      text(sndBtn.querySelector('.lens__snd-l'), s === 'off' ? 'Sound off' : 'Sound on');
-      text(sndBtn.querySelector('.lens__snd-s'), s === 'off' ? 'Off' : 'On');
+      text(sndBtn.querySelector('.lens__snd-l'), s === 'off' ? 'Sound off' : s === 'on' ? 'Sound on' : fine ? 'Click to hear' : 'Tap to hear');
+      text(sndBtn.querySelector('.lens__snd-s'), s === 'off' ? 'Off' : s === 'on' ? 'On' : fine ? 'Click' : 'Tap');
     };
     let armed = false;
     const arm = () => { if (armed || !AC) return; armed = true; GESTURES.forEach((ev) => addEventListener(ev, onGesture, true)); };
@@ -297,10 +297,13 @@
       lens.classList.remove('is-locked'); void lens.offsetWidth; lens.classList.add('is-locked');
       status('SUBJECT ACQUIRED'); idShow(T); burstAt(T + 0.24);
     };
-    const fire = () => { blinks.push(T); if (!reduce) kicks.push(T); fired++; setShots(fired); flash(); };
+    const nudge = () => { if (!sndBtn || !soundOn() || audioLive()) return; sndBtn.classList.remove('is-nudge'); void sndBtn.offsetWidth; sndBtn.classList.add('is-nudge'); clearTimeout(nudge.t); nudge.t = setTimeout(() => sndBtn.classList.remove('is-nudge'), 1800); };
+    const fire = () => { blinks.push(T); if (!reduce) kicks.push(T); fired++; setShots(fired); flash(); if (fired === 1) nudge(); };
     onFirstLive = () => {
-      if (phase === 'hold' && live && visRatio >= 0.5) { phase = 'locked'; burstAt(T + 0.15); }
-      else if (phase === 'locked' && !burstSound && fired < 3) burstSound = soundShots(fired);
+      if (phase === 'locked' && !burstSound && fired < 3) { burstSound = soundShots(fired); return; }
+      if (!live || visRatio < 0.5) return;
+      if (phase === 'hold') { phase = 'locked'; burstAt(T + 0.15); }
+      else if (phase === 'float' || phase === 'hover' || phase === 'wait') { if (phase === 'wait') toFloat(); toSnap(); }
     };
     const afterUnlock = () => whenLive(() => { paintSnd(); if (phase === 'locked' && !burstSound && fired < 3) burstSound = soundShots(fired); });
 

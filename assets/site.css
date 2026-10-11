@@ -188,6 +188,7 @@ a { color: inherit; }
 .lens__snd { position: absolute; z-index: 6; top: 48px; right: 26px; display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 12px 0 9px; border: 1px solid rgba(255,255,255,.75); border-radius: 999px; background: rgba(8,8,10,.5); color: #fff; font: 700 10px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; cursor: pointer; transition: background .2s, border-color .2s; }
 .lens__snd[hidden] { display: none; }
 .lens__snd:hover, .lens__snd:focus-visible { background: var(--red); border-color: var(--red); }
+.lens__snd.is-nudge { background: var(--red); border-color: var(--red); animation: sndNudge 1.2s var(--ease) 1; }
 .lens__snd svg { width: 16px; height: 16px; flex: none; }
 .lens__snd svg path { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .lens__snd svg .spk { fill: currentColor; stroke: none; }
@@ -218,7 +219,7 @@ a { color: inherit; }
 .lens__cap span { display: block; font-size: 11.5px; letter-spacing: .04em; color: #8b8b92; margin-top: 2px; }
 
 /* stamp */
-.stamp { position: absolute; left: 0; bottom: 27%; z-index: 6; pointer-events: none; transform: translate(-50%, 0) rotate(-11deg) scale(2.4); opacity: 0; }
+.stamp { position: absolute; left: 36%; bottom: 22%; z-index: 6; pointer-events: none; transform: translate(-50%, 0) rotate(-11deg) scale(2.4); opacity: 0; }
 .stamp span { display: block; padding: 10px 18px 8px; border: 4px solid var(--red); border-radius: 6px; color: var(--red); font: 400 clamp(22px, 2.6vw, 34px)/1 var(--stencil); letter-spacing: .08em; background: rgba(255,255,255,.04); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='120'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E"); mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='120'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E"); }
 .stamp.is-in { animation: stampIn .5s cubic-bezier(.3, 1.6, .5, 1) forwards; }
 .hero__stage.is-thud { animation: thud .35s var(--ease) 1; }
@@ -435,6 +436,7 @@ a { color: inherit; }
 @keyframes rec { 50% { opacity: 0; } }
 @keyframes afBlink { 50% { fill: transparent; } }
 @keyframes markPulse { 50% { border-color: rgba(224,18,28,.35); box-shadow: none; } }
+@keyframes sndNudge { 0%, 100% { transform: scale(1); } 14% { transform: scale(1.16); } 32% { transform: scale(.97); } 50% { transform: scale(1.07); } 72% { transform: scale(1); } }
 @keyframes sndPing { 0% { transform: scale(1); opacity: .85; } 70%, 100% { transform: scale(1.3, 1.6); opacity: 0; } }
 @keyframes stampIn { 0% { opacity: 0; transform: translate(-50%, 0) rotate(-20deg) scale(2.4); } 60% { opacity: .95; } 100% { opacity: .92; transform: translate(-50%, 0) rotate(-11deg) scale(1); } }
 @keyframes thud { 0% { transform: translate(0, 0); } 30% { transform: translate(-3px, 2px); } 60% { transform: translate(2px, -1px); } 100% { transform: translate(0, 0); } }
@@ -499,4 +501,14 @@ a { color: inherit; }
   .redact { background-size: 0% 100%; color: inherit; }
   .redact--red { color: var(--red); }
   .stamp { opacity: .92; transform: translate(-50%, 0) rotate(-11deg) scale(1); }
+  /* the site's ambient motion still runs (Jason, 2026-10-10: the banner must scroll on his Mac, which has Reduce Motion on) */
+  .marquee__track { animation-duration: 48s !important; animation-iteration-count: infinite !important; }
+  .book, .book__floor { animation-duration: 7s !important; animation-iteration-count: infinite !important; }
+  .book__sheen { animation-duration: 7.5s !important; animation-iteration-count: infinite !important; }
+  .lens__soft { animation-duration: 4s !important; animation-iteration-count: infinite !important; }
+  .fx--grain { animation-duration: .9s !important; animation-iteration-count: infinite !important; }
+  .fx--dust { animation-duration: 2.4s !important; animation-iteration-count: infinite !important; }
+  .fx--scratch { animation-duration: 1.8s !important; animation-iteration-count: infinite !important; }
+  .hud__rec b { animation-duration: 1.2s !important; animation-iteration-count: infinite !important; }
+  .brand__mark::after { animation-duration: 2.4s !important; animation-iteration-count: infinite !important; }
 }
