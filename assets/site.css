@@ -24,7 +24,7 @@
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.65 var(--body); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; overflow-x: hidden; }
-img { max-width: 100%; display: block; }
+img { max-width: 100%; height: auto; display: block; }
 a { color: inherit; }
 ::selection { background: var(--red); color: #fff; }
 .wrap { width: min(var(--wrap), 100% - 40px); margin-inline: auto; }
@@ -312,8 +312,10 @@ a { color: inherit; }
 .kit__item { border: 1px dashed #cfc8b6; border-radius: 14px; padding: 26px 28px; background: var(--paper-2); }
 .kit__item h3 { margin: 0 0 10px; font: 800 18px/1.2 var(--body); }
 .kit__item p { margin: 0 0 16px; font-size: 15px; color: var(--ink-2); }
-.kit__item--cover { display: flex; gap: 20px; align-items: center; }
-.kit__item--cover img { width: 96px; border-radius: 3px; box-shadow: 0 12px 24px -12px rgba(0,0,0,.5); }
+.kit__item--cover { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center; }
+.kit__item--cover img { width: 120px; height: auto; aspect-ratio: 1100 / 1650; object-fit: cover; border-radius: 2px 5px 5px 2px; box-shadow: -4px 0 0 #0b0b0d inset, 0 18px 30px -14px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.18); transform: rotate(-2deg); transition: transform .4s var(--ease); }
+.kit__item--cover:hover img { transform: rotate(0deg) translateY(-3px); }
+.kit__meta { display: block; margin: -8px 0 16px; font: 600 11px/1 var(--mono); letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
 
 /* ---------- footer ---------- */
 .foot { border-top: 1px solid var(--line); padding: 40px 0 46px; }
@@ -394,7 +396,8 @@ a { color: inherit; }
   .file { padding: 24px 22px; }
   .file__year { font-size: 44px; }
   .grade__cat b { font-size: 60px; }
-  .kit__item--cover { flex-direction: column; align-items: flex-start; }
+  .kit__item--cover { grid-template-columns: 92px minmax(0, 1fr); gap: 18px; }
+  .kit__item--cover img { width: 92px; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; scroll-behavior: auto !important; }
