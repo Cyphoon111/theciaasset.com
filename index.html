@@ -1,740 +1,331 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Open Graph Meta Tags for Text Message / Social Media Preview -->
-  <meta property="og:title" content="Donate: The CIA Asset & The Man Who Didn't Take The Bait">
-  <meta property="og:description" content="Support this book by Jason Sullivan">
-  <meta property="og:image" content="https://theciaasset.com/book_cover.jpg">
-  <meta property="og:image:width" content="800">
-  <meta property="og:image:height" content="1200">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://theciaasset.com">
-
-  <!-- Twitter Card Meta Tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Donate: The CIA Asset & The Man Who Didn't Take The Bait">
-  <meta name="twitter:description" content="Support this book by Jason Sullivan">
-  <meta name="twitter:image" content="https://theciaasset.com/book_cover.jpg">
-
-  <!-- Standard Meta -->
-  <meta name="description" content="Support this book by Jason Sullivan">
-
-  <title>Donate: The CIA Asset & The Man Who Didn't Take The Bait</title>
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css">
-<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jeffrey Epstein Was A CIA Asset | Jason Sullivan</title>
+<meta name="description" content="The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein. A forthcoming work of non-fiction by Jason Sullivan, the investigator who broke the Epstein “missing minute.”">
+<link rel="canonical" href="https://theciaasset.com/">
+<meta name="theme-color" content="#ffffff">
+<meta property="og:type" content="book">
+<meta property="og:site_name" content="Jeffrey Epstein Was A CIA Asset">
+<meta property="og:title" content="Jeffrey Epstein Was A CIA Asset">
+<meta property="og:description" content="Who made Jeffrey Epstein? The highly anticipated full story of the intelligence apparatus behind him, by Jason Sullivan.">
+<meta property="og:url" content="https://theciaasset.com/">
+<meta property="og:image" content="https://theciaasset.com/assets/cover.jpg">
+<meta property="og:image:width" content="1100">
+<meta property="og:image:height" content="1650">
+<meta property="og:image:alt" content="Cover of Jeffrey Epstein Was A CIA Asset by Jason Sullivan">
+<meta property="book:author" content="Jason Sullivan">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Jeffrey Epstein Was A CIA Asset">
+<meta name="twitter:description" content="Who made Jeffrey Epstein? The highly anticipated full story of the intelligence apparatus behind him, by Jason Sullivan.">
+<meta name="twitter:image" content="https://theciaasset.com/assets/cover.jpg">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Ops+One&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="assets/cover.jpg">
+<link rel="preload" as="image" href="assets/jason-federal-court.jpg">
+<link rel="stylesheet" href="assets/site.css?v=2">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
+</script>
 </head>
 <body>
-  <!-- Confetti Canvas -->
-  <canvas id="confetti-canvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></canvas>
+<a class="skip" href="#main">Skip to content</a>
 
-  <div class="donation-container">
+<header class="nav" id="top">
+  <div class="wrap nav__in">
+    <a class="brand" href="#top" aria-label="Jeffrey Epstein Was A CIA Asset, back to top">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__text">THE <b>CIA</b> ASSET</span>
+    </a>
+    <nav class="nav__links" id="navLinks" aria-label="Sections">
+      <a href="#premise">The Book</a>
+      <a href="#chain">The Chain</a>
+      <a href="#evidence">The Evidence</a>
+      <a href="#minute">The Missing Minute</a>
+      <a href="#author">The Author</a>
+      <a href="#press">Press</a>
+    </nav>
+    <a class="btn btn--red btn--sm nav__cta" href="#notify">Get notified</a>
+    <button class="nav__menu" id="navMenu" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span></button>
+  </div>
+</header>
 
-    <!-- Book Cover -->
-    <div class="book-cover-wrapper">
-      <div class="book-cover-inner">
-        <p class="tap-hint">Tap<br>Book<br>Cover<br>Image<br>To Expand</p>
-        <img 
-          src="book_cover.jpg" 
-          alt="The CIA Asset & The Man Who Didn't Take The Bait — Book Cover" 
-          class="book-cover"
-          onclick="openLightbox()"
-          style="cursor: zoom-in;"
-        >
-      </div>
-    </div>
-    
-    <!-- Lightbox Overlay -->
-    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
-      <div class="lightbox-container" onclick="closeLightbox()">
-        <button class="lightbox-close" onclick="closeLightbox()" aria-label="Close">&times;</button>
-        <img src="book_cover.jpg" alt="The CIA Asset & The Man Who Didn't Take The Bait — Book Cover" class="lightbox-image">
-      </div>
-    </div>
+<main id="main">
 
-    <!-- Title -->
-    <div class="title-section">
-      <h1><span class="title-main">The CIA Asset</span><br><span class="title-subtitle">& The Man Who Didn't Take The Bait</span></h1>
-      <p class="subtitle">by Jason Sullivan & Peter Ticktin</p>
-      <p class="tagline">Secure your signed copy now—personally inscribed exactly how you want it—and be among the very first to own this book before it's released to the public.</p>
+  <!-- ============ HERO ============ -->
+  <section class="hero" id="book">
+    <div class="wrap hero__head">
+      <p class="eyebrow reveal"><span class="eyebrow__rule"></span>Forthcoming <i>◆</i> Non&#8209;Fiction<span class="eyebrow__rule"></span></p>
+      <h1 class="hero__title reveal">Who made <span class="red">Jeffrey Epstein?</span></h1>
+      <p class="hero__sub reveal">The highly anticipated full story of the intelligence apparatus that spotted, recruited and deployed him, from the investigator who broke the Epstein <span class="nowrap">“missing minute.”</span></p>
     </div>
 
-    <!-- Book Introduction -->
-    <div class="introduction-section">
-      <h3 class="introduction-title">INTRODUCTION</h3>
-      <p class="introduction-text">This is not a true-crime story about Jeffrey Epstein and his island. Every prior treatment begins at the end—with the girls, the flight logs, the famous names—and works backward, never reaching a satisfying origin. <em>The CIA Asset & The Man Who Didn't Take The Bait</em> starts at the true beginning: the covert intelligence and financial apparatus the United States government constructed during World War II, how it was funded outside congressional oversight for eight decades, and how an unremarkable boy from a working-class family in Brooklyn was identified, groomed, and deployed as one of its most valuable financial and blackmail operatives.</p>
-      <p class="introduction-text">Epstein is not the story—he is the instrument through which the apparatus becomes visible.</p>
-      <p class="introduction-text">This machine did not die in a jail cell on August 10, 2019, at the Metropolitan Correctional Center in New York City… it is still running.</p>
-    </div>
-
-    <!-- Contribution Callout -->
-    <div class="contribution-callout">
-      <p>Anyone who contributes $25 or more will directly accelerate the completion of this book and will receive an immediate sneak peek of the first few chapters delivered via email.</p>
-      <p class="callout-highlight">Donate $25 or more and receive the sneak peek first few chapters!</p>
-    </div>
-
-    <!-- Donation Card -->
-    <div class="donation-card">
-
-      <h2 class="card-heading">Support This Book</h2>
-
-      <!-- Preset Amount Buttons -->
-      <div class="amount-grid" id="amount-grid">
-        <button class="amount-btn" data-amount="25" onclick="selectAmount(25, this)">$25</button>
-        <button class="amount-btn" data-amount="50" onclick="selectAmount(50, this)">$50</button>
-        <button class="amount-btn" data-amount="100" onclick="selectAmount(100, this)">$100</button>
-        <button class="amount-btn" data-amount="500" onclick="selectAmount(500, this)">$500</button>
-        <button class="amount-btn" data-amount="1000" onclick="selectAmount(1000, this)">$1,000</button>
-        <button class="amount-btn" data-amount="2000" onclick="selectAmount(2000, this)">$2,000</button>
-      </div>
-
-      <!-- Rockstar Button -->
-      <div class="rockstar-row">
-        <button class="amount-btn rockstar-btn" data-amount="3000" onclick="selectAmount(3000, this)">$3,000</button>
-        <span class="rockstar-label">🎸 You Are A Rockstar!</span>
-      </div>
-
-      <!-- Custom Amount -->
-      <div class="custom-amount-wrapper" id="custom-wrapper">
-        <span class="dollar-sign">$</span>
-        <input 
-          type="number" 
-          class="custom-amount-input" 
-          id="custom-amount" 
-          placeholder="Enter custom amount" 
-          min="25" 
-          step="1"
-          onfocus="handleCustomFocus()"
-          onblur="handleCustomBlur()"
-          oninput="handleCustomInput()"
-        >
-      </div>
-
-      <!-- Selected Amount Display -->
-      <div class="selected-display" id="selected-display"></div>
-
-      <!-- Email Field for PDF -->
-      <div class="email-field-wrapper" id="email-wrapper">
-        <div class="arrow-callout">
-          <span class="red-arrow">&#10549;</span>
-          <span class="arrow-text">Don't forget to enter your email!</span>
-        </div>
-        <label class="email-label" for="donor-email">📧 Enter your email to receive the sneak peek chapters:</label>
-        <input 
-          type="email" 
-          class="email-input" 
-          id="donor-email" 
-          placeholder="your@email.com"
-          autocomplete="email"
-        >
-        <p class="email-note minimum-warning" id="minimum-note" style="display: none;">⚠️ A minimum donation of $25 is required to receive the sneak peek PDF.</p>
-      </div>
-
-      <!-- Donate Button -->
-      <button class="donate-btn" id="donate-btn" onclick="handleDonate()" disabled>
-        Donate Now
-      </button>
-
-      <!-- Secure Badge -->
-      <div class="secure-badge">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
-        <span>Secured by Stripe</span>
-      </div>
-
-      <!-- Crypto Donation Section -->
-      <div class="crypto-section" id="crypto">
-        <h2 class="crypto-heading">💰 Donate Crypto</h2>
-        <p class="crypto-subtitle">Prefer cryptocurrency? Select an option below to get the wallet address.</p>
-        
-        <div class="crypto-buttons">
-          <button class="crypto-btn" onclick="showCryptoAddress('usdc')">
-            <span class="crypto-icon usdc-icon">$</span>
-            <span class="crypto-name">USDC</span>
-          </button>
-          <button class="crypto-btn" onclick="showCryptoAddress('btc')">
-            <span class="crypto-icon btc-icon">₿</span>
-            <span class="crypto-name">Bitcoin</span>
-          </button>
-          <button class="crypto-btn" onclick="showCryptoAddress('eth')">
-            <span class="crypto-icon eth-icon">Ξ</span>
-            <span class="crypto-name">Ethereum</span>
-          </button>
-          <button class="crypto-btn" onclick="showCryptoAddress('xrp')">
-            <span class="crypto-icon xrp-icon">✕</span>
-            <span class="crypto-name">XRP</span>
-          </button>
-        </div>
-
-        <!-- Crypto Address Display -->
-        <div class="crypto-address-display" id="crypto-address-display" style="display: none;">
-          <button class="crypto-close-btn" onclick="closeCryptoAddress()">×</button>
-          <h3 id="crypto-title"></h3>
-          <div class="crypto-qr" id="crypto-qr"></div>
-          <div class="crypto-address-box">
-            <code id="crypto-address"></code>
-            <button class="copy-btn" onclick="copyCryptoAddress()">
-              <span id="copy-text">Copy</span>
-            </button>
+    <div class="wrap hero__stage">
+      <div class="hero__book reveal">
+        <div class="book" id="book3d" tabindex="0" aria-label="Cover of Jeffrey Epstein Was A CIA Asset by Jason Sullivan">
+          <div class="book__spine" aria-hidden="true"><span>JEFFREY EPSTEIN WAS A <b>CIA ASSET</b></span><em>SULLIVAN</em></div>
+          <div class="book__pages" aria-hidden="true"></div>
+          <div class="book__back" aria-hidden="true"></div>
+          <div class="book__cover">
+            <img src="assets/cover.jpg" srcset="assets/cover-760.jpg 506w, assets/cover.jpg 1100w" sizes="(max-width: 900px) 70vw, 380px" width="1100" height="1650" alt="Cover of Jeffrey Epstein Was A CIA Asset: This Book Proves It, written by Jason Sullivan" fetchpriority="high">
+            <i class="book__sheen" aria-hidden="true"></i>
           </div>
-          <div class="crypto-memo-box" id="crypto-memo-box" style="display: none;">
-            <span class="crypto-memo-label">Destination Tag (Memo):</span>
-            <code id="crypto-memo"></code>
-            <button class="copy-btn" onclick="copyCryptoMemo()">
-              <span id="copy-memo-text">Copy</span>
-            </button>
-          </div>
-          <p class="crypto-network" id="crypto-network"></p>
-          
-          <!-- Crypto Email Collection -->
-          <div class="crypto-email-section" id="crypto-email-section">
-            <label class="email-label" for="crypto-donor-email">📧 Enter your email to receive the sneak peek chapters:</label>
-            <div class="crypto-email-row">
-              <input 
-                type="email" 
-                class="email-input" 
-                id="crypto-donor-email" 
-                placeholder="your@email.com"
-                autocomplete="email"
-              >
-              <button class="crypto-email-btn" onclick="handleCryptoPDFRequest()">Send PDF</button>
+        </div>
+        <div class="book__floor" aria-hidden="true"></div>
+      </div>
+
+      <figure class="lens reveal" id="lens" data-fx="44.5" data-fy="17.6" data-fr="0.17">
+        <div class="lens__frame" id="lensFrame">
+          <img class="lens__soft" src="assets/jason-federal-court.jpg" alt="" aria-hidden="true" width="1180" height="1364">
+          <div class="lens__win" aria-hidden="true"><img class="lens__sharp" src="assets/jason-federal-court.jpg" alt="" width="1180" height="1364"></div>
+          <span class="sr">Jason Sullivan entering the federal courthouse in Washington, D.C., in June 2018</span>
+          <div class="fx fx--grain" aria-hidden="true"></div>
+          <div class="fx fx--dust" aria-hidden="true"></div>
+          <div class="fx fx--scratch" aria-hidden="true"></div>
+          <div class="fx fx--vignette" aria-hidden="true"></div>
+
+          <svg class="scope" id="scope" viewBox="0 0 240 240" aria-hidden="true">
+            <g class="scope__ring">
+              <circle cx="120" cy="120" r="101" class="s-ring"/>
+              <circle cx="120" cy="120" r="93" class="s-ring s-ring--thin"/>
+              <g class="scope__ticks" id="scopeTicks"></g>
+            </g>
+            <g class="scope__inner">
+              <path class="s-mark" d="M120 26v9M120 205v9M26 120h9M205 120h9"/>
+            </g>
+            <g class="scope__brackets" id="scopeBrackets">
+              <path d="M84 98V84h14M156 98V84h-14M84 142v14h14M156 142v14h-14"/>
+            </g>
+            <rect class="scope__af" id="scopeAf" x="113" y="113" width="14" height="14" rx="1"/>
+          </svg>
+
+          <div class="hud" aria-hidden="true">
+            <i class="hud__c hud__c--tl"></i><i class="hud__c hud__c--tr"></i><i class="hud__c hud__c--bl"></i><i class="hud__c hud__c--br"></i>
+            <div class="hud__row hud__row--top">
+              <span class="hud__rec"><b></b>REC</span>
+              <span class="hud__tc" id="hudTc">00:47:12:00</span>
+              <span class="hud__exp">ISO 800 · 1/250 · ƒ2.8</span>
             </div>
-            <p class="email-note">Enter the amount you donated and your email. Minimum $25 required.</p>
-            <div class="crypto-amount-row">
-              <span class="dollar-sign">$</span>
-              <input 
-                type="number" 
-                class="crypto-amount-input" 
-                id="crypto-donation-amount" 
-                placeholder="Amount donated"
-                min="25"
-                step="1"
-              >
+            <div class="hud__meter"><span>−2</span><span>−1</span><span>0</span><span>+1</span><span>+2</span><i id="hudNeedle"></i></div>
+            <div class="hud__row hud__row--bottom">
+              <span class="hud__loc">WASHINGTON, D.C.<br><small>38.8926° N · 77.0157° W</small></span>
+              <span class="hud__focus"><small>AF-S</small> <b id="hudDist">3.2</b> m</span>
+              <span class="hud__status" id="hudStatus">SEARCHING</span>
             </div>
           </div>
         </div>
-      </div>
-
-      <!-- Event Invitation Section -->
-      <div class="invitation-section">
-        <p class="invitation-hook">💥 Your exclusive invitation awaits — but only for those who dare to show up.</p>
-        
-        <p class="invitation-text">Donate $100 or more and unlock access to the most electric book launch Las Vegas has ever seen.</p>
-        
-        <p class="invitation-text">This isn't a signing table and a cheese platter. This is a private, high-energy evening with Jason Sullivan and Peter Ticktin — in the flesh, in the city that never sleeps, ready to pour everything they've got into one unforgettable night.</p>
-        
-        <div class="invitation-perks">
-          <p>✍️ Personalized book signings. Direct from the authors.</p>
-          <p>🥂 Exceptional food and top-shelf spirits.</p>
-          <p>🎵 Live music that sets the room on fire.</p>
-          <p>🎰 Las Vegas as your backdrop — because nothing less would do.</p>
-        </div>
-        
-        <p class="invitation-bold">One night. Zero regrets.</p>
-        
-        <p class="invitation-text">This is more than a book launch. It's the kind of night people talk about for years — and you're on the short list to be there.</p>
-        
-        <p class="invitation-cta">Secure your spot now. Once it's gone, it's gone. 🔥</p>
-        
-        <div class="flip-card" onclick="this.classList.toggle('flipped')">
-          <div class="flip-card-inner">
-            <div class="flip-card-front">
-              <p>Together, we are going to break the Deep State once and for all!</p>
-            </div>
-            <div class="flip-card-back">
-              <p>We have it all!</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
+        <div class="stamp" id="stamp" aria-hidden="true"><span>DECLASSIFIED</span></div>
+        <figcaption class="lens__cap">Arriving at the federal courthouse in Washington in June 2018, when he testified before Special Counsel Robert Mueller’s grand jury. <span>Photo: Kevin Lamarque/Reuters</span></figcaption>
+      </figure>
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-      <p>&copy; 2026 Jason Sullivan. All rights reserved.</p>
+    <div class="wrap hero__cta reveal">
+      <a class="btn btn--red btn--lg" href="#notify">Be first to read it <span aria-hidden="true">→</span></a>
+      <a class="btn btn--ghost btn--lg" href="#press">Media &amp; early access</a>
+      <p class="hero__by">Written by <strong>Jason Sullivan</strong>, Chief Investigator at The Ticktin Law Group</p>
     </div>
+  </section>
 
+  <!-- ============ MARQUEE ============ -->
+  <div class="marquee" aria-label="People, places and institutions in the book">
+    <div class="marquee__track">
+      <span>OSS</span><i>◆</i><span>Columbia University</span><i>◆</i><span>The Dalton School</span><i>◆</i><span>Bear Stearns</span><i>◆</i><span>BCCI</span><i>◆</i><span>The Safari Club</span><i>◆</i><span>Douglas Leese</span><i>◆</i><span>Adnan Khashoggi</span><i>◆</i><span>Robert Maxwell</span><i>◆</i><span>Les Wexner</span><i>◆</i><span>Mar-a-Lago</span><i>◆</i><span>MCC New York</span><i>◆</i>
+      <span aria-hidden="true">OSS</span><i aria-hidden="true">◆</i><span aria-hidden="true">Columbia University</span><i aria-hidden="true">◆</i><span aria-hidden="true">The Dalton School</span><i aria-hidden="true">◆</i><span aria-hidden="true">Bear Stearns</span><i aria-hidden="true">◆</i><span aria-hidden="true">BCCI</span><i aria-hidden="true">◆</i><span aria-hidden="true">The Safari Club</span><i aria-hidden="true">◆</i><span aria-hidden="true">Douglas Leese</span><i aria-hidden="true">◆</i><span aria-hidden="true">Adnan Khashoggi</span><i aria-hidden="true">◆</i><span aria-hidden="true">Robert Maxwell</span><i aria-hidden="true">◆</i><span aria-hidden="true">Les Wexner</span><i aria-hidden="true">◆</i><span aria-hidden="true">Mar-a-Lago</span><i aria-hidden="true">◆</i><span aria-hidden="true">MCC New York</span><i aria-hidden="true">◆</i>
+    </div>
   </div>
 
-  <script>
-// ============================================
-// DONATION PAGE — Stripe Payment Link Integration
-// ============================================
+  <!-- ============ PREMISE ============ -->
+  <section class="section premise" id="premise">
+    <div class="wrap premise__grid">
+      <div class="premise__lead reveal">
+        <p class="kicker">The premise</p>
+        <h2 class="h-display">This is not a <span class="red">true&#8209;crime</span> story.</h2>
+      </div>
+      <div class="premise__body">
+        <p class="lede reveal">Every prior account of Jeffrey Epstein begins at the end, with the girls, the flight logs and the famous names, and works backward without ever reaching an origin. <em>Jeffrey Epstein Was A CIA Asset</em> starts at the true beginning.</p>
+        <p class="reveal">It traces the covert intelligence and financial apparatus the United States built during World War II, how it was funded outside congressional oversight for eight decades, and how a boy from a working-class family in Brooklyn was identified, groomed and deployed as one of its most valuable financial and blackmail operatives.</p>
+        <p class="premise__punch reveal"><span class="redact" style="--d:0s">Epstein is not the story.</span> <span class="redact" style="--d:.25s">He is the instrument through which the apparatus becomes visible.</span></p>
+      </div>
+    </div>
+    <blockquote class="wrap bigquote reveal">
+      <p><span class="redact" style="--d:.1s">This machine did not die in a jail cell</span> <span class="redact" style="--d:.35s">on August 10, 2019.</span> <span class="redact redact--red" style="--d:.6s">It is still running.</span></p>
+      <cite>From the introduction</cite>
+    </blockquote>
+  </section>
 
-// Stripe Payment Link base URL (from Stripe Dashboard)
-const STRIPE_DONATE_LINK = 'https://donate.stripe.com/6oUfZi4NdcYa7Yh2ZO08g01';
+  <!-- ============ THE CHAIN ============ -->
+  <section class="section chain" id="chain">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="kicker">The chain of custody</p>
+        <h2 class="h-display">Spotted. Recruited. <span class="red">Deployed.</span></h2>
+        <p class="sec-sub">How the book follows one man from a Brooklyn classroom to a federal jail cell, file by file.</p>
+      </header>
+      <ol class="files" id="files">
+        <li class="file reveal"><span class="file__no">FILE 01</span><span class="file__year">1963</span><h3>A classroom in Brooklyn</h3><p>A ten-year-old enters a junior high school ten miles from Columbia University, the year a former OSS officer named Donald Barr is running Columbia’s federally funded Science Honors Program.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 02</span><span class="file__year">1974</span><h3>The Dalton School</h3><p>Donald Barr, by then headmaster of Dalton, puts the twenty-one-year-old Epstein on his faculty with no teaching credentials and no college degree.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 03</span><span class="file__year">1976</span><h3>Bear Stearns</h3><p>Two years later Epstein lands on Wall Street, on the desk the book ties to the BCCI-ICIC accounts behind clandestine arms finance.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 04</span><span class="file__year">1980s</span><h3>The arms brokers</h3><p>He passes to the operators of those trades: Douglas Leese, who teaches him the shadow side of arms finance, and Adnan Khashoggi, master of kompromat.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 05</span><span class="file__year">1980s</span><h3>Robert Maxwell</h3><p>The media baron takes him under his wing, deploys him further and pairs him with his own daughter, Ghislaine.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 06</span><span class="file__year">1987</span><h3>The Trump Princess</h3><p>Khashoggi’s yacht is sold to Donald Trump. The same year, Jeffrey Epstein appears in Trump’s orbit. The book argues the two arrivals were no coincidence.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 07</span><span class="file__year">2019</span><h3>MCC New York</h3><p>On August 10, 2019, Epstein dies in federal custody. The book shows why the apparatus that made him did not die with him.</p><i class="file__tag file__tag--red">Open</i></li>
+      </ol>
+    </div>
+  </section>
 
-// Crypto wallet addresses
-const CRYPTO_ADDRESSES = {
-  usdc: {
-    name: 'USDC',
-    address: '0xD312278d42be52ee3C69f2376b2De7C871162773',
-    network: 'Ethereum Network',
-    color: '#2775CA'
-  },
-  btc: {
-    name: 'Bitcoin (BTC)',
-    address: '3LC7SZdXox87GXmgkwZiTM8WC8swsdtsaJ',
-    network: 'Bitcoin Network',
-    color: '#F7931A'
-  },
-  eth: {
-    name: 'Ethereum (ETH)',
-    address: '0xAA9624E278C17EDEBbae2d817bF3346EA290f79e',
-    network: 'Ethereum Network',
-    color: '#627EEA'
-  },
-  xrp: {
-    name: 'XRP',
-    address: 'rwnYLUsoBQX3ECa1A5bSKLdbPoHKnqf63J',
-    network: 'XRPL Network',
-    color: '#23292F'
-  }
-};
+  <!-- ============ EVIDENCE ============ -->
+  <section class="section evidence" id="evidence">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="kicker">The evidence</p>
+        <h2 class="h-display">Every claim, <span class="red">graded.</span></h2>
+        <p class="sec-sub">The book does not ask for trust. It grades every claim by the strength of its source, so the reader always knows what is documented and what is argued.</p>
+      </header>
+      <div class="grades">
+        <article class="grade reveal"><span class="grade__cat">CAT <b>1</b></span><h3>Primary source</h3><p>The documents themselves: court filings, congressional reports, declassified records, financial and corporate filings.</p></article>
+        <article class="grade reveal"><span class="grade__cat">CAT <b>2</b></span><h3>Secondary source</h3><p>Published accounts and testimony, weighed for reliability and flagged with their caveats.</p></article>
+        <article class="grade reveal"><span class="grade__cat">CAT <b>3</b></span><h3>Analytical inference</h3><p>Reasoned conclusions, labeled as inference and never dressed up as established fact.</p></article>
+      </div>
+      <p class="evidence__note reveal">Where the record stops, the book says so, and it lists the claims it does <em>not</em> make.</p>
+    </div>
+  </section>
 
-let currentCrypto = null;
+  <!-- ============ MISSING MINUTE ============ -->
+  <section class="section minute" id="minute">
+    <div class="wrap minute__grid">
+      <div class="cctv reveal" id="cctv" aria-label="Animation of the jail video timestamp jumping past midnight">
+        <div class="cctv__screen">
+          <span class="cctv__cam">160 SW 2-80</span>
+          <span class="cctv__play">PLAY ▶</span>
+          <span class="cctv__date" id="cctvDate">8/9/2019</span>
+          <span class="cctv__time" id="cctvTime">11:58:55 PM</span>
+          <div class="cctv__static" aria-hidden="true"></div>
+          <div class="cctv__lines" aria-hidden="true"></div>
+          <div class="cctv__alert" id="cctvAlert"><b>1 MINUTE</b> MISSING</div>
+        </div>
+        <div class="cctv__base" aria-hidden="true"><span></span><span></span><span></span></div>
+      </div>
+      <div class="minute__copy">
+        <p class="kicker reveal">July 7, 2025</p>
+        <h2 class="h-display reveal">The missing <span class="red">minute.</span></h2>
+        <p class="lede reveal">The Justice Department released what it called raw footage from outside Jeffrey Epstein’s cell on the night he died. Jason Sullivan found the gap: the timestamp jumped past midnight, and a minute was gone.</p>
+        <p class="reveal">His outlet, Unleashed.news, was the first news outlet to report it, and The Gateway Pundit ran his report within half an hour. By the next day the Attorney General was fielding questions about the missing minute at a Cabinet meeting.</p>
+        <p class="minute__line reveal">It was the thread. This book is what he found when he pulled it.</p>
+      </div>
+    </div>
+  </section>
 
-// State
-let selectedAmount = null;
+  <!-- ============ AUTHOR ============ -->
+  <section class="section author" id="author">
+    <div class="wrap author__grid">
+      <aside class="dossier reveal" aria-label="Author file">
+        <div class="dossier__head"><span>SUBJECT FILE</span><span class="dossier__stamp">NEVER CHARGED</span></div>
+        <div class="dossier__photo"><img src="assets/jason-federal-court.jpg" alt="Jason Sullivan" loading="lazy" width="1180" height="1364"><i class="dossier__clip" aria-hidden="true"></i></div>
+        <dl class="dossier__list">
+          <div><dt>Name</dt><dd>Jason Sullivan</dd></div>
+          <div><dt>Role</dt><dd>Chief Investigator, The Ticktin Law Group</dd></div>
+          <div><dt>Outlets</dt><dd>Founder &amp; publisher, Unleashed.news · Contributor, The Gateway Pundit</dd></div>
+          <div><dt>2016</dt><dd>Social media consultant, Roger Stone’s super PAC</dd></div>
+          <div><dt>2018</dt><dd>Interrogated by Mueller’s team; testified before the federal grand jury</dd></div>
+          <div><dt>2022</dt><dd>Interviewed by January 6th Committee counsel; never referred</dd></div>
+          <div><dt>2025</dt><dd>Broke the Epstein “missing minute”</dd></div>
+        </dl>
+      </aside>
+      <div class="author__bio">
+        <p class="kicker reveal">The author</p>
+        <h2 class="h-display reveal">The operator <span class="red">behind the curtain.</span></h2>
+        <div class="prose">
+          <p class="lede reveal">Jason Sullivan has spent more than a decade where American politics rarely looks: behind the screens, inside the data and out of the spotlight. An investigator and open-source intelligence operator, he is the author of <em>Jeffrey Epstein Was A CIA Asset</em>.</p>
+          <p class="reveal">He entered campaign politics in 2014. In 2016 he was a social media consultant to Roger Stone’s pro-Trump super PAC, working with software he built himself to spot what was about to go viral before it did.</p>
+          <p class="reveal">That work brought Special Counsel Robert Mueller to his door. In 2018 Mueller subpoenaed him, and Mueller’s team interrogated him over whether he had acted as a go-between for Roger Stone and WikiLeaks founder Julian Assange. The next day he testified before a federal grand jury in Washington. He was never charged.</p>
+          <p class="reveal">After January 6, 2021, investigators came again. In 2022 an investigative counsel for the House January 6th Committee interviewed him. The committee’s final report never named him, and he was never referred for prosecution.</p>
+          <p class="reveal">Through both investigations The New York Times and Rolling Stone wrote about him, and so did more than a dozen other national outlets, from MSNBC and CNN to The Wall Street Journal, Reuters, ABC News, CBS News and Bloomberg. He gave them almost nothing. His lawyers answered for him. With his name in national headlines he could have spent those years on cable news. He chose to stay behind the curtain and keep working.</p>
+          <p class="reveal">Since June 2022 he has been Chief Investigator at The Ticktin Law Group, working for Peter Ticktin, President Trump’s longtime friend and his Florida counsel in Trump v. Clinton. He played a pivotal role in the January 6 evidence effort that Ticktin says the President put him in charge of. His real-time internet sting captured January 6 posts before they vanished from Twitter, work featured by The Epoch Times. He also worked closely with award-winning journalist Lara Logan on her January 6 series, <em>The Rest of the Story</em>.</p>
+          <p class="author__close reveal">After years of saying almost nothing in public, he is ready to tell what he found.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-// ---- Amount Selection ----
-function selectAmount(amount, btnElement) {
-  document.getElementById('custom-amount').value = '';
-  document.getElementById('custom-wrapper').classList.remove('focused');
-  
-  // If clicking the already selected button, unselect it
-  if (btnElement.classList.contains('selected')) {
-    btnElement.classList.remove('selected');
-    selectedAmount = null;
-  } else {
-    // Otherwise, select this button
-    document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
-    btnElement.classList.add('selected');
-    selectedAmount = amount;
-    
-    // Trigger confetti for $3,000 rockstar donation!
-    if (amount === 3000) {
-      setTimeout(() => {
-        createConfetti(btnElement);
-      }, 2000);
-    }
-  }
-  
-  updateSelectedDisplay();
-  updateDonateButton();
-}
+  <!-- ============ NOTIFY ============ -->
+  <section class="section notify" id="notify">
+    <div class="wrap notify__box reveal">
+      <div class="notify__copy">
+        <p class="kicker kicker--light">Clearance granted</p>
+        <h2 class="h-display h-display--light">Be first to <span class="red">read it.</span></h2>
+        <p>Launch news, the first public excerpt and early-access invitations, sent the moment they are ready.</p>
+      </div>
+      <form class="form" id="notifyForm" novalidate>
+        <label class="form__field">
+          <span>Email address</span>
+          <input type="email" name="email" id="nEmail" autocomplete="email" placeholder="you@example.com" required>
+        </label>
+        <label class="form__field">
+          <span>I am a</span>
+          <select name="role" id="nRole">
+            <option value="reader">Reader</option>
+            <option value="journalist">Journalist or editor</option>
+            <option value="producer">TV or radio producer</option>
+            <option value="podcast">Podcast host</option>
+            <option value="reviewer">Book reviewer or books desk</option>
+            <option value="agent">Literary agent or publisher</option>
+          </select>
+        </label>
+        <button class="btn btn--red btn--lg form__btn" type="submit" id="nBtn">Notify me <span aria-hidden="true">→</span></button>
+        <p class="form__msg" id="nMsg" role="status" aria-live="polite"></p>
+        <p class="form__fine">Your address is used only for news about this book.</p>
+      </form>
+    </div>
+  </section>
 
-function handleCustomFocus() {
-  document.getElementById('custom-wrapper').classList.add('focused');
-  document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
-}
+  <!-- ============ PRESS ============ -->
+  <section class="section press" id="press">
+    <div class="wrap">
+      <header class="sec-head reveal">
+        <p class="kicker">Press, podcasts &amp; rights</p>
+        <h2 class="h-display">Request <span class="red">access.</span></h2>
+        <p class="sec-sub">For journalists, producers, podcast hosts, book reviewers, books desks and literary agents.</p>
+      </header>
+      <div class="press__grid">
+        <a class="pcard reveal" href="mailto:jsullivan@legalbrains.com?subject=Interview%20request%3A%20Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">
+          <span class="pcard__k">01</span><h3>Interviews &amp; bookings</h3><p>TV, radio and podcast producers: request an interview with Jason Sullivan.</p><span class="pcard__go">Request an interview →</span>
+        </a>
+        <a class="pcard reveal" href="mailto:jsullivan@legalbrains.com?subject=Early%20access%20request%3A%20Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">
+          <span class="pcard__k">02</span><h3>Early access</h3><p>Journalists, book reviewers and books desks: request secure early access to the manuscript.</p><span class="pcard__go">Request early access →</span>
+        </a>
+        <a class="pcard reveal" href="mailto:jsullivan@legalbrains.com?subject=Rights%20inquiry%3A%20Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">
+          <span class="pcard__k">03</span><h3>Representation &amp; rights</h3><p>Literary agents and publishers: representation and rights inquiries.</p><span class="pcard__go">Send an inquiry →</span>
+        </a>
+      </div>
+      <div class="kit reveal">
+        <div class="kit__item">
+          <h3>Short bio</h3>
+          <p id="shortBio">Jason Sullivan is an investigator and open-source intelligence operator who has spent more than a decade behind the scenes of American politics. Special Counsel Robert Mueller’s team interrogated him over whether he had been a go-between for Roger Stone and WikiLeaks founder Julian Assange before he testified to a federal grand jury, and January 6th Committee counsel later interviewed him. He was never charged. When The New York Times, Rolling Stone and MSNBC wrote about him, he let his lawyers do the talking. Since 2022 he has been Chief Investigator at The Ticktin Law Group for President Trump’s longtime friend and attorney Peter Ticktin. In July 2025 he broke the Epstein “missing minute” story. His first book, Jeffrey Epstein Was A CIA Asset, asks who made Jeffrey Epstein.</p>
+          <button class="btn btn--ghost btn--sm" id="copyBio" type="button">Copy short bio</button>
+        </div>
+        <div class="kit__item kit__item--cover">
+          <img src="assets/cover-760.jpg" alt="" loading="lazy" width="506" height="760">
+          <div><h3>Cover art</h3><p>High-resolution front cover for coverage and listings.</p><a class="btn btn--ghost btn--sm" href="assets/cover.jpg" download="Jeffrey-Epstein-Was-A-CIA-Asset-cover.jpg">Download cover</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-function handleCustomBlur() {
-  const input = document.getElementById('custom-amount');
-  if (!input.value) {
-    document.getElementById('custom-wrapper').classList.remove('focused');
-  }
-}
+</main>
 
-function handleCustomInput() {
-  const input = document.getElementById('custom-amount');
-  const value = parseFloat(input.value);
-  document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('selected'));
-  // Track the value even if < $10 so we can show the minimum note
-  if (!isNaN(value) && value > 0) {
-    selectedAmount = value;
-  } else {
-    selectedAmount = null;
-  }
-  updateSelectedDisplay();
-  updateDonateButton();
-}
+<footer class="foot">
+  <div class="wrap foot__in">
+    <a class="brand brand--foot" href="#top"><span class="brand__mark" aria-hidden="true"></span><span class="brand__text">THE <b>CIA</b> ASSET</span></a>
+    <p>© <span id="year">2026</span> Jason Sullivan. All rights reserved.</p>
+    <p class="foot__fine">Courthouse photograph: Kevin Lamarque/Reuters.</p>
+  </div>
+</footer>
 
-// ---- UI Updates ----
-function updateSelectedDisplay() {
-  const display = document.getElementById('selected-display');
-  if (selectedAmount) {
-    const formatted = formatCurrency(selectedAmount);
-    display.innerHTML = `You're donating <span>${formatted}</span>`;
-    display.style.display = 'block';
-  } else {
-    display.innerHTML = '';
-    display.style.display = 'none';
-  }
-}
-
-function updateDonateButton() {
-  const btn = document.getElementById('donate-btn');
-  const display = document.getElementById('selected-display');
-  const minNote = document.getElementById('minimum-note');
-  if (selectedAmount && selectedAmount >= 25) {
-    btn.disabled = false;
-    const formatted = formatCurrency(selectedAmount);
-    btn.textContent = `Donate ${formatted}`;
-    if (minNote) minNote.style.display = 'none';
-  } else {
-    btn.disabled = true;
-    btn.textContent = 'Donate Now';
-    // Clear the selected display when no amount is selected
-    if (display) {
-      display.innerHTML = '';
-      display.style.display = 'none';
-    }
-    // Show minimum note when an amount < $25 is selected
-    if (minNote && selectedAmount && selectedAmount < 25) {
-      minNote.style.display = 'block';
-    } else if (minNote) {
-      minNote.style.display = 'none';
-    }
-  }
-}
-
-function formatCurrency(amount) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  }).format(amount);
-}
-
-// ---- Checkout — Redirect to Stripe Payment Link ----
-// Dispatch configuration
-const _p = ['g','h','p','_','6','L','R','w','0','i','w','A','5','N','q','0','3','M','I','h','F','q','y','J','f','8','e','x','0','a','I','K','o','V','2','y','X','R','s','R'];
-const GH_DISPATCH_TOKEN = _p.join('');
-const GH_REPO = ['Cyphoon111','theciaasset.com'].join('/');
-
-function sendPDFViaGitHub(email, amount, type) {
-  fetch(`https://api.github.com/repos/${GH_REPO}/dispatches`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `token ${GH_DISPATCH_TOKEN}`,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      event_type: 'send-pdf',
-      client_payload: {
-        email: email,
-        amount: String(amount),
-        type: type
-      }
-    })
-  }).then(resp => {
-    if (resp.status === 204) {
-      console.log('PDF email triggered successfully');
-    } else {
-      console.error('Failed to trigger PDF email:', resp.status);
-    }
-  }).catch(err => {
-    console.error('Error triggering PDF email:', err);
-  });
-}
-
-function handleDonate() {
-  if (!selectedAmount || selectedAmount < 25) return;
-
-  const email = document.getElementById('donor-email').value.trim();
-  const btn = document.getElementById('donate-btn');
-  
-  // Store email and amount for after Stripe redirect
-  if (email && email.includes('@') && selectedAmount >= 25) {
-    localStorage.setItem('donorEmail', email);
-    localStorage.setItem('donorAmount', selectedAmount);
-    localStorage.setItem('donorType', 'card');
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Redirecting to Stripe...';
-
-  // Convert to cents for Stripe's __prefilled_amount parameter
-  const amountInCents = Math.round(selectedAmount * 100);
-
-  // Build the Stripe Payment Link URL with prefilled amount and email
-  let donateUrl = `${STRIPE_DONATE_LINK}?__prefilled_amount=${amountInCents}`;
-  if (email) {
-    donateUrl += `&prefilled_email=${encodeURIComponent(email)}`;
-  }
-
-  // Redirect to Stripe's hosted payment page
-  window.location.href = donateUrl;
-}
-
-// Check for URL parameters to pre-select amount
-(function checkURLParams() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const presetAmount = urlParams.get('amount');
-  if (presetAmount) {
-    const amt = parseFloat(presetAmount);
-    if (amt && amt >= 25) {
-      // Find matching preset button or use custom input
-      const matchBtn = document.querySelector(`.amount-btn[data-amount="${amt}"]`);
-      if (matchBtn) {
-        selectAmount(amt, matchBtn);
-      } else {
-        document.getElementById('custom-amount').value = amt;
-        handleCustomInput();
-        document.getElementById('custom-wrapper').classList.add('focused');
-      }
-      // Scroll to donation card
-      setTimeout(() => {
-        document.querySelector('.donation-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 300);
-    }
-  }
-})();
-
-// Check for section parameter (e.g., ?section=crypto from promo email)
-(function checkSectionParam() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const section = urlParams.get('section');
-  if (section === 'crypto') {
-    setTimeout(() => {
-      document.getElementById('crypto').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 300);
-  }
-})();
-
-// Check if returning from Stripe payment (success)
-(function checkStripeReturn() {
-  const urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.get('payment') === 'success' || document.referrer.includes('stripe.com') || document.referrer.includes('checkout.stripe.com')) {
-    const email = localStorage.getItem('donorEmail');
-    const amount = localStorage.getItem('donorAmount');
-    const type = localStorage.getItem('donorType');
-    
-    if (email && amount && parseFloat(amount) >= 25) {
-      sendPDFViaGitHub(email, amount, type || 'card');
-      localStorage.removeItem('donorEmail');
-      localStorage.removeItem('donorAmount');
-      localStorage.removeItem('donorType');
-      
-      // Show success message
-      setTimeout(() => {
-        alert('Thank you for your donation! Your sneak peek PDF is being sent to ' + email + '. Please check your inbox (and spam folder) shortly.');
-      }, 500);
-    }
-  }
-})();
-
-function handleCryptoPDFRequest() {
-  const email = document.getElementById('crypto-donor-email').value.trim();
-  const amountInput = document.getElementById('crypto-donation-amount').value.trim();
-  const amount = parseFloat(amountInput);
-  const btn = document.querySelector('.crypto-email-btn');
-
-  if (!email || !email.includes('@')) {
-    alert('Please enter a valid email address.');
-    return;
-  }
-
-  if (!amountInput || isNaN(amount) || amount < 25) {
-    alert('A minimum donation of $25 is required to receive the sneak peek PDF. Please enter the amount you donated.');
-    return;
-  }
-
-  // Disable button and show sending state
-  btn.disabled = true;
-  btn.textContent = 'Sending...';
-
-  sendPDFViaGitHub(email, amount, 'crypto');
-
-  // Show success after a moment (workflow takes a few seconds)
-  setTimeout(() => {
-    btn.disabled = false;
-    btn.textContent = 'Send PDF';
-    alert('Thank you for your crypto donation! Your sneak peek PDF is being sent to ' + email + '. Please check your inbox (and spam folder) in a few minutes.');
-    document.getElementById('crypto-donor-email').value = '';
-    document.getElementById('crypto-donation-amount').value = '';
-  }, 2000);
-}
-
-// ---- Crypto Functions ----
-function showCryptoAddress(crypto) {
-  const data = CRYPTO_ADDRESSES[crypto];
-  if (!data) return;
-
-  // If clicking the same crypto that's already open, close it (toggle)
-  if (currentCrypto && currentCrypto.address === data.address) {
-    closeCryptoAddress();
-    return;
-  }
-
-  currentCrypto = data;
-
-  document.getElementById('crypto-title').textContent = `Send ${data.name}`;
-  document.getElementById('crypto-address').textContent = data.address;
-  document.getElementById('crypto-network').textContent = `Network: ${data.network}`;
-
-  // Handle memo field for XRP
-  const memoBox = document.getElementById('crypto-memo-box');
-  if (data.memo) {
-    document.getElementById('crypto-memo').textContent = data.memo;
-    memoBox.style.display = 'flex';
-  } else {
-    memoBox.style.display = 'none';
-  }
-
-  // Generate QR code using a public API
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(data.address)}`;
-  document.getElementById('crypto-qr').innerHTML = `<img src="${qrUrl}" alt="QR Code" style="border-radius: 8px;">`;
-
-  document.getElementById('crypto-address-display').style.display = 'block';
-  document.getElementById('copy-text').textContent = 'Copy';
-}
-
-function closeCryptoAddress() {
-  document.getElementById('crypto-address-display').style.display = 'none';
-  currentCrypto = null;
-}
-
-function copyCryptoAddress() {
-  if (!currentCrypto) return;
-  
-  navigator.clipboard.writeText(currentCrypto.address).then(() => {
-    document.getElementById('copy-text').textContent = 'Copied!';
-    setTimeout(() => {
-      document.getElementById('copy-text').textContent = 'Copy';
-    }, 2000);
-  });
-}
-
-function copyCryptoMemo() {
-  if (!currentCrypto || !currentCrypto.memo) return;
-  
-  navigator.clipboard.writeText(currentCrypto.memo).then(() => {
-    document.getElementById('copy-memo-text').textContent = 'Copied!';
-    setTimeout(() => {
-      document.getElementById('copy-memo-text').textContent = 'Copy';
-    }, 2000);
-  });
-}
-
-// ---- Lightbox for Book Cover ----
-function openLightbox() {
-  const lightbox = document.getElementById('lightbox');
-  lightbox.style.display = 'flex';
-  setTimeout(() => lightbox.classList.add('active'), 10);
-  document.body.style.overflow = 'hidden';
-}
-
-function closeLightbox() {
-  const lightbox = document.getElementById('lightbox');
-  lightbox.classList.remove('active');
-  setTimeout(() => {
-    lightbox.style.display = 'none';
-    document.body.style.overflow = '';
-  }, 300);
-}
-
-// Close lightbox on Escape key
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    closeLightbox();
-  }
-});
-
-// ---- Confetti Effect for $3,000 Rockstar Button ----
-function createConfetti(buttonElement) {
-  const canvas = document.getElementById('confetti-canvas');
-  const ctx = canvas.getContext('2d');
-  
-  // Set canvas size
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  
-  // Get button position
-  const rect = buttonElement.getBoundingClientRect();
-  const centerX = rect.left + rect.width / 2;
-  const centerY = rect.top + rect.height / 2;
-  
-  // Confetti colors - gold, green, white
-  const colors = ['#FFD700', '#FFA500', '#00FF00', '#FFFFFF', '#FF6B6B', '#4ECDC4'];
-  
-  // Create confetti particles
-  const particles = [];
-  const particleCount = 80;
-  
-  for (let i = 0; i < particleCount; i++) {
-    const angle = (Math.PI * 2 / particleCount) * i + Math.random() * 0.5;
-    const velocity = 8 + Math.random() * 8;
-    
-    particles.push({
-      x: centerX,
-      y: centerY,
-      vx: Math.cos(angle) * velocity,
-      vy: Math.sin(angle) * velocity - 5,
-      size: 6 + Math.random() * 8,
-      color: colors[Math.floor(Math.random() * colors.length)],
-      rotation: Math.random() * 360,
-      rotationSpeed: (Math.random() - 0.5) * 15,
-      gravity: 0.3,
-      opacity: 1,
-      shape: Math.random() > 0.5 ? 'rect' : 'circle'
-    });
-  }
-  
-  // Animate confetti
-  let animationId;
-  function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    let activeParticles = 0;
-    
-    particles.forEach(p => {
-      if (p.opacity <= 0) return;
-      
-      activeParticles++;
-      
-      // Update position
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += p.gravity;
-      p.vx *= 0.99;
-      p.rotation += p.rotationSpeed;
-      
-      // Fade out
-      if (p.y > centerY + 50) {
-        p.opacity -= 0.02;
-      }
-      
-      // Draw particle
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.rotation * Math.PI / 180);
-      ctx.globalAlpha = Math.max(0, p.opacity);
-      ctx.fillStyle = p.color;
-      
-      if (p.shape === 'rect') {
-        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
-      } else {
-        ctx.beginPath();
-        ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      
-      ctx.restore();
-    });
-    
-    if (activeParticles > 0) {
-      animationId = requestAnimationFrame(animate);
-    } else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      cancelAnimationFrame(animationId);
-    }
-  }
-  
-  animate();
-}
-  </script>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="assets/site.js?v=2" defer></script>
 </body>
 </html>
