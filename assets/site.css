@@ -191,8 +191,8 @@ a { color: inherit; }
 .lens__snd svg { width: 16px; height: 16px; flex: none; }
 .lens__snd svg path { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .lens__snd svg .spk { fill: currentColor; stroke: none; }
-.lens__snd[data-state="on"] .x, .lens__snd:not([data-state="on"]) .w1, .lens__snd:not([data-state="on"]) .w2 { display: none; }
-.lens__snd[data-state="locked"]::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; border: 1px solid #fff; animation: sndPing 2.4s var(--ease) infinite; pointer-events: none; }
+.lens__snd:not([data-state="off"]) .x, .lens__snd[data-state="off"] .w1, .lens__snd[data-state="off"] .w2 { display: none; }
+.lens__snd[data-state="armed"]::after { content: ''; position: absolute; inset: -1px; border-radius: inherit; border: 1px solid #fff; animation: sndPing 2.4s var(--ease) infinite; pointer-events: none; }
 .hud__meter { position: absolute; left: 50%; bottom: 66px; transform: translateX(-50%); display: flex; gap: 18px; font-size: 9px; opacity: .85; padding-top: 8px; border-top: 1px solid rgba(255,255,255,.5); }
 .hud__meter i { position: absolute; top: -5px; left: 50%; width: 2px; height: 9px; background: var(--red); transform: translateX(calc(var(--needle, 0) * 1px)); transition: transform .3s var(--ease); }
 .lens__frame { container-type: inline-size; }

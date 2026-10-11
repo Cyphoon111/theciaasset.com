@@ -7,6 +7,20 @@
   const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
+  /* ---------- a refresh (or Back) opens at the very top: no restored scroll, no leftover #section from the menu ---------- */
+  const navEntry = performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
+  const fresh = !navEntry || navEntry.type === 'navigate';
+  const toTop = () => { const h = document.documentElement, s = h.style.scrollBehavior; h.style.scrollBehavior = 'auto'; scrollTo(0, 0); h.style.scrollBehavior = s; };
+  if (!fresh) {
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    toTop();
+    // a browser may still restore late; undo it once loading ends unless the reader has already started scrolling
+    let moved = false;
+    ['touchstart', 'wheel', 'keydown', 'pointerdown'].forEach((ev) => addEventListener(ev, () => { moved = true; }, { once: true, passive: true }));
+    addEventListener('load', () => { if (!moved) toTop(); }, { once: true });
+  }
+  addEventListener('pageshow', (e) => { if (e.persisted) toTop(); });
+
   /* ---------- toast ---------- */
   const toastEl = $('#toast');
   let toastT;
@@ -119,21 +133,28 @@
       for (let ch = 0; ch < 2; ch++) { const d = b.getChannelData(ch); for (let i = 0; i < n; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (sr * 0.04)); }
       return b;
     };
-    const GESTURES = ['pointerdown', 'touchend', 'keydown', 'click'];
+    // Sound is ON by default. Browsers let a page play sound only after the visitor's first tap, click or key press (or when the
+    // visitor allows the site to autoplay), so the audio is tried at load and switched on by the first interaction anywhere.
+    const GESTURES = ['pointerdown', 'pointerup', 'touchend', 'keydown', 'click'];
+    let firstLive = false, onFirstLive = () => {};
     const paintSnd = () => {
       if (!sndBtn) return;
-      const s = !soundOn() ? 'off' : audioLive() ? 'on' : 'locked';
+      const s = !soundOn() ? 'off' : audioLive() ? 'on' : 'armed';
       sndBtn.dataset.state = s;
-      sndBtn.setAttribute('aria-pressed', String(s === 'on'));
-      sndBtn.setAttribute('aria-label', s === 'on' ? 'Turn off the shutter sound' : 'Turn on the shutter sound');
-      text(sndBtn.querySelector('.lens__snd-l'), s === 'on' ? 'Sound on' : s === 'off' ? 'Sound off' : fine ? 'Click for sound' : 'Tap for sound');
-      text(sndBtn.querySelector('.lens__snd-s'), s === 'on' ? 'On' : s === 'off' ? 'Off' : 'Sound');
+      sndBtn.setAttribute('aria-pressed', String(s !== 'off'));
+      sndBtn.setAttribute('aria-label', s === 'off' ? 'Turn on the shutter sound' : s === 'on' ? 'Turn off the shutter sound' : 'Play the shutter sound');
+      text(sndBtn.querySelector('.lens__snd-l'), s === 'off' ? 'Sound off' : 'Sound on');
+      text(sndBtn.querySelector('.lens__snd-s'), s === 'off' ? 'Off' : 'On');
+    };
+    const goneLive = () => {
+      GESTURES.forEach((ev) => removeEventListener(ev, onGesture, true));
+      if (!firstLive) { firstLive = true; onFirstLive(); }
     };
     const onGesture = (e) => {
       if (!soundOn() || (e.target && e.target.closest && e.target.closest('#lensSnd'))) return;
-      audio();
+      audio(true);
     };
-    const audio = () => {
+    const audio = (gesture) => {
       if (!AC) return null;
       if (!snd.ctx) {
         try { snd.ctx = new AC({ latencyHint: 'interactive' }); } catch { try { snd.ctx = new AC(); } catch { return null; } }
@@ -143,10 +164,12 @@
         room.buffer = roomBuffer(c);
         master.connect(comp); master.connect(room); room.connect(wet); wet.connect(comp); comp.connect(c.destination);
         snd.bus = master; snd.buf = shutterBuffer(c);
-        c.onstatechange = () => { paintSnd(); if (audioLive()) GESTURES.forEach((ev) => removeEventListener(ev, onGesture, true)); };
+        c.onstatechange = () => { paintSnd(); if (audioLive()) goneLive(); };
+        if (audioLive()) { GESTURES.forEach((ev) => removeEventListener(ev, onGesture, true)); firstLive = true; }
       }
       if (snd.ctx.state !== 'running') snd.ctx.resume().catch(() => {});
-      try { const s = snd.ctx.createBufferSource(); s.buffer = snd.ctx.createBuffer(1, 1, snd.ctx.sampleRate); s.connect(snd.ctx.destination); s.start(0); } catch {}
+      // iPhone: starting a silent sound inside the tap is what unlocks audio there
+      if (gesture) { try { const s = snd.ctx.createBufferSource(); s.buffer = snd.ctx.createBuffer(1, 1, snd.ctx.sampleRate); s.connect(snd.ctx.destination); s.start(0); } catch {} }
       paintSnd();
       return snd.ctx;
     };
@@ -264,6 +287,10 @@
       status('SUBJECT ACQUIRED'); idShow(T); burstAt(T + 0.24);
     };
     const fire = () => { blinks.push(T); if (!reduce) kicks.push(T); fired++; setShots(fired); flash(); };
+    onFirstLive = () => {
+      if (phase === 'hold' && live && visRatio >= 0.5) { phase = 'locked'; burstAt(T + 0.15); }
+      else if (phase === 'locked' && !burstSound && fired < 3) burstSound = soundShots(fired);
+    };
     const afterUnlock = () => whenLive(() => { paintSnd(); if (phase === 'locked' && !burstSound && fired < 3) burstSound = soundShots(fired); });
 
     // timecode, 24 fps
@@ -271,7 +298,7 @@
     const pad = (n) => String(n).padStart(2, '0');
     const tc = (now) => { const fr = tcBase + Math.floor(((now - tStart) / 1000) * 24); const ff = fr % 24, s = Math.floor(fr / 24); tcEl.textContent = `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}:${pad(ff)}`; };
 
-    let live = false, started = false, lastNow = 0, raf = 0;
+    let live = false, started = false, lastNow = 0, raf = 0, visRatio = 0;
     const step = (now) => {
       if (!live) return;
       const dt = Math.min(0.05, (now - (lastNow || now)) / 1000); lastNow = now; T += dt;
@@ -351,15 +378,15 @@
     };
     frame.addEventListener('click', (e) => {
       if (e.target.closest('.lens__snd')) return;
-      if (soundOn()) audio();
+      if (soundOn()) audio(true);
       shootNow(); afterUnlock();
     });
     if (sndBtn && AC) {
       sndBtn.hidden = false; paintSnd();
       sndBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (sndBtn.dataset.state === 'on') { savePref('off'); paintSnd(); return; }
-        savePref('on'); audio(); paintSnd(); shootNow(); afterUnlock();
+        if (soundOn() && audioLive()) { savePref('off'); paintSnd(); return; }
+        savePref('on'); audio(true); paintSnd(); shootNow(); afterUnlock();
       });
     }
 
@@ -367,7 +394,9 @@
     measure();
     if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => { measure(); apply(x, y); }).observe(frame);
     x = ENTRY[0] * W; y = ENTRY[1] * H; apply(x, y);
+    if (AC && soundOn()) audio(false);
     new IntersectionObserver((es) => es.forEach((e) => {
+      visRatio = e.intersectionRatio;
       if (!started) { if (e.intersectionRatio >= 0.35) { started = true; phase = 'wait'; t0 = T; run(); } }
       else if (e.isIntersecting) run(); else halt();
     }), { threshold: [0, 0.35, 0.6] }).observe(lens);
@@ -494,7 +523,7 @@
 
   /* ---------- links from earlier emails ---------- */
   const qp = new URLSearchParams(location.search);
-  if (qp.has('amount') || qp.has('section')) setTimeout(() => $('#notify')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 600);
+  if (fresh && (qp.has('amount') || qp.has('section'))) setTimeout(() => $('#notify')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 600);
   if (qp.get('payment') === 'success') setTimeout(() => toast('Thank you for supporting the book.'), 800);
 
   const yr = $('#year'); if (yr) yr.textContent = String(new Date().getFullYear());
