@@ -174,15 +174,25 @@
       paintSnd();
       return snd.ctx;
     };
+    const pending = new Set();
     const clickAt = (when) => {
+      if (document.hidden) return;
       const c = snd.ctx, s = c.createBufferSource(), g = c.createGain();
       s.buffer = snd.buf; s.playbackRate.value = 0.97 + Math.random() * 0.06; g.gain.value = 0.85 + Math.random() * 0.15;
-      s.connect(g); g.connect(snd.bus); s.start(Math.max(c.currentTime, when));
+      s.connect(g); g.connect(snd.bus); s.onended = () => pending.delete(s); pending.add(s); s.start(Math.max(c.currentTime, when));
+    };
+    const silence = () => {
+      pending.forEach((s) => { try { s.stop(); } catch {} }); pending.clear();
+      if (snd.ctx && snd.ctx.state === 'running') snd.ctx.suspend().catch(() => {});
     };
     const whenLive = (fn) => { if (!snd.ctx) return; if (audioLive()) fn(); else snd.ctx.resume().then(() => { if (audioLive()) fn(); }).catch(() => {}); };
     if (AC) arm();
-    // coming back to the tab: ask the browser to resume (allowed once the visitor has interacted with the page)
-    document.addEventListener('visibilitychange', () => { if (!document.hidden && snd.ctx && soundOn() && !audioLive()) snd.ctx.resume().catch(() => {}); });
+    // leaving the tab silences everything at once; coming back asks the browser to resume (allowed once the visitor has interacted)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) silence();
+      else if (snd.ctx && soundOn() && !audioLive()) snd.ctx.resume().catch(() => {});
+    });
+    addEventListener('pagehide', silence);
 
     /* geometry */
     let W = 0, H = 0, R = 90, SD = 214, x = 0, y = 0;
@@ -322,6 +332,7 @@
     const tc = (now) => { const fr = tcBase + Math.floor(((now - tStart) / 1000) * 24); const ff = fr % 24, s = Math.floor(fr / 24); tcEl.textContent = `${pad(Math.floor(s / 3600))}:${pad(Math.floor(s / 60) % 60)}:${pad(s % 60)}:${pad(ff)}`; };
 
     let live = false, started = false, lastNow = 0, raf = 0, visRatio = 0;
+    document.addEventListener('visibilitychange', () => { if (document.hidden) halt(); else if (started && visRatio > 0) run(); });
     const step = (now) => {
       if (!live) return;
       const dt = Math.min(0.1, (now - (lastNow || now)) / 1000); lastNow = now; T += dt;
@@ -421,7 +432,7 @@
     new IntersectionObserver((es) => es.forEach((e) => {
       visRatio = e.intersectionRatio;
       if (!started) { if (e.intersectionRatio >= 0.35) { started = true; phase = 'wait'; t0 = T; run(); } }
-      else if (e.isIntersecting) run(); else halt();
+      else if (e.isIntersecting && !document.hidden) run(); else halt();
     }), { threshold: [0, 0.35, 0.6] }).observe(lens);
   }
 
