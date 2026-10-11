@@ -340,6 +340,8 @@ a { color: inherit; }
 .prose .author__sting { padding: 18px 22px 20px; background: #fff; border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 0 10px 10px 0; color: var(--ink); box-shadow: 0 16px 34px -28px rgba(0,0,0,.4); }
 .author__sting::before { content: 'J6 DELETED'; display: block; margin-bottom: 9px; font: 400 12px/1 var(--stencil); letter-spacing: .16em; color: var(--red); }
 .author__sting strong { font-weight: 700; }
+.author__sting a { color: var(--red); font-weight: 600; text-decoration: none; border-bottom: 1px solid rgba(224,18,28,.35); white-space: nowrap; }
+.author__sting a:hover { border-bottom-color: var(--red); }
 
 /* ---------- notify ---------- */
 .notify { padding-block: clamp(70px, 9vw, 120px); }
