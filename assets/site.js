@@ -21,6 +21,32 @@
   }
   addEventListener('pageshow', (e) => { if (e.persisted) toTop(); });
 
+  window.__ciaReady = true;
+
+  /* ---------- opening screen: one click or tap opens the file, and that click lets the browser play the shutter sound ---------- */
+  const gate = $('#gate');
+  let gateOpen = !gate || !document.documentElement.classList.contains('gate-on');
+  const onGateOpen = [];
+  if (!gateOpen) {
+    const gateBtn = $('#gateBtn'), gateLabel = $('#gateBtnLabel');
+    if (gateLabel && !fine) gateLabel.textContent = 'Tap to open the file';
+    const behind = [$('.skip'), $('.nav'), $('#main'), $('.foot')].filter(Boolean);
+    behind.forEach((el) => { el.inert = true; });
+    if (gateBtn) gateBtn.focus({ preventScroll: true });
+    const openGate = () => {
+      if (gateOpen) return;
+      gateOpen = true;
+      behind.forEach((el) => { el.inert = false; });
+      if (gateBtn) { const r = gateBtn.getBoundingClientRect(); gate.style.setProperty('--gx', `${Math.round(r.left + r.width / 2)}px`); gate.style.setProperty('--gy', `${Math.round(r.top + r.height / 2)}px`); }
+      gate.classList.add('is-opening');
+      setTimeout(() => { document.documentElement.classList.remove('gate-on'); gate.remove(); }, reduce ? 30 : 860);
+      onGateOpen.splice(0).forEach((fn) => fn());
+    };
+    gate.addEventListener('click', openGate);
+    addEventListener('keydown', (e) => { if (!gateOpen && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); openGate(); } });
+  }
+  const whenGateOpen = (fn) => { if (gateOpen) fn(); else onGateOpen.push(fn); };
+
   /* ---------- toast ---------- */
   const toastEl = $('#toast');
   let toastT;
@@ -282,7 +308,7 @@
       appr = [FX + ((dx / dl) * R * 0.95) / W, FY + ((dy / dl) * R * 0.95) / H];
       pathNow = mkPath([cyc === 0 ? ENTRY : [x / W, y / H], ...pts, appr]);
       fromZoom = v.zoom; fromDim = v.dim; fromSnap = v.snap; fFrom = f;
-      dur = cyc === 0 ? 4.6 : 4.3; phase = 'float'; t0 = T;
+      dur = cyc === 0 ? 3.2 : 4.3; phase = 'float'; t0 = T;
       lens.classList.remove('is-locked', 'is-burst'); setShots(0); idHide(); status('SCANNING');
     };
     const toHover = () => { phase = 'hover'; t0 = T; status('FACE DETECTED'); };
@@ -401,6 +427,7 @@
       raf = requestAnimationFrame(step);
     };
     const run = () => { if (!live) { live = true; lastNow = 0; raf = requestAnimationFrame(step); } };
+    const startLens = () => { if (started || visRatio < 0.35) return; started = true; phase = 'wait'; t0 = T; if (!document.hidden) run(); };
     const halt = () => { live = false; cancelAnimationFrame(raf); };
 
     // a click or tap on the photo (or the sound button) zeroes in and takes the burst now, with sound
@@ -431,7 +458,7 @@
     if (AC && soundOn()) audio(false);
     new IntersectionObserver((es) => es.forEach((e) => {
       visRatio = e.intersectionRatio;
-      if (!started) { if (e.intersectionRatio >= 0.35) { started = true; phase = 'wait'; t0 = T; run(); } }
+      if (!started) { if (e.intersectionRatio >= 0.35) whenGateOpen(startLens); }
       else if (e.isIntersecting && !document.hidden) run(); else halt();
     }), { threshold: [0, 0.35, 0.6] }).observe(lens);
   }

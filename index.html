@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script>/* a refresh opens at the very top, never where the reader left off */ if ('scrollRestoration' in history) history.scrollRestoration = 'manual';</script>
+<script>/* a refresh opens at the very top, never where the reader left off */ if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+/* the opening screen: one click turns the sound on (browsers allow sound only after the visitor's first click or tap) */ document.documentElement.classList.add('gate-on'); document.addEventListener('click', function (e) { if (!window.__ciaReady && e.target.closest && e.target.closest('.gate')) document.documentElement.classList.remove('gate-on'); });</script>
 <title>Jeffrey Epstein Was A CIA Asset | Jason Sullivan</title>
 <meta name="description" content="The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein. A forthcoming work of non-fiction by Jason Sullivan, the investigator who broke the Epstein “missing minute.”">
 <link rel="canonical" href="https://theciaasset.com/">
@@ -28,12 +29,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Ops+One&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
-<link rel="stylesheet" href="assets/site.css?v=13">
+<link rel="stylesheet" href="assets/site.css?v=14">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
 </head>
 <body>
+<div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <div class="gate__in">
+    <p class="gate__tag">Classified</p>
+    <p class="gate__file">File 0001 · Eyes only</p>
+    <h2 class="gate__title" id="gateTitle">Jeffrey Epstein was a <span class="red">CIA asset</span></h2>
+    <p class="gate__by">By Jason Sullivan</p>
+    <button class="gate__btn" id="gateBtn" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.2h3.6L12 5v14l-4.9-4.2H3.5z" fill="currentColor"/><path d="M15.4 9.1a4.1 4.1 0 0 1 0 5.8M17.9 6.6a7.6 7.6 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span id="gateBtnLabel">Click to open the file</span></button>
+    <p class="gate__hint">Sound on</p>
+  </div>
+</div>
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="nav" id="top">
@@ -367,6 +378,6 @@
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=12" defer></script>
+<script src="assets/site.js?v=13" defer></script>
 </body>
 </html>
