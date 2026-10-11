@@ -152,7 +152,8 @@ a { color: inherit; }
 .hud__row--bottom { bottom: 24px; align-items: flex-end; }
 .hud__rec { display: inline-flex; align-items: center; gap: 6px; color: #fff; }
 .hud__rec b { width: 9px; height: 9px; border-radius: 50%; background: var(--red); box-shadow: 0 0 8px var(--red); animation: rec 1.2s steps(2) infinite; }
-.hud__tc { font-variant-numeric: tabular-nums; }
+.hud__left { display: inline-flex; flex-direction: column; gap: 5px; }
+.hud__tc { font-variant-numeric: tabular-nums; opacity: .9; }
 .hud__exp { opacity: .85; }
 .hud__loc small { opacity: .75; font-size: 9.5px; }
 .hud__focus b { font-size: 13px; font-variant-numeric: tabular-nums; }
@@ -363,7 +364,7 @@ a { color: inherit; }
   .hero__stage { grid-template-columns: 1fr; justify-items: center; }
   .hero__stage .hero__book { width: min(300px, 70vw); }
   .hero__stage .lens { width: min(560px, 100%); }
-  .stamp { left: 50%; bottom: auto; top: -26px; }
+  .stamp { left: 34%; bottom: 24%; top: auto; }
   .premise__grid, .minute__grid, .author__grid, .notify__box { grid-template-columns: 1fr; }
   .premise__lead, .dossier { position: static; }
   .dossier { transform: none; max-width: 520px; }
