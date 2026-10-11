@@ -1,0 +1,65 @@
+[
+  {
+    "file": "file-01.png",
+    "subject": "Columbia University (Low Memorial Library)",
+    "caption": "Low Memorial Library, Columbia University, Morningside Heights, Manhattan, photographed in 2019.",
+    "author": "Ajay Suresh",
+    "license": "CC BY 2.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Columbia_University_-_Low_Memorial_Library_(48170370506).jpg"
+  },
+  {
+    "file": "file-02.png",
+    "subject": "The Dalton School",
+    "caption": "The Dalton School, 108 East 89th Street, Manhattan, photographed in 2009.",
+    "author": "Jim.henderson",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Dalton_109_E89_jeh.jpg"
+  },
+  {
+    "file": "file-03.png",
+    "subject": "Bear Stearns headquarters, 383 Madison Avenue",
+    "caption": "383 Madison Avenue, the Bear Stearns headquarters tower completed in 2002, photographed in 2006.",
+    "author": "David Shankbone",
+    "license": "CC BY 2.5",
+    "licenseUrl": "https://creativecommons.org/licenses/by/2.5/",
+    "source": "https://commons.wikimedia.org/wiki/File:BearStearns.JPG"
+  },
+  {
+    "file": "file-04.png",
+    "subject": "Adnan Khashoggi",
+    "caption": "Adnan Khashoggi on the British television discussion program After Dark, 2 March 1991.",
+    "author": "Open Media Ltd.",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Adnan_Khashoggi_appearing_on_%27After_Dark%27,_2_March_1991.jpg"
+  },
+  {
+    "file": "file-05.png",
+    "subject": "Robert Maxwell",
+    "caption": "Robert Maxwell at the Global Economic Panel in Amsterdam, 11 April 1989.",
+    "author": "Unknown photographer, Anefo (Nationaal Archief)",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:RobertMaxwell1989.jpg"
+  },
+  {
+    "file": "file-06.png",
+    "subject": "The yacht Nabila / Trump Princess / Kingdom 5KR",
+    "caption": "Kingdom 5KR, the superyacht built in 1980 as Adnan Khashoggi's Nabila and later Donald Trump's Trump Princess, photographed in 2005.",
+    "author": "FrummerThanThou (English Wikipedia)",
+    "license": "CC BY-SA 3.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Kingdom_5KR.jpg"
+  },
+  {
+    "file": "file-07.png",
+    "subject": "Metropolitan Correctional Center, New York",
+    "caption": "The Metropolitan Correctional Center, 150 Park Row, Manhattan, photographed in 2010.",
+    "author": "Jim.henderson",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:MCC_New_York_jeh.JPG"
+  }
+]

@@ -27,7 +27,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Ops+One&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
-<link rel="stylesheet" href="assets/site.css?v=6">
+<link rel="stylesheet" href="assets/site.css?v=7">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -62,6 +62,7 @@
       <p class="eyebrow reveal"><span class="eyebrow__rule"></span>Forthcoming <i>◆</i> Non&#8209;Fiction<span class="eyebrow__rule"></span></p>
       <h1 class="hero__title reveal">Who made <span class="red">Jeffrey Epstein?</span></h1>
       <p class="hero__sub reveal">The highly anticipated full story of the intelligence apparatus that spotted, recruited and deployed him, from the investigator who broke the Epstein <span class="nowrap">“missing minute.”</span></p>
+      <p class="byline reveal"><span class="byline__rule" aria-hidden="true"></span><span class="byline__k">Written by:</span> <span class="byline__n">Jason Sullivan</span><span class="byline__rule" aria-hidden="true"></span></p>
     </div>
 
     <div class="wrap hero__stage">
@@ -78,17 +79,25 @@
         <div class="book__floor" aria-hidden="true"></div>
       </div>
 
-      <figure class="lens reveal" id="lens" data-fx="44.5" data-fy="17.6" data-fr="0.17">
+      <figure class="lens reveal" id="lens" data-fx="44.5" data-fy="18.4" data-fr="0.17">
+        <div class="lens__box">
         <div class="lens__frame" id="lensFrame">
           <img class="lens__soft" src="assets/jason-federal-court.jpg" alt="" aria-hidden="true" width="1180" height="1364">
+          <div class="lens__dim" aria-hidden="true"></div>
           <div class="lens__win" aria-hidden="true"><img class="lens__sharp" src="assets/jason-federal-court.jpg" alt="" width="1180" height="1364"></div>
-          <span class="sr">Jason Sullivan entering the federal courthouse in Washington, D.C., in June 2018</span>
+          <span class="sr">The author, Jason Sullivan, entering the E. Barrett Prettyman United States Courthouse in Washington, D.C., in June 2018</span>
           <div class="fx fx--grain" aria-hidden="true"></div>
           <div class="fx fx--dust" aria-hidden="true"></div>
           <div class="fx fx--scratch" aria-hidden="true"></div>
           <div class="fx fx--vignette" aria-hidden="true"></div>
+          <div class="lens__flash" id="lensFlash" aria-hidden="true"></div>
 
           <svg class="scope" id="scope" viewBox="0 0 240 240" aria-hidden="true">
+            <defs>
+              <clipPath id="irisClip"><circle cx="120" cy="120" r="101"/></clipPath>
+              <radialGradient id="irisFill" cx="120" cy="120" r="101" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#030303"/><stop offset=".72" stop-color="#0e0e10"/><stop offset="1" stop-color="#202024"/></radialGradient>
+            </defs>
+            <g class="scope__iris" id="scopeIris" clip-path="url(#irisClip)"><path class="iris__dark" id="irisDark"/><path class="iris__seams" id="irisSeams"/></g>
             <g class="scope__ring">
               <circle cx="120" cy="120" r="101" class="s-ring"/>
               <circle cx="120" cy="120" r="93" class="s-ring s-ring--thin"/>
@@ -102,6 +111,7 @@
             </g>
             <rect class="scope__af" id="scopeAf" x="113" y="113" width="14" height="14" rx="1"/>
           </svg>
+          <div class="idtag" aria-hidden="true"><span class="idtag__k">ID match <i>·</i> The author</span><b class="idtag__n"><span id="idTyped"></span><span class="idtag__rest" id="idRest">Jason Sullivan</span></b></div>
 
           <div class="hud" aria-hidden="true">
             <i class="hud__c hud__c--tl"></i><i class="hud__c hud__c--tr"></i><i class="hud__c hud__c--bl"></i><i class="hud__c hud__c--br"></i>
@@ -111,21 +121,25 @@
             </div>
             <div class="hud__meter"><span>−2</span><span>−1</span><span>0</span><span>+1</span><span>+2</span><i id="hudNeedle"></i></div>
             <div class="hud__row hud__row--bottom">
-              <span class="hud__loc">WASHINGTON, D.C.<br><small>38.8926° N · 77.0157° W</small></span>
+              <span class="hud__loc">PRETTYMAN COURTHOUSE<br><small>WASHINGTON, D.C.</small><br><small>38.8926° N · 77.0157° W</small></span>
               <span class="hud__focus"><small>AF-S</small> <b id="hudDist">3.2</b> m</span>
-              <span class="hud__status" id="hudStatus">SEARCHING</span>
+              <span class="hud__right"><span class="hud__shots" id="hudShots"><i></i><i></i><i></i></span><span class="hud__status" id="hudStatus">STANDBY</span></span>
             </div>
           </div>
+          <button class="lens__snd" id="lensSnd" type="button" data-state="locked" aria-pressed="false" aria-label="Turn on the shutter sound" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path class="spk" d="M3.5 9.2h3.6L12 5v14l-4.9-4.2H3.5z"/><path class="w1" d="M15.4 9.1a4.1 4.1 0 0 1 0 5.8"/><path class="w2" d="M17.9 6.6a7.6 7.6 0 0 1 0 10.8"/><path class="x" d="M15.6 9.6l4.8 4.8M20.4 9.6l-4.8 4.8"/></svg>
+            <span class="lens__snd-l">Tap for sound</span><span class="lens__snd-s">Sound</span>
+          </button>
         </div>
-        <div class="stamp" id="stamp" aria-hidden="true"><span>DECLASSIFIED</span></div>
-        <figcaption class="lens__cap">Arriving at the federal courthouse in Washington in June 2018, when he testified before Special Counsel Robert Mueller’s grand jury. <span>Photo: Kevin Lamarque/Reuters</span></figcaption>
+          <div class="stamp" id="stamp" aria-hidden="true"><span>DECLASSIFIED</span></div>
+        </div>
+        <figcaption class="lens__cap"><strong>The author, Jason Sullivan,</strong> arriving at the E. Barrett Prettyman United States Courthouse in Washington, D.C., in June 2018, when he testified before Special Counsel Robert Mueller’s grand jury. <span>Photo: Kevin Lamarque/Reuters</span></figcaption>
       </figure>
     </div>
 
     <div class="wrap hero__cta reveal">
       <a class="btn btn--red btn--lg" href="#notify">Be first to read it <span aria-hidden="true">→</span></a>
       <a class="btn btn--ghost btn--lg" href="#press">Media &amp; early access</a>
-      <p class="hero__by">Written by <strong>Jason Sullivan</strong>, Chief Investigator at The Ticktin Law Group</p>
     </div>
   </section>
 
@@ -142,7 +156,8 @@
     <div class="wrap premise__grid">
       <div class="premise__lead reveal">
         <p class="kicker">The premise</p>
-        <h2 class="h-display">This is not a <span class="red">true&#8209;crime</span> story.</h2>
+        <h2 class="h-display">This is not a <span class="red">true&#8209;crime</span> story about Jeffrey Epstein.</h2>
+        <p class="premise__turn">Through him, the intelligence apparatus that deployed him becomes <span class="red">visible.</span></p>
       </div>
       <div class="premise__body">
         <p class="lede reveal">Every prior account of Jeffrey Epstein begins at the end, with the girls, the flight logs and the famous names, and works backward without ever reaching an origin. <em>Jeffrey Epstein Was A CIA Asset</em> starts at the true beginning.</p>
@@ -165,14 +180,15 @@
         <p class="sec-sub">How the book follows one man from a Brooklyn classroom to a federal jail cell, file by file.</p>
       </header>
       <ol class="files" id="files">
-        <li class="file reveal"><span class="file__no">FILE 01</span><span class="file__year">1963</span><h3>A classroom in Brooklyn</h3><p>A ten-year-old enters a junior high school ten miles from Columbia University, the year a former OSS officer named Donald Barr is running Columbia’s federally funded Science Honors Program.</p><i class="file__tag">Classified</i></li>
-        <li class="file reveal"><span class="file__no">FILE 02</span><span class="file__year">1974</span><h3>The Dalton School</h3><p>Donald Barr, by then headmaster of Dalton, puts the twenty-one-year-old Epstein on his faculty with no teaching credentials and no college degree.</p><i class="file__tag">Classified</i></li>
-        <li class="file reveal"><span class="file__no">FILE 03</span><span class="file__year">1976</span><h3>Bear Stearns</h3><p>Two years later Epstein lands on Wall Street, on the desk the book ties to the BCCI-ICIC accounts behind clandestine arms finance.</p><i class="file__tag">Classified</i></li>
-        <li class="file reveal"><span class="file__no">FILE 04</span><span class="file__year">1980s</span><h3>The arms brokers</h3><p>He passes to the operators of those trades: Douglas Leese, who teaches him the shadow side of arms finance, and Adnan Khashoggi, master of kompromat.</p><i class="file__tag">Classified</i></li>
-        <li class="file reveal"><span class="file__no">FILE 05</span><span class="file__year">1980s</span><h3>Robert Maxwell</h3><p>The media baron takes him under his wing, deploys him further and pairs him with his own daughter, Ghislaine.</p><i class="file__tag">Classified</i></li>
-        <li class="file reveal"><span class="file__no">FILE 06</span><span class="file__year">1987</span><h3>The Trump Princess</h3><p>Khashoggi’s yacht is sold to Donald Trump. The same year, Jeffrey Epstein appears in Trump’s orbit. The book argues the two arrivals were no coincidence.</p><i class="file__tag">Classified</i></li>
-        <li class="file reveal"><span class="file__no">FILE 07</span><span class="file__year">2019</span><h3>MCC New York</h3><p>On August 10, 2019, Epstein dies in federal custody. The book shows why the apparatus that made him did not die with him.</p><i class="file__tag file__tag--red">Open</i></li>
+        <li class="file reveal"><span class="file__no">FILE 01</span><figure class="file__pic" title="Low Memorial Library, Columbia University, Morningside Heights, Manhattan, photographed in 2019."><img src="assets/chain/file-01.png" width="320" height="240" alt="Low Memorial Library at Columbia University" loading="lazy" decoding="async"><figcaption><a href="https://commons.wikimedia.org/wiki/File:Columbia_University_-_Low_Memorial_Library_(48170370506).jpg" target="_blank" rel="noopener">Ajay Suresh · CC BY 2.0</a></figcaption></figure><span class="file__year">1963</span><h3>A classroom in Brooklyn</h3><p>A ten-year-old enters a junior high school ten miles from Columbia University, the year a former OSS officer named Donald Barr is running Columbia’s federally funded Science Honors Program.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 02</span><figure class="file__pic" title="The Dalton School, 108 East 89th Street, Manhattan, photographed in 2009."><img src="assets/chain/file-02.png" width="320" height="240" alt="The Dalton School, 108 East 89th Street, Manhattan" loading="lazy" decoding="async"><figcaption><a href="https://commons.wikimedia.org/wiki/File:Dalton_109_E89_jeh.jpg" target="_blank" rel="noopener">Jim.henderson · CC0</a></figcaption></figure><span class="file__year">1974</span><h3>The Dalton School</h3><p>Donald Barr, by then headmaster of Dalton, puts the twenty-one-year-old Epstein on his faculty with no teaching credentials and no college degree.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 03</span><figure class="file__pic" title="383 Madison Avenue, the Bear Stearns headquarters tower completed in 2002, photographed in 2006."><img src="assets/chain/file-03.png" width="320" height="240" alt="383 Madison Avenue, the Bear Stearns headquarters tower completed in 2002" loading="lazy" decoding="async"><figcaption><a href="https://commons.wikimedia.org/wiki/File:BearStearns.JPG" target="_blank" rel="noopener">David Shankbone · CC BY 2.5</a></figcaption></figure><span class="file__year">1976</span><h3>Bear Stearns</h3><p>Two years later Epstein lands on Wall Street, on the desk the book ties to the BCCI-ICIC accounts behind clandestine arms finance.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 04</span><figure class="file__pic" title="Adnan Khashoggi on the British television discussion program After Dark, 2 March 1991."><img src="assets/chain/file-04.png" width="320" height="240" alt="Adnan Khashoggi in 1991" loading="lazy" decoding="async"><figcaption><a href="https://commons.wikimedia.org/wiki/File:Adnan_Khashoggi_appearing_on_%27After_Dark%27,_2_March_1991.jpg" target="_blank" rel="noopener">Open Media Ltd. · CC BY-SA 3.0</a></figcaption></figure><span class="file__year">1980s</span><h3>The arms brokers</h3><p>He passes to the operators of those trades: Douglas Leese, who teaches him the shadow side of arms finance, and Adnan Khashoggi, master of kompromat.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 05</span><figure class="file__pic" title="Robert Maxwell at the Global Economic Panel in Amsterdam, 11 April 1989."><img src="assets/chain/file-05.png" width="320" height="240" alt="Robert Maxwell in 1989" loading="lazy" decoding="async"><figcaption><a href="https://commons.wikimedia.org/wiki/File:RobertMaxwell1989.jpg" target="_blank" rel="noopener">Anefo / Nationaal Archief · CC0</a></figcaption></figure><span class="file__year">1980s</span><h3>Robert Maxwell</h3><p>The media baron takes him under his wing, deploys him further and pairs him with his own daughter, Ghislaine.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 06</span><figure class="file__pic" title="Kingdom 5KR, the superyacht built in 1980 as Adnan Khashoggi's Nabila and later Donald Trump's Trump Princess, photographed in 2005."><img src="assets/chain/file-06.png" width="320" height="240" alt="The superyacht built as Nabila and sold to Donald Trump as the Trump Princess, photographed as Kingdom 5KR" loading="lazy" decoding="async"><figcaption><a href="https://commons.wikimedia.org/wiki/File:Kingdom_5KR.jpg" target="_blank" rel="noopener">FrummerThanThou · CC BY-SA 3.0</a></figcaption></figure><span class="file__year">1987</span><h3>The Trump Princess</h3><p>Khashoggi’s yacht is sold to Donald Trump. The same year, Jeffrey Epstein appears in Trump’s orbit. The book argues the two arrivals were no coincidence.</p><i class="file__tag">Classified</i></li>
+        <li class="file reveal"><span class="file__no">FILE 07</span><figure class="file__pic" title="The Metropolitan Correctional Center, 150 Park Row, Manhattan, photographed in 2010."><img src="assets/chain/file-07.png" width="320" height="240" alt="The Metropolitan Correctional Center, 150 Park Row, Manhattan" loading="lazy" decoding="async"><figcaption><a href="https://commons.wikimedia.org/wiki/File:MCC_New_York_jeh.JPG" target="_blank" rel="noopener">Jim.henderson · CC0</a></figcaption></figure><span class="file__year">2019</span><h3>MCC New York</h3><p>On August 10, 2019, Epstein dies in federal custody. The book shows why the apparatus that made him did not die with him.</p><i class="file__tag file__tag--red">Open</i></li>
       </ol>
+      <p class="files__credit reveal">Photos from Wikimedia Commons, cropped to fit. Each credit links to its source and license.</p>
     </div>
   </section>
 
@@ -196,18 +212,18 @@
   <!-- ============ MISSING MINUTE ============ -->
   <section class="section minute" id="minute">
     <div class="wrap minute__grid">
-      <div class="cctv reveal" id="cctv" aria-label="Animation of the jail video timestamp jumping past midnight">
+      <figure class="cctv reveal" id="cctv">
         <div class="cctv__screen">
-          <span class="cctv__cam">160 SW 2-80</span>
-          <span class="cctv__play">PLAY ▶</span>
-          <span class="cctv__date" id="cctvDate">8/9/2019</span>
-          <span class="cctv__time" id="cctvTime">11:58:55 PM</span>
+          <video class="cctv__video" id="cctvVideo" src="assets/missing-minute.mp4#t=2.05" poster="assets/missing-minute-poster.jpg" muted loop playsinline preload="metadata" width="1150" height="720" aria-label="The clip from the Unleashed.news post: the Justice Department’s jail video jumps from 11:58:58 PM on August 9, 2019 to 12:00:00 AM on August 10"></video>
           <div class="cctv__static" aria-hidden="true"></div>
           <div class="cctv__lines" aria-hidden="true"></div>
-          <div class="cctv__alert" id="cctvAlert"><b>1 MINUTE</b> MISSING</div>
+          <div class="cctv__mark" aria-hidden="true"></div>
+          <div class="cctv__alert" aria-hidden="true"><b>1 MINUTE</b> MISSING</div>
+          <span class="cctv__play" aria-hidden="true">Tap to play ▶</span>
         </div>
         <div class="cctv__base" aria-hidden="true"><span></span><span></span><span></span></div>
-      </div>
+        <figcaption class="cctv__cap">The clip Jason Sullivan posted on Unleashed.news’s X account on July 7, 2025: the Justice Department’s “raw” jail video jumps from 11:58:58 PM to 12:00:00 AM. <a href="https://x.com/UNLEASHED_NEWS_/status/1942257609140232492" target="_blank" rel="noopener">See the original post <span aria-hidden="true">↗</span></a></figcaption>
+      </figure>
       <div class="minute__copy">
         <p class="kicker reveal">July 7, 2025</p>
         <h2 class="h-display reveal">The missing <span class="red">minute.</span></h2>
@@ -243,7 +259,9 @@
           <p class="reveal">That work brought Special Counsel Robert Mueller to his door. In 2018 Mueller subpoenaed him, and Mueller’s team interrogated him over whether he had acted as a go-between for Roger Stone and WikiLeaks founder Julian Assange. The next day he testified before a federal grand jury in Washington. He was never charged.</p>
           <p class="reveal">After January 6, 2021, investigators came again. In 2022 an investigative counsel for the House January 6th Committee interviewed him. The committee’s final report never named him, and he was never referred for prosecution.</p>
           <p class="reveal">Through both investigations The New York Times and Rolling Stone wrote about him, and so did more than a dozen other national outlets, from MSNBC and CNN to The Wall Street Journal, Reuters, ABC News, CBS News and Bloomberg. He gave them almost nothing. His lawyers answered for him. With his name in national headlines he could have spent those years on cable news. He chose to stay behind the curtain and keep working.</p>
-          <p class="reveal">Since June 2022 he has been Chief Investigator at The Ticktin Law Group, working for Peter Ticktin, President Trump’s longtime friend and his Florida counsel in Trump v. Clinton. He played a pivotal role in the January 6 evidence effort that Ticktin says the President put him in charge of. His real-time internet sting captured January 6 posts before they vanished from Twitter, work featured by The Epoch Times. He also worked closely with award-winning journalist Lara Logan on her January 6 series, <em>The Rest of the Story</em>.</p>
+          <p class="reveal">Since June 2022 he has been Chief Investigator at The Ticktin Law Group, working for Peter Ticktin, President Trump’s longtime friend and his Florida counsel in Trump v. Clinton. He played a pivotal role in the January 6 evidence effort that Ticktin says the President put him in charge of.</p>
+          <p class="author__sting reveal"><strong>On January 6, 2021, his real-time internet sting captured exculpatory evidence as Twitter began systematically deleting it from the platform, and preserved it before it disappeared.</strong> Among it was President Trump’s own call for peace. The Epoch Times featured the sting.</p>
+          <p class="reveal">He also worked closely with award-winning journalist Lara Logan on her January 6 series, <em>The Rest of the Story</em>.</p>
           <p class="author__close reveal">After years of saying almost nothing in public, he is ready to tell what he found.</p>
         </div>
       </div>
@@ -348,6 +366,6 @@
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=4" defer></script>
+<script src="assets/site.js?v=5" defer></script>
 </body>
 </html>
