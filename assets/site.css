@@ -178,7 +178,7 @@ a { color: inherit; }
 .lens__cap span { display: block; font-size: 11.5px; letter-spacing: .04em; color: #8b8b92; margin-top: 2px; }
 
 /* stamp */
-.stamp { position: absolute; left: 0; bottom: 13%; z-index: 6; pointer-events: none; transform: translate(-50%, 0) rotate(-11deg) scale(2.4); opacity: 0; }
+.stamp { position: absolute; left: 0; bottom: 27%; z-index: 6; pointer-events: none; transform: translate(-50%, 0) rotate(-11deg) scale(2.4); opacity: 0; }
 .stamp span { display: block; padding: 10px 18px 8px; border: 4px solid var(--red); border-radius: 6px; color: var(--red); font: 400 clamp(22px, 2.6vw, 34px)/1 var(--stencil); letter-spacing: .08em; background: rgba(255,255,255,.04); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='120'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E"); mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='120'%3E%3Cfilter id='s'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.4 2.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E"); }
 .stamp.is-in { animation: stampIn .5s cubic-bezier(.3, 1.6, .5, 1) forwards; }
 .hero__stage.is-thud { animation: thud .35s var(--ease) 1; }
