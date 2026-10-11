@@ -256,7 +256,7 @@
       irisDark.setAttribute('d', `M18 120a102 102 0 1 0 204 0a102 102 0 1 0-204 0Z${poly}Z`);
       irisSeams.setAttribute('d', seams);
     };
-    const flash = () => { if (!reduce && flashEl && flashEl.animate) flashEl.animate([{ opacity: 0.22 }, { opacity: 0 }], { duration: 200, easing: 'cubic-bezier(.2,.7,.2,1)' }); };
+    const flash = () => { if (flashEl && flashEl.animate) flashEl.animate([{ opacity: 0.22 }, { opacity: 0 }], { duration: 200, easing: 'cubic-bezier(.2,.7,.2,1)' }); };
     const setShots = (k) => shotEls.forEach((el, i) => el.classList.toggle('on', i < k));
 
     /* timeline: wait → float → hover → snap → locked (burst) → hold → float … */
@@ -276,36 +276,45 @@
       lens.classList.remove('is-locked', 'is-burst'); setShots(0); idHide(); status('SCANNING');
     };
     const toHover = () => { phase = 'hover'; t0 = T; status('FACE DETECTED'); };
-    const toSnap = () => { phase = 'snap'; t0 = T; from = [x / W, y / H]; fromZoom = v.zoom; fromDim = v.dim; fromSnap = v.snap; fFrom = clamp(Math.abs(f) + 0.25, 0.55, 1); idHide(); status('FOCUSING'); };
+    // the focus bites, the brackets lock red and the first frame is taken at the same instant, LOCK_AT into the zero-in
+    const LOCK_AT = 0.45, SHOT_GAP = 0.2;
+    let shotWall = [];
     const soundShots = (k0) => {
       if (!audioLive() || !soundOn() || !snd.buf) return false;
-      const now = snd.ctx.currentTime;
-      for (let k = k0; k < 3; k++) clickAt(now + Math.max(0, shotsAt[k] - T));
+      // scheduled ahead, minus the output device's delay beyond the screen's own ~25 ms (Bluetooth speakers and AirPods add up to a quarter second)
+      const now = snd.ctx.currentTime, lat = Math.max(0, (snd.ctx.outputLatency || 0) + (snd.ctx.baseLatency || 0) - 0.025), p = performance.now();
+      for (let k = k0; k < 3; k++) clickAt(now + Math.max(0, (shotWall[k] - p) / 1000 - lat));
       return true;
     };
     let burstNo = 0;
-    const burstAt = (at) => {
-      shotsAt = [at, at + 0.21, at + 0.42]; fired = 0; burstNo++; setShots(0); lens.classList.add('is-burst');
+    const planShots = (at) => {
+      const p = performance.now();
+      shotsAt = [at, at + SHOT_GAP, at + 2 * SHOT_GAP]; shotWall = shotsAt.map((t) => p + (t - T) * 1000); fired = 0; burstNo++; setShots(0);
       burstSound = soundShots(0);
       if (!burstSound && snd.ctx && soundOn()) {
         const n = burstNo;
-        snd.ctx.resume().then(() => { if (audioLive() && n === burstNo && phase === 'locked' && !burstSound && fired < 3) burstSound = soundShots(fired); }).catch(() => {});
+        snd.ctx.resume().then(() => { if (audioLive() && n === burstNo && (phase === 'snap' || phase === 'locked') && !burstSound && fired < 3) burstSound = soundShots(fired); }).catch(() => {});
       }
+    };
+    const burstAt = (at) => { planShots(at); lens.classList.add('is-burst'); };
+    const toSnap = () => {
+      phase = 'snap'; t0 = T; from = [x / W, y / H]; fromZoom = v.zoom; fromDim = v.dim; fromSnap = v.snap; fFrom = clamp(Math.abs(f) + 0.25, 0.55, 1);
+      idHide(); status('FOCUSING'); planShots(T + LOCK_AT);
     };
     const lockOn = () => {
       phase = 'locked'; lockT = T;
-      lens.classList.remove('is-locked'); void lens.offsetWidth; lens.classList.add('is-locked');
-      status('SUBJECT ACQUIRED'); idShow(T); burstAt(T + 0.24);
+      lens.classList.remove('is-locked'); void lens.offsetWidth; lens.classList.add('is-locked', 'is-burst');
+      status('SUBJECT ACQUIRED'); idShow(T);
     };
     const nudge = () => { if (!sndBtn || !soundOn() || audioLive()) return; sndBtn.classList.remove('is-nudge'); void sndBtn.offsetWidth; sndBtn.classList.add('is-nudge'); clearTimeout(nudge.t); nudge.t = setTimeout(() => sndBtn.classList.remove('is-nudge'), 1800); };
     const fire = () => { blinks.push(T); if (!reduce) kicks.push(T); fired++; setShots(fired); flash(); if (fired === 1) nudge(); };
     onFirstLive = () => {
-      if (phase === 'locked' && !burstSound && fired < 3) { burstSound = soundShots(fired); return; }
+      if ((phase === 'snap' || phase === 'locked') && !burstSound && fired < 3) { burstSound = soundShots(fired); return; }
       if (!live || visRatio < 0.5) return;
-      if (phase === 'hold') { phase = 'locked'; burstAt(T + 0.15); }
+      if (phase === 'hold') { phase = 'locked'; burstAt(T + 0.2); }
       else if (phase === 'float' || phase === 'hover' || phase === 'wait') { if (phase === 'wait') toFloat(); toSnap(); }
     };
-    const afterUnlock = () => whenLive(() => { paintSnd(); if (phase === 'locked' && !burstSound && fired < 3) burstSound = soundShots(fired); });
+    const afterUnlock = () => whenLive(() => { paintSnd(); if ((phase === 'snap' || phase === 'locked') && !burstSound && fired < 3) burstSound = soundShots(fired); });
 
     // timecode, 24 fps
     const tcBase = ((0 * 60 + 47) * 60 + 12) * 24, tStart = performance.now();
@@ -315,7 +324,7 @@
     let live = false, started = false, lastNow = 0, raf = 0, visRatio = 0;
     const step = (now) => {
       if (!live) return;
-      const dt = Math.min(0.05, (now - (lastNow || now)) / 1000); lastNow = now; T += dt;
+      const dt = Math.min(0.1, (now - (lastNow || now)) / 1000); lastNow = now; T += dt;
       tc(now);
       let px = x / W, py = y / H;
       if (phase === 'wait' && T - t0 > 0.45) toFloat();
@@ -334,16 +343,16 @@
         if (pt >= 0.5) toSnap();
       }
       if (phase === 'snap' || phase === 'locked' || phase === 'hold') {
-        const s = T - t0, k = spring(s, 11, 0.62);
+        const s = T - t0, k = spring(s, 12, 0.62), u = clamp((s - 0.1) / (LOCK_AT - 0.1), 0, 1);
         px = from[0] + (FX - from[0]) * k; py = from[1] + (FY - from[1]) * k;
-        v.zoom = fromZoom + (ZOOM1 - fromZoom) * spring(s, 8.5, 0.82);
-        v.dim = fromDim + (DIM1 - fromDim) * out3(s / 0.7);
-        v.snap = fromSnap + (1 - fromSnap) * spring(s, 16, 0.5);
-        f = fFrom * (1 - spring(s, 18, 0.36)); // swings through focus once before it bites
-        if (phase === 'snap' && s >= 0.66) lockOn();
+        v.zoom = fromZoom + (ZOOM1 - fromZoom) * spring(s, 10, 0.85);
+        v.dim = fromDim + (DIM1 - fromDim) * out3(s / 0.6);
+        v.snap = s < LOCK_AT ? fromSnap + (1.12 - fromSnap) * out3(s / LOCK_AT) : 1 + 0.12 * Math.exp(-(s - LOCK_AT) * 14) * Math.cos((s - LOCK_AT) * 30);
+        f = s >= LOCK_AT ? 0 : fFrom * ((1 - u) ** 2.2 - 0.3 * Math.sin(Math.PI * u) ** 2 * u); // one small hunt, then it bites
+        if (phase === 'snap' && (s >= LOCK_AT || now >= shotWall[0])) { if (s < LOCK_AT) T = t0 + LOCK_AT; lockOn(); }
         if (phase === 'locked') {
-          while (fired < 3 && T >= shotsAt[fired]) fire();
-          if (fired === 3 && T >= shotsAt[2] + 0.2) { phase = 'hold'; holdUntil = T + 6; if (cyc === 0) setTimeout(stampIn, 120); }
+          while (fired < 3 && now >= shotWall[fired]) fire();
+          if (fired === 3 && now >= shotWall[2] + 200) { phase = 'hold'; holdUntil = T + 6; if (cyc === 0) setTimeout(stampIn, 120); }
         } else if (phase === 'hold' && T >= holdUntil) { cyc++; toFloat(); }
       }
 
@@ -388,7 +397,7 @@
       if (!started) { started = true; t0 = T; run(); toFloat(); }
       if (phase === 'wait') toFloat();
       if (phase === 'float' || phase === 'hover') toSnap();
-      else if (phase === 'hold') { phase = 'locked'; burstAt(T + 0.12); }
+      else if (phase === 'hold') { phase = 'locked'; burstAt(T + 0.2); }
     };
     frame.addEventListener('click', (e) => {
       if (e.target.closest('.lens__snd')) return;
