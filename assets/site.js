@@ -23,6 +23,54 @@
 
   window.__ciaReady = true;
 
+  /* ---------- human check: Cloudflare Turnstile, invisible to most visitors; it shows one box to tick only when it is unsure.
+     The site key lives in <meta name="turnstile-sitekey">; empty turns the check off. A sign-up whose check cannot run
+     (a blocked script) is still sent, and the list stores it marked for review. ---------- */
+  const TS_KEY = ($('meta[name="turnstile-sitekey"]') || {}).content || '';
+  const human = (() => {
+    const boxes = new Map();
+    let lib = null;
+    const load = () => lib || (lib = new Promise((res, rej) => {
+      if (!TS_KEY) return rej(new Error('off'));
+      window.__tsReady = () => res(window.turnstile);
+      const sc = document.createElement('script');
+      sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__tsReady';
+      sc.async = true; sc.onerror = () => rej(new Error('blocked'));
+      document.head.appendChild(sc);
+      setTimeout(() => rej(new Error('slow')), 12000);
+    }));
+    const settle = (st, t) => st.waiters.splice(0).forEach((fn) => fn(t));
+    const mount = (el, onAsk) => {
+      if (!el || boxes.has(el)) return boxes.get(el);
+      const st = { id: null, token: '', waiters: [], asking: false, dead: !TS_KEY, onAsk };
+      boxes.set(el, st);
+      load().then((ts) => {
+        st.id = ts.render(el, {
+          sitekey: TS_KEY, appearance: 'interaction-only', theme: 'dark', action: 'signup', size: el.clientWidth && el.clientWidth < 310 ? 'compact' : 'normal',
+          callback: (t) => { st.token = t; st.asking = false; el.classList.remove('is-asking'); settle(st, t); },
+          'expired-callback': () => { st.token = ''; },
+          'before-interactive-callback': () => { st.asking = true; el.classList.add('is-asking'); if (st.onAsk) st.onAsk(); },
+          'error-callback': () => { st.dead = !st.asking; settle(st, ''); },
+        });
+      }).catch(() => { st.dead = true; settle(st, ''); });
+      return st;
+    };
+    // one token per send (each is single-use): waits while the visitor is asked to tick the box, otherwise up to `ms`
+    const token = (el, ms = 6000, onAsk) => new Promise((res) => {
+      const st = mount(el, onAsk); if (onAsk) st.onAsk = onAsk;
+      const take = (t) => { res(t || ''); if (t && st.id !== null && window.turnstile) { st.token = ''; try { window.turnstile.reset(st.id); } catch {} } };
+      if (st.token) return take(st.token);
+      if (st.dead) return res('');
+      let done = false;
+      const fin = (t) => { if (!done) { done = true; take(t); } };
+      st.waiters.push(fin);
+      const wait = () => setTimeout(() => { if (st.asking) wait(); else fin(''); }, ms);
+      wait();
+      if (st.asking && onAsk) onAsk();
+    });
+    return { mount, token };
+  })();
+
   /* ---------- sign-ups are never dropped: one that cannot be sent (no signal, a busy moment) is kept on this device and
      sent again a few seconds, then minutes later, and on the next visit, until the list confirms it ---------- */
   const SIGNUP_URL = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-site/notify', QKEY = 'cia_signup_queue';
@@ -65,6 +113,9 @@
     let known = '';
     try { known = localStorage.getItem('cia_email') || ''; } catch {}
     if (gateEmail) { if (known) gateEmail.value = known; if (fine) gateEmail.focus({ preventScroll: true }); }
+    const gateHuman = $('#gateHuman');
+    const askTick = () => { gateErr.textContent = 'Please tick the box to confirm you are human.'; };
+    if (!known) human.mount(gateHuman, askTick);
     const openGate = () => {
       if (gateOpen) return;
       gateOpen = true;
@@ -75,9 +126,11 @@
       setTimeout(() => { document.documentElement.classList.remove('gate-on'); gate.remove(); }, reduce ? 30 : 860);
       onGateOpen.splice(0).forEach((fn) => fn());
     };
-    if (gateEmail) gateEmail.addEventListener('input', () => { gateForm.classList.remove('is-bad'); gateErr.textContent = ''; });
-    if (gateForm) gateForm.addEventListener('submit', (e) => {
+    if (gateEmail) gateEmail.addEventListener('input', () => { gateForm.classList.remove('is-bad'); gateErr.textContent = ''; human.mount(gateHuman, askTick); });
+    let checking = false;
+    if (gateForm) gateForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (checking) return;
       const email = gateEmail.value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
         gateForm.classList.add('is-bad');
@@ -87,8 +140,12 @@
       }
       // the file opens at once (inside the tap, so the sound can play); the sign-up is sent alongside it
       if (email.toLowerCase() !== known.toLowerCase()) {
+        checking = true; gateBtn.disabled = true;
+        const label = $('#gateBtnLabel'), was = label.textContent; label.textContent = 'Checking…';
+        const t = await human.token(gateHuman, 6000, askTick);
+        label.textContent = was; gateBtn.disabled = false; checking = false;
         try { localStorage.setItem('cia_email', email); } catch {}
-        queueSignup({ email, role: 'reader', site: 'theciaasset.com', page: location.href, via: 'gate' });
+        queueSignup({ email, role: 'reader', site: 'theciaasset.com', page: location.href, via: 'gate', human: t, website: (gateForm.elements.website || {}).value || '' });
       }
       openGate();
     });
@@ -551,7 +608,8 @@
   }
 
   /* ---------- notify form: readers join the list; credentialed media request a preview copy ---------- */
-  const form = $('#notifyForm');
+  const form = $('#notifyForm'), nHuman = $('#nHuman');
+  if (form) form.addEventListener('focusin', () => human.mount(nHuman), { once: true });
   if (form) {
     const msg = $('#nMsg'), btn = $('#nBtn'), roleSel = $('#nRole'), pro = $('#nPro');
     const emailEl = $('#nEmail'), emailLabel = $('#nEmailLabel'), emailHint = $('#nEmailHint');
@@ -610,9 +668,12 @@
         if (!$('#nAgree').checked) return bad($('#nAgree'), 'Please agree to keep the advance material confidential.');
         Object.assign(body, { name: v('nName'), title: v('nTitle'), outlet: v('nOutlet'), link, audience: v('nAudience'), handle: v('nHandle'), note: $('#nNote').value.trim(), agreed: true });
       }
-      btn.disabled = true; btn.textContent = 'Sending…';
+      btn.disabled = true; btn.textContent = 'Checking…';
       try {
-        const r = await fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-site/notify', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        body.human = await human.token(nHuman, 6000, () => { msg.textContent = 'Please tick the box to confirm you are human.'; });
+        body.website = (form.elements.website || {}).value || '';
+        btn.textContent = 'Sending…'; msg.textContent = '';
+        const r = await fetch(SIGNUP_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(j.error || `The sign-up service answered ${r.status}.`);
         const wasPro = isPro();

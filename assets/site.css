@@ -72,7 +72,7 @@ html.gate-on { overflow: hidden; }
 html.gate-on .gate { display: flex; }
 .gate { position: fixed; inset: 0; z-index: 200; align-items: center; justify-content: center; padding: 24px; overflow: hidden; background: radial-gradient(ellipse 60% 50% at 50% 46%, rgba(224,18,28,.18), transparent 70%), #08080a; color: #fff; text-align: center; -webkit-mask: radial-gradient(circle at var(--gx, 50%) var(--gy, 62%), transparent var(--hole), #000 calc(var(--hole) + 1px)); mask: radial-gradient(circle at var(--gx, 50%) var(--gy, 62%), transparent var(--hole), #000 calc(var(--hole) + 1px)); }
 .gate::before { content: ''; position: absolute; inset: -40px; opacity: .16; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); animation: grain .9s steps(6) infinite; pointer-events: none; }
-.gate__in { position: relative; max-width: 780px; }
+.gate__in { position: relative; width: 100%; max-width: 780px; min-width: 0; }
 .gate__tag { display: inline-block; margin: 0 0 22px; padding: 9px 18px 7px; border: 3px solid var(--red); border-radius: 4px; color: var(--red); font: 400 clamp(20px, 2.8vw, 30px)/1 var(--stencil); letter-spacing: .14em; text-transform: uppercase; transform: rotate(-6deg); }
 .gate__file { margin: 0 0 16px; font: 700 12px/1 var(--mono); letter-spacing: .32em; text-transform: uppercase; color: rgba(255,255,255,.55); }
 .gate__title { margin: 0; font: 400 clamp(44px, 7.2vw, 104px)/.95 var(--display); letter-spacing: .01em; text-transform: uppercase; }
@@ -89,6 +89,11 @@ html.gate-on .gate { display: flex; }
 .gate__input { flex: 1 1 auto; min-width: 0; height: 52px; padding: 0 8px 0 20px; border: 0; background: transparent; color: #fff; font: 400 17px/1 var(--body); outline: none; }
 .gate__input::placeholder { color: rgba(255,255,255,.4); }
 .gate__row .gate__btn { flex: none; height: 52px; padding: 0 26px; }
+.trap { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+/* the human check (Cloudflare Turnstile) shows only when it needs the visitor to tick a box */
+.human { display: flex; justify-content: center; max-width: 100%; min-width: 0; overflow: hidden; }
+.human.is-asking { margin: 14px 0 0; }
+.human:not(.is-asking) iframe { max-height: 0; }
 .gate__err { min-height: 18px; margin: 10px 0 0; font: 600 13px/1.35 var(--body); color: #ff6b72; }
 .gate__err:empty { min-height: 0; margin: 0; }
 .gate__fine { margin: 12px 0 0; font: 400 13px/1.4 var(--body); color: rgba(255,255,255,.5); }

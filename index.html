@@ -29,7 +29,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Black+Ops+One&family=Cinzel:wght@600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
-<link rel="stylesheet" href="assets/site.css?v=17">
+<meta name="turnstile-sitekey" content="">
+<link rel="stylesheet" href="assets/site.css?v=18">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -47,8 +48,10 @@
         <input class="gate__input" id="gateEmail" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com" required aria-describedby="gateErr gateFine">
         <button class="gate__btn" id="gateBtn" type="submit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 9.2h3.6L12 5v14l-4.9-4.2H3.5z" fill="currentColor"/><path d="M15.4 9.1a4.1 4.1 0 0 1 0 5.8M17.9 6.6a7.6 7.6 0 0 1 0 10.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><span id="gateBtnLabel">Open the file</span></button>
       </div>
+      <div class="human human--gate" id="gateHuman"></div>
       <p class="gate__err" id="gateErr" role="alert"></p>
       <p class="gate__fine" id="gateFine">We will use it only to send you news about the book.</p>
+      <div class="trap" aria-hidden="true"><label>Leave this empty <input name="website" tabindex="-1" autocomplete="off"></label></div>
     </form>
     <p class="gate__hint">Sound on</p>
   </div>
@@ -335,6 +338,8 @@
             <label class="form__check"><input type="checkbox" id="nAgree" tabindex="-1"><span>I will keep the advance material confidential and will not share, copy or publish it.</span></label>
           </div>
         </div>
+        <div class="trap" aria-hidden="true"><label>Leave this empty <input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <div class="human" id="nHuman"></div>
         <button class="btn btn--red btn--lg form__btn" type="submit" id="nBtn">Notify me <span aria-hidden="true">→</span></button>
         <p class="form__msg" id="nMsg" role="status" aria-live="polite"></p>
         <p class="form__fine">Your address is used only for news about this book. Literary agents and publishers: <a href="#rights">write about representation and rights</a>.</p>
@@ -386,6 +391,6 @@
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=17" defer></script>
+<script src="assets/site.js?v=18" defer></script>
 </body>
 </html>
