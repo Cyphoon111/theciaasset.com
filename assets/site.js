@@ -251,13 +251,18 @@
     const v = { blur: 0, zoom: ZOOM0, snap: SNAP0, ring: 0, dim: 0, ss: 1 };
     const shown = {};
     const put = (k, val) => { if (shown[k] !== val) { shown[k] = val; set(k, val); } };
+    // the sharp circle, the photo inside it and the scope are moved on their own elements in the same frame, so they cannot drift apart
+    const winEl = $('.lens__win', frame), sharpEl = $('.lens__sharp', frame), scopeEl = $('#scopePos');
+    const st = (el, k, val) => { if (el && el.style[k] !== val) el.style[k] = val; };
     const apply = (px, py) => {
-      put('--wx', `${(px - R).toFixed(1)}px`); put('--wy', `${(py - R).toFixed(1)}px`);
-      put('--ix', `${(R - px).toFixed(1)}px`); put('--iy', `${(R - py).toFixed(1)}px`);
-      put('--ox', `${px.toFixed(1)}px`); put('--oy', `${py.toFixed(1)}px`);
-      put('--sx', `${(px - SD / 2).toFixed(1)}px`); put('--sy', `${(py - SD / 2).toFixed(1)}px`);
-      put('--focus', `${v.blur.toFixed(2)}px`); put('--zoom', v.zoom.toFixed(4)); put('--snap', v.snap.toFixed(3));
-      put('--ring', `${v.ring.toFixed(1)}deg`); put('--dim', v.dim.toFixed(3)); put('--ss', v.ss.toFixed(4));
+      const wx = (px - R).toFixed(1), wy = (py - R).toFixed(1), ox = px.toFixed(1), oy = py.toFixed(1);
+      st(winEl, 'transform', `translate3d(${wx}px, ${wy}px, 0)`);
+      st(sharpEl, 'transformOrigin', `${ox}px ${oy}px`);
+      st(sharpEl, 'transform', `translate3d(${(R - px).toFixed(1)}px, ${(R - py).toFixed(1)}px, 0) scale(${v.zoom.toFixed(4)})`);
+      st(sharpEl, 'filter', `grayscale(1) contrast(1.42) brightness(1.02) blur(${v.blur.toFixed(2)}px)`);
+      st(scopeEl, 'transform', `translate3d(${(px - SD / 2).toFixed(1)}px, ${(py - SD / 2).toFixed(1)}px, 0) scale(${v.ss.toFixed(4)})`);
+      put('--ox', `${ox}px`); put('--oy', `${oy}px`);
+      put('--snap', v.snap.toFixed(3)); put('--ring', `${v.ring.toFixed(1)}deg`); put('--dim', v.dim.toFixed(3));
     };
     const status = (s) => text(statusEl, s);
 
