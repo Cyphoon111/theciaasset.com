@@ -23,6 +23,36 @@
 
   window.__ciaReady = true;
 
+  /* ---------- sign-ups are never dropped: one that cannot be sent (no signal, a busy moment) is kept on this device and
+     sent again a few seconds, then minutes later, and on the next visit, until the list confirms it ---------- */
+  const SIGNUP_URL = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-site/notify', QKEY = 'cia_signup_queue';
+  const readQ = () => { try { const q = JSON.parse(localStorage.getItem(QKEY) || '[]'); return Array.isArray(q) ? q : []; } catch { return []; } };
+  const writeQ = (q) => { try { if (q.length) localStorage.setItem(QKEY, JSON.stringify(q.slice(-20))); else localStorage.removeItem(QKEY); } catch {} };
+  let mem = [], qTimer = 0, qTry = 0, qBusy = false;
+  const flushQ = async () => {
+    if (qBusy) return; qBusy = true; clearTimeout(qTimer);
+    let q = readQ(); if (!q.length) q = mem;
+    const done = new Set();
+    for (const body of q) {
+      try {
+        const r = await fetch(SIGNUP_URL, { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        if (r.ok || r.status === 400) done.add(body.email.toLowerCase()); // 400 is a bad address: retrying cannot help
+      } catch {}
+    }
+    // re-read, so an address added while these were sending is kept
+    let left = readQ(); if (!left.length) left = mem;
+    left = left.filter((b) => !done.has(b.email.toLowerCase()));
+    mem = left; writeQ(left); qBusy = false;
+    if (left.length) { const waits = [4, 15, 45, 120, 300]; qTimer = setTimeout(flushQ, waits[Math.min(qTry++, waits.length - 1)] * 1000); }
+  };
+  const queueSignup = (body) => {
+    const q = readQ().filter((b) => b.email.toLowerCase() !== body.email.toLowerCase());
+    q.push(body); mem = q; writeQ(q); qTry = 0;
+    if (qBusy) { clearTimeout(qTimer); qTimer = setTimeout(flushQ, 1000); } else flushQ();
+  };
+  if (readQ().length) setTimeout(flushQ, 1500);
+  addEventListener('online', () => { if (readQ().length || mem.length) { qTry = 0; flushQ(); } });
+
   /* ---------- opening screen: the visitor enters an email to open the file; that tap or key press also lets the browser play the shutter sound ---------- */
   const gate = $('#gate');
   let gateOpen = !gate || !document.documentElement.classList.contains('gate-on');
@@ -57,8 +87,8 @@
       }
       // the file opens at once (inside the tap, so the sound can play); the sign-up is sent alongside it
       if (email.toLowerCase() !== known.toLowerCase()) {
-        fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-site/notify', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, role: 'reader', site: 'theciaasset.com', page: location.href, via: 'gate' }) }).catch(() => {});
         try { localStorage.setItem('cia_email', email); } catch {}
+        queueSignup({ email, role: 'reader', site: 'theciaasset.com', page: location.href, via: 'gate' });
       }
       openGate();
     });
