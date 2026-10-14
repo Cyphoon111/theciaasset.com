@@ -219,8 +219,10 @@
     });
 
     /* Some browsers switch Web Audio off (Safari in Lockdown Mode). There the shutter plays from a recording of the same
-       synthesised sound (assets/shutter.wav), through <audio> elements behind a small stand-in with the few AudioContext calls
-       this code uses. Each element is unlocked inside the visitor's tap or key press with a silent clip (assets/silence.wav).
+       synthesised sound, through <audio> elements behind a small stand-in with the few AudioContext calls this code uses.
+       Each element is unlocked inside the visitor's tap or key press with a silent clip. The recording comes as AAC (.m4a)
+       and WAV: Safari in Lockdown Mode refuses WAV ("NotSupportedError"), so AAC goes first wherever the browser says it can
+       play it, and a refused format hands over to the next one at the visitor's next tap.
        Add ?sound=debug to the address to see on screen what the browser allows. */
     const sndDebug = /[?&]sound=debug\b/.test(location.search);
     const sndLog = (() => {
@@ -231,10 +233,14 @@
       if (document.body) document.body.appendChild(box);
       return (m) => { box.textContent = `${new Date().toLocaleTimeString()} ${m}\n${box.textContent}`.slice(0, 4000); };
     })();
-    sndLog(`AudioContext: ${window.AudioContext ? 'yes' : 'no'} · webkitAudioContext: ${window.webkitAudioContext ? 'yes' : 'no'} · Audio element: ${typeof Audio === 'function' ? 'yes' : 'no'}`);
+    const SND_FORMATS = [['m4a', 'audio/mp4; codecs="mp4a.40.2"'], ['wav', 'audio/wav']];
+    sndLog(`AudioContext: ${window.AudioContext ? 'yes' : 'no'} · webkitAudioContext: ${window.webkitAudioContext ? 'yes' : 'no'} · Audio element: ${typeof Audio === 'function' ? 'yes' : 'no'}${typeof Audio === 'function' ? ' · can play ' + SND_FORMATS.map(([x, t]) => `${x}: ${new Audio().canPlayType(t) || 'no'}`).join(', ') : ''}`);
     function MediaCtx() {
       const ctx = this, sr = 44100, t0 = performance.now(), pool = [];
-      const SHUTTER = new URL('assets/shutter.wav', location.href).href, SILENT = new URL('assets/silence.wav', location.href).href;
+      const probe = new Audio(), fmts = SND_FORMATS.filter(([, t]) => probe.canPlayType(t)).concat(SND_FORMATS.filter(([, t]) => !probe.canPlayType(t)));
+      let fi = 0, SHUTTER = '', SILENT = '';
+      const useFormat = (i) => { fi = i; SHUTTER = new URL(`assets/shutter.${fmts[i][0]}`, location.href).href; SILENT = new URL(`assets/silence.${fmts[i][0]}`, location.href).href; sndLog(`sound file format: ${fmts[i][0]}`); };
+      useFormat(0);
       let at = 0, unlocking = null;
       const param = () => ({ value: 0 });
       const node = () => ({ connect() {}, gain: param(), threshold: param(), knee: param(), ratio: param(), attack: param(), release: param(), buffer: null });
@@ -269,8 +275,13 @@
         unlocking = Promise.allSettled(pool.filter((el) => !el.ok).map((el) => {
           el.src = SILENT;
           return el.play().then(() => { el.pause(); el.ok = true; el.src = SHUTTER; el.load(); })
-            .catch((e) => { sndLog(`unlock refused: ${e && e.name} ${e && e.message ? '· ' + e.message : ''}`); el.src = SHUTTER; throw e; });
-        })).then(() => { unlocking = null; if (pool.some((el) => el.ok)) setState('running'); });
+            .catch((e) => { sndLog(`unlock refused (${fmts[fi][0]}): ${e && e.name} ${e && e.message ? '· ' + e.message : ''}`); if (e && e.name === 'NotSupportedError') el.unsupported = true; el.src = SHUTTER; throw e; });
+        })).then(() => {
+          unlocking = null;
+          if (pool.some((el) => el.ok)) { setState('running'); return; }
+          // this browser cannot decode the format: switch every element to the next one, ready for the next tap
+          if (pool.some((el) => el.unsupported) && fi + 1 < fmts.length) { useFormat(fi + 1); pool.forEach((el) => { el.unsupported = false; el.src = SHUTTER; }); }
+        });
         return unlocking;
       };
       ctx.suspend = () => { pool.forEach((el) => el.pause()); setState('suspended'); return Promise.resolve(); };
