@@ -219,7 +219,9 @@
     });
 
     /* Some browsers switch Web Audio off (Safari in Lockdown Mode). There the shutter plays from a recording of the same
-       synthesised sound, through <audio> elements behind a small stand-in with the few AudioContext calls this code uses.
+       synthesised three-frame burst (assets/burst.*, frames 0.2 s apart = SHOT_GAP), through <audio> elements behind a small
+       stand-in with the few AudioContext calls this code uses. One recording keeps the rhythm exact; the page measures how
+       long the browser takes to start it and starts it that much early, so the first frame lands on the first flash.
        Each element is unlocked inside the visitor's tap or key press with a silent clip. The recording comes as AAC (.m4a)
        and WAV: Safari in Lockdown Mode refuses WAV ("NotSupportedError"), so AAC goes first wherever the browser says it can
        play it, and a refused format hands over to the next one at the visitor's next tap.
@@ -239,9 +241,9 @@
       const ctx = this, sr = 44100, t0 = performance.now(), pool = [];
       const probe = new Audio(), fmts = SND_FORMATS.filter(([, t]) => probe.canPlayType(t)).concat(SND_FORMATS.filter(([, t]) => !probe.canPlayType(t)));
       let fi = 0, SHUTTER = '', SILENT = '';
-      const useFormat = (i) => { fi = i; SHUTTER = new URL(`assets/shutter.${fmts[i][0]}`, location.href).href; SILENT = new URL(`assets/silence.${fmts[i][0]}`, location.href).href; sndLog(`sound file format: ${fmts[i][0]}`); };
+      const useFormat = (i) => { fi = i; SHUTTER = new URL(`assets/burst.${fmts[i][0]}`, location.href).href; SILENT = new URL(`assets/silence.${fmts[i][0]}`, location.href).href; sndLog(`sound file format: ${fmts[i][0]}`); };
       useFormat(0);
-      let at = 0, unlocking = null;
+      let at = 0, unlocking = null, lag = 40, burstT = 0; // lag: ms from play() to sound, measured on every burst
       const param = () => ({ value: 0 });
       const node = () => ({ connect() {}, gain: param(), threshold: param(), knee: param(), ratio: param(), attack: param(), release: param(), buffer: null });
       const setState = (s) => { if (ctx.state !== s) { ctx.state = s; sndLog(`sound state: ${s}`); if (ctx.onstatechange) ctx.onstatechange(); } };
@@ -249,25 +251,34 @@
       Object.defineProperty(ctx, 'currentTime', { get: () => (performance.now() - t0) / 1000 });
       ctx.createGain = node; ctx.createDynamicsCompressor = node; ctx.createConvolver = node;
       ctx.createBuffer = (ch, n) => { const d = Array.from({ length: ch }, () => new Float32Array(n)); return { length: n, sampleRate: sr, getChannelData: (i) => d[i] }; };
-      for (let i = 0; i < 3; i++) { const el = new Audio(); el.preload = 'auto'; el.src = SHUTTER; el.ok = false; pool.push(el); }
-      const play = () => {
+      for (let i = 0; i < 2; i++) { const el = new Audio(); el.preload = 'auto'; el.src = SHUTTER; el.ok = false; pool.push(el); }
+      // the burst's first frame is due in `dueMs`; from frame k0 on (the visitor may unlock the sound mid-burst)
+      const playAt = (dueMs, k0) => {
         if (ctx.state !== 'running' || document.hidden) return;
         const live = pool.filter((el) => el.ok); if (!live.length) return;
         const el = live[at++ % live.length];
-        if (el.src !== SHUTTER) el.src = SHUTTER;
-        try { el.currentTime = 0; } catch {}
+        if (el.src !== SHUTTER) { el.src = SHUTTER; el.load(); }
+        const late = Math.max(0, lag - dueMs); // already too late to start early enough: skip into the recording instead
+        try { el.currentTime = k0 * 0.2 + late / 1000; } catch {}
         el.volume = 0.75;
-        el.play().then(() => sndLog('click played')).catch((e) => sndLog(`click refused: ${e && e.name}`));
+        const asked = performance.now(), from = el.currentTime;
+        el.play().then(() => {
+          // measure when the recording really started moving and keep a running average of the browser's delay
+          const t = () => {
+            if (el.paused) return;
+            if (el.currentTime > from + 0.001) { const d = Math.max(0, performance.now() - (el.currentTime - from) * 1000 - asked); if (d < 400) lag = lag * 0.5 + d * 0.5; sndLog(`burst played · start delay ${Math.round(d)} ms · now leading by ${Math.round(lag)} ms`); }
+            else requestAnimationFrame(t);
+          };
+          requestAnimationFrame(t);
+        }).catch((e) => sndLog(`burst refused: ${e && e.name}`));
       };
-      ctx.createBufferSource = () => {
-        const src = { buffer: null, playbackRate: param(), onended: null, timer: 0, connect() {},
-          start(when) {
-            if (!src.buffer || src.buffer.length < 100) return; // the one-sample unlock blip: the pool is unlocked in resume()
-            src.timer = setTimeout(() => { play(); if (src.onended) setTimeout(src.onended, 400); }, Math.max(0, ((when || 0) - ctx.currentTime) * 1000));
-          },
-          stop() { clearTimeout(src.timer); } };
-        return src;
+      ctx.playBurst = (dueMs, k0) => {
+        clearTimeout(burstT);
+        if (k0 >= 3) return;
+        const wait = dueMs - lag;
+        if (wait <= 4) playAt(dueMs, k0); else burstT = setTimeout(() => playAt(lag, k0), wait);
       };
+      ctx.createBufferSource = () => ({ buffer: null, playbackRate: param(), onended: null, connect() {}, start() {}, stop() {} });
       // play() has to start inside the tap; an element the browser refuses waits for the next tap. One allowed element is enough.
       ctx.resume = () => {
         if (pool.every((el) => el.ok)) { setState('running'); return Promise.resolve(); }
@@ -284,7 +295,7 @@
         });
         return unlocking;
       };
-      ctx.suspend = () => { pool.forEach((el) => el.pause()); setState('suspended'); return Promise.resolve(); };
+      ctx.suspend = () => { clearTimeout(burstT); pool.forEach((el) => el.pause()); setState('suspended'); return Promise.resolve(); };
     }
 
     /* shutter sound, synthesised in the browser (no audio file). Browsers allow sound only after the visitor's first tap, click or key press. */
@@ -497,6 +508,7 @@
     const soundShots = (k0) => {
       if (!audioLive() || !soundOn() || !snd.buf) return false;
       // scheduled ahead, minus the output device's delay beyond the screen's own ~25 ms (Bluetooth speakers and AirPods add up to a quarter second)
+      if (snd.ctx.playBurst) { snd.ctx.playBurst(shotWall[k0] - performance.now(), k0); return true; } // no Web Audio: one recorded burst
       const now = snd.ctx.currentTime, lat = Math.max(0, (snd.ctx.outputLatency || 0) + (snd.ctx.baseLatency || 0) - 0.025), p = performance.now();
       for (let k = k0; k < 3; k++) clickAt(now + Math.max(0, (shotWall[k] - p) / 1000 - lat));
       return true;
