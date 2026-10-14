@@ -23,27 +23,45 @@
 
   window.__ciaReady = true;
 
-  /* ---------- opening screen: one click or tap opens the file, and that click lets the browser play the shutter sound ---------- */
+  /* ---------- opening screen: the visitor enters an email to open the file; that tap or key press also lets the browser play the shutter sound ---------- */
   const gate = $('#gate');
   let gateOpen = !gate || !document.documentElement.classList.contains('gate-on');
   const onGateOpen = [];
   if (!gateOpen) {
-    const gateBtn = $('#gateBtn'), gateLabel = $('#gateBtnLabel');
-    if (gateLabel && !fine) gateLabel.textContent = 'Tap to open the file';
+    const gateForm = $('#gateForm'), gateEmail = $('#gateEmail'), gateBtn = $('#gateBtn'), gateErr = $('#gateErr');
     const behind = [$('.skip'), $('.nav'), $('#main'), $('.foot')].filter(Boolean);
     behind.forEach((el) => { el.inert = true; });
-    if (gateBtn) gateBtn.focus({ preventScroll: true });
+    // a returning visitor's email is filled in, so one tap opens the file
+    let known = '';
+    try { known = localStorage.getItem('cia_email') || ''; } catch {}
+    if (gateEmail) { if (known) gateEmail.value = known; if (fine) gateEmail.focus({ preventScroll: true }); }
     const openGate = () => {
       if (gateOpen) return;
       gateOpen = true;
       behind.forEach((el) => { el.inert = false; });
       if (gateBtn) { const r = gateBtn.getBoundingClientRect(); gate.style.setProperty('--gx', `${Math.round(r.left + r.width / 2)}px`); gate.style.setProperty('--gy', `${Math.round(r.top + r.height / 2)}px`); }
+      if (document.activeElement && gate.contains(document.activeElement)) document.activeElement.blur();
       gate.classList.add('is-opening');
       setTimeout(() => { document.documentElement.classList.remove('gate-on'); gate.remove(); }, reduce ? 30 : 860);
       onGateOpen.splice(0).forEach((fn) => fn());
     };
-    gate.addEventListener('click', openGate);
-    addEventListener('keydown', (e) => { if (!gateOpen && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); openGate(); } });
+    if (gateEmail) gateEmail.addEventListener('input', () => { gateForm.classList.remove('is-bad'); gateErr.textContent = ''; });
+    if (gateForm) gateForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = gateEmail.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
+        gateForm.classList.add('is-bad');
+        gateErr.textContent = email ? 'Please check your email address.' : 'Please enter your email address to open the file.';
+        gateEmail.focus();
+        return;
+      }
+      // the file opens at once (inside the tap, so the sound can play); the sign-up is sent alongside it
+      if (email.toLowerCase() !== known.toLowerCase()) {
+        fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-site/notify', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, role: 'reader', site: 'theciaasset.com', page: location.href, via: 'gate' }) }).catch(() => {});
+        try { localStorage.setItem('cia_email', email); } catch {}
+      }
+      openGate();
+    });
   }
   const whenGateOpen = (fn) => { if (gateOpen) fn(); else onGateOpen.push(fn); };
 

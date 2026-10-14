@@ -65,12 +65,12 @@ a { color: inherit; }
 .nav__menu[aria-expanded="true"] span:first-child { transform: translateY(4px) rotate(45deg); }
 .nav__menu[aria-expanded="true"] span:last-child { transform: translateY(-4px) rotate(-45deg); }
 
-/* ---------- opening screen: one click or tap opens the file and turns the sound on ---------- */
+/* ---------- opening screen: an email opens the file and turns the sound on ---------- */
 @property --hole { syntax: '<length>'; inherits: false; initial-value: 0px; }
 .gate { display: none; }
 html.gate-on { overflow: hidden; }
 html.gate-on .gate { display: flex; }
-.gate { position: fixed; inset: 0; z-index: 200; align-items: center; justify-content: center; padding: 24px; overflow: hidden; background: radial-gradient(ellipse 60% 50% at 50% 46%, rgba(224,18,28,.18), transparent 70%), #08080a; color: #fff; text-align: center; cursor: pointer; -webkit-mask: radial-gradient(circle at var(--gx, 50%) var(--gy, 62%), transparent var(--hole), #000 calc(var(--hole) + 1px)); mask: radial-gradient(circle at var(--gx, 50%) var(--gy, 62%), transparent var(--hole), #000 calc(var(--hole) + 1px)); }
+.gate { position: fixed; inset: 0; z-index: 200; align-items: center; justify-content: center; padding: 24px; overflow: hidden; background: radial-gradient(ellipse 60% 50% at 50% 46%, rgba(224,18,28,.18), transparent 70%), #08080a; color: #fff; text-align: center; -webkit-mask: radial-gradient(circle at var(--gx, 50%) var(--gy, 62%), transparent var(--hole), #000 calc(var(--hole) + 1px)); mask: radial-gradient(circle at var(--gx, 50%) var(--gy, 62%), transparent var(--hole), #000 calc(var(--hole) + 1px)); }
 .gate::before { content: ''; position: absolute; inset: -40px; opacity: .16; mix-blend-mode: overlay; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); animation: grain .9s steps(6) infinite; pointer-events: none; }
 .gate__in { position: relative; max-width: 780px; }
 .gate__tag { display: inline-block; margin: 0 0 22px; padding: 9px 18px 7px; border: 3px solid var(--red); border-radius: 4px; color: var(--red); font: 400 clamp(20px, 2.8vw, 30px)/1 var(--stencil); letter-spacing: .14em; text-transform: uppercase; transform: rotate(-6deg); }
@@ -81,11 +81,26 @@ html.gate-on .gate { display: flex; }
 .gate__btn svg { width: 22px; height: 22px; flex: none; }
 .gate__btn:hover, .gate__btn:focus-visible { background: var(--red-ink); transform: translateY(-2px); }
 .gate__btn::after { content: ''; position: absolute; inset: 0; border-radius: inherit; border: 2px solid var(--red); animation: sndPing 2s var(--ease) infinite; pointer-events: none; }
+.gate__form { margin: 0 auto; max-width: 560px; }
+.gate__label { display: block; margin: 0 0 14px; font: 700 12px/1.3 var(--mono); letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.78); }
+.gate__row { display: flex; gap: 10px; padding: 6px; border: 1px solid rgba(255,255,255,.22); border-radius: 999px; background: rgba(255,255,255,.06); transition: border-color .2s, box-shadow .2s; }
+.gate__row:focus-within { border-color: rgba(255,255,255,.55); box-shadow: 0 0 0 4px rgba(224,18,28,.25); }
+.gate__form.is-bad .gate__row { border-color: var(--red); box-shadow: 0 0 0 4px rgba(224,18,28,.3); }
+.gate__input { flex: 1 1 auto; min-width: 0; height: 52px; padding: 0 8px 0 20px; border: 0; background: transparent; color: #fff; font: 400 17px/1 var(--body); outline: none; }
+.gate__input::placeholder { color: rgba(255,255,255,.4); }
+.gate__row .gate__btn { flex: none; height: 52px; padding: 0 26px; }
+.gate__err { min-height: 18px; margin: 10px 0 0; font: 600 13px/1.35 var(--body); color: #ff6b72; }
+.gate__err:empty { min-height: 0; margin: 0; }
+.gate__fine { margin: 12px 0 0; font: 400 13px/1.4 var(--body); color: rgba(255,255,255,.5); }
 .gate__hint { margin: 16px 0 0; font: 600 11px/1 var(--mono); letter-spacing: .26em; text-transform: uppercase; color: rgba(255,255,255,.5); }
 .gate.is-opening { animation: gateOpen .85s cubic-bezier(.7, 0, .2, 1) forwards; pointer-events: none; }
 @keyframes gateOpen { 0% { --hole: 0px; opacity: 1; } 75% { opacity: 1; } 100% { --hole: 160vmax; opacity: 0; } }
 @media (max-width: 560px) {
   .gate__btn { height: 56px; padding: 0 24px; font-size: 14px; gap: 10px; }
+  .gate__row { flex-direction: column; border-radius: 18px; padding: 8px; }
+  .gate__input { height: 50px; padding: 0 12px; text-align: center; font-size: 16px; }
+  .gate__row .gate__btn { width: 100%; justify-content: center; height: 54px; }
+  .gate__label { font-size: 10.5px; letter-spacing: .18em; }
   .gate__file { font-size: 10.5px; letter-spacing: .24em; }
   .gate__by { font-size: 12px; margin: 16px 0 28px; }
 }
