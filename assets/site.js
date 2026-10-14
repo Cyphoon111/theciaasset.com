@@ -115,7 +115,7 @@
     if (gateEmail) { if (known) gateEmail.value = known; if (fine) gateEmail.focus({ preventScroll: true }); }
     const gateHuman = $('#gateHuman');
     const askTick = () => { gateErr.textContent = 'Please tick the box to confirm you are human.'; };
-    if (!known) human.mount(gateHuman, askTick);
+    if (!known) human.mount(gateHuman);
     const openGate = () => {
       if (gateOpen) return;
       gateOpen = true;
@@ -126,7 +126,7 @@
       setTimeout(() => { document.documentElement.classList.remove('gate-on'); gate.remove(); }, reduce ? 30 : 860);
       onGateOpen.splice(0).forEach((fn) => fn());
     };
-    if (gateEmail) gateEmail.addEventListener('input', () => { gateForm.classList.remove('is-bad'); gateErr.textContent = ''; human.mount(gateHuman, askTick); });
+    if (gateEmail) gateEmail.addEventListener('input', () => { gateForm.classList.remove('is-bad'); gateErr.textContent = ''; human.mount(gateHuman); });
     let checking = false;
     if (gateForm) gateForm.addEventListener('submit', async (e) => {
       e.preventDefault();
