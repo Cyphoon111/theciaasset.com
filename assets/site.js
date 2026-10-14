@@ -218,53 +218,59 @@
       tx.textContent = t; ticks.appendChild(tx);
     });
 
-    /* Some browsers switch Web Audio off (Safari in Lockdown Mode). There the same synthesised shutter is written into a WAV
-       file in memory and played by <audio> elements, behind a small stand-in with the few AudioContext calls this code uses.
-       Each element is unlocked inside the visitor's tap or key press with a silent clip, then plays the shutter on cue. */
+    /* Some browsers switch Web Audio off (Safari in Lockdown Mode). There the shutter plays from a recording of the same
+       synthesised sound (assets/shutter.wav), through <audio> elements behind a small stand-in with the few AudioContext calls
+       this code uses. Each element is unlocked inside the visitor's tap or key press with a silent clip (assets/silence.wav).
+       Add ?sound=debug to the address to see on screen what the browser allows. */
+    const sndDebug = /[?&]sound=debug\b/.test(location.search);
+    const sndLog = (() => {
+      if (!sndDebug) return () => {};
+      const box = document.createElement('pre');
+      box.style.cssText = 'position:fixed;left:8px;bottom:8px;z-index:9999;max-width:calc(100vw - 16px);max-height:40vh;overflow:auto;margin:0;padding:8px 10px;background:rgba(0,0,0,.85);color:#7CFC9A;font:11px/1.35 monospace;white-space:pre-wrap;border-radius:6px;pointer-events:none';
+      document.addEventListener('DOMContentLoaded', () => document.body.appendChild(box));
+      if (document.body) document.body.appendChild(box);
+      return (m) => { box.textContent = `${new Date().toLocaleTimeString()} ${m}\n${box.textContent}`.slice(0, 4000); };
+    })();
+    sndLog(`AudioContext: ${window.AudioContext ? 'yes' : 'no'} · webkitAudioContext: ${window.webkitAudioContext ? 'yes' : 'no'} · Audio element: ${typeof Audio === 'function' ? 'yes' : 'no'}`);
     function MediaCtx() {
       const ctx = this, sr = 44100, t0 = performance.now(), pool = [];
-      let shutterUrl = '', silentUrl = '', at = 0, unlocking = null;
+      const SHUTTER = new URL('assets/shutter.wav', location.href).href, SILENT = new URL('assets/silence.wav', location.href).href;
+      let at = 0, unlocking = null;
       const param = () => ({ value: 0 });
       const node = () => ({ connect() {}, gain: param(), threshold: param(), knee: param(), ratio: param(), attack: param(), release: param(), buffer: null });
-      const wav = (d) => {
-        const n = d.length, b = new ArrayBuffer(44 + n * 2), v = new DataView(b);
-        const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
-        w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
-        v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
-        for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, d[i])) * 32767, true);
-        return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
-      };
-      const setState = (s) => { if (ctx.state !== s) { ctx.state = s; if (ctx.onstatechange) ctx.onstatechange(); } };
+      const setState = (s) => { if (ctx.state !== s) { ctx.state = s; sndLog(`sound state: ${s}`); if (ctx.onstatechange) ctx.onstatechange(); } };
       ctx.sampleRate = sr; ctx.state = 'suspended'; ctx.onstatechange = null; ctx.destination = node();
       Object.defineProperty(ctx, 'currentTime', { get: () => (performance.now() - t0) / 1000 });
       ctx.createGain = node; ctx.createDynamicsCompressor = node; ctx.createConvolver = node;
       ctx.createBuffer = (ch, n) => { const d = Array.from({ length: ch }, () => new Float32Array(n)); return { length: n, sampleRate: sr, getChannelData: (i) => d[i] }; };
+      for (let i = 0; i < 3; i++) { const el = new Audio(); el.preload = 'auto'; el.src = SHUTTER; el.ok = false; pool.push(el); }
       const play = () => {
-        if (ctx.state !== 'running' || !shutterUrl || document.hidden) return;
-        const el = pool[at++ % pool.length]; if (!el) return;
-        if (el.src !== shutterUrl) el.src = shutterUrl;
+        if (ctx.state !== 'running' || document.hidden) return;
+        const live = pool.filter((el) => el.ok); if (!live.length) return;
+        const el = live[at++ % live.length];
+        if (el.src !== SHUTTER) el.src = SHUTTER;
         try { el.currentTime = 0; } catch {}
-        el.volume = 0.7; el.play().catch(() => {});
+        el.volume = 0.75;
+        el.play().then(() => sndLog('click played')).catch((e) => sndLog(`click refused: ${e && e.name}`));
       };
       ctx.createBufferSource = () => {
         const src = { buffer: null, playbackRate: param(), onended: null, timer: 0, connect() {},
           start(when) {
             if (!src.buffer || src.buffer.length < 100) return; // the one-sample unlock blip: the pool is unlocked in resume()
-            if (!shutterUrl) shutterUrl = wav(src.buffer.getChannelData(0));
-            src.timer = setTimeout(() => { play(); if (src.onended) setTimeout(src.onended, 200); }, Math.max(0, ((when || 0) - ctx.currentTime) * 1000));
+            src.timer = setTimeout(() => { play(); if (src.onended) setTimeout(src.onended, 400); }, Math.max(0, ((when || 0) - ctx.currentTime) * 1000));
           },
           stop() { clearTimeout(src.timer); } };
         return src;
       };
+      // play() has to start inside the tap; an element the browser refuses waits for the next tap. One allowed element is enough.
       ctx.resume = () => {
-        if (ctx.state === 'running') return Promise.resolve();
+        if (pool.every((el) => el.ok)) { setState('running'); return Promise.resolve(); }
         if (unlocking) return unlocking;
-        if (!silentUrl) silentUrl = wav(new Float32Array(2205));
-        if (!pool.length) for (let i = 0; i < 3; i++) { const el = new Audio(); el.preload = 'auto'; pool.push(el); }
-        // play() has to start inside the tap; a refusal here simply leaves the sound waiting for the next one
-        unlocking = Promise.all(pool.map((el) => { if (el.src !== silentUrl) el.src = silentUrl; return el.play().then(() => el.pause()); }))
-          .then(() => { pool.forEach((el) => { if (shutterUrl) el.src = shutterUrl; }); setState('running'); })
-          .finally(() => { unlocking = null; });
+        unlocking = Promise.allSettled(pool.filter((el) => !el.ok).map((el) => {
+          el.src = SILENT;
+          return el.play().then(() => { el.pause(); el.ok = true; el.src = SHUTTER; el.load(); })
+            .catch((e) => { sndLog(`unlock refused: ${e && e.name} ${e && e.message ? '· ' + e.message : ''}`); el.src = SHUTTER; throw e; });
+        })).then(() => { unlocking = null; if (pool.some((el) => el.ok)) setState('running'); });
         return unlocking;
       };
       ctx.suspend = () => { pool.forEach((el) => el.pause()); setState('suspended'); return Promise.resolve(); };
