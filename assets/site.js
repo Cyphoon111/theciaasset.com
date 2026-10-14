@@ -218,8 +218,60 @@
       tx.textContent = t; ticks.appendChild(tx);
     });
 
+    /* Some browsers switch Web Audio off (Safari in Lockdown Mode). There the same synthesised shutter is written into a WAV
+       file in memory and played by <audio> elements, behind a small stand-in with the few AudioContext calls this code uses.
+       Each element is unlocked inside the visitor's tap or key press with a silent clip, then plays the shutter on cue. */
+    function MediaCtx() {
+      const ctx = this, sr = 44100, t0 = performance.now(), pool = [];
+      let shutterUrl = '', silentUrl = '', at = 0, unlocking = null;
+      const param = () => ({ value: 0 });
+      const node = () => ({ connect() {}, gain: param(), threshold: param(), knee: param(), ratio: param(), attack: param(), release: param(), buffer: null });
+      const wav = (d) => {
+        const n = d.length, b = new ArrayBuffer(44 + n * 2), v = new DataView(b);
+        const w = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+        w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+        v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+        for (let i = 0; i < n; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, d[i])) * 32767, true);
+        return URL.createObjectURL(new Blob([b], { type: 'audio/wav' }));
+      };
+      const setState = (s) => { if (ctx.state !== s) { ctx.state = s; if (ctx.onstatechange) ctx.onstatechange(); } };
+      ctx.sampleRate = sr; ctx.state = 'suspended'; ctx.onstatechange = null; ctx.destination = node();
+      Object.defineProperty(ctx, 'currentTime', { get: () => (performance.now() - t0) / 1000 });
+      ctx.createGain = node; ctx.createDynamicsCompressor = node; ctx.createConvolver = node;
+      ctx.createBuffer = (ch, n) => { const d = Array.from({ length: ch }, () => new Float32Array(n)); return { length: n, sampleRate: sr, getChannelData: (i) => d[i] }; };
+      const play = () => {
+        if (ctx.state !== 'running' || !shutterUrl || document.hidden) return;
+        const el = pool[at++ % pool.length]; if (!el) return;
+        if (el.src !== shutterUrl) el.src = shutterUrl;
+        try { el.currentTime = 0; } catch {}
+        el.volume = 0.7; el.play().catch(() => {});
+      };
+      ctx.createBufferSource = () => {
+        const src = { buffer: null, playbackRate: param(), onended: null, timer: 0, connect() {},
+          start(when) {
+            if (!src.buffer || src.buffer.length < 100) return; // the one-sample unlock blip: the pool is unlocked in resume()
+            if (!shutterUrl) shutterUrl = wav(src.buffer.getChannelData(0));
+            src.timer = setTimeout(() => { play(); if (src.onended) setTimeout(src.onended, 200); }, Math.max(0, ((when || 0) - ctx.currentTime) * 1000));
+          },
+          stop() { clearTimeout(src.timer); } };
+        return src;
+      };
+      ctx.resume = () => {
+        if (ctx.state === 'running') return Promise.resolve();
+        if (unlocking) return unlocking;
+        if (!silentUrl) silentUrl = wav(new Float32Array(2205));
+        if (!pool.length) for (let i = 0; i < 3; i++) { const el = new Audio(); el.preload = 'auto'; pool.push(el); }
+        // play() has to start inside the tap; a refusal here simply leaves the sound waiting for the next one
+        unlocking = Promise.all(pool.map((el) => { if (el.src !== silentUrl) el.src = silentUrl; return el.play().then(() => el.pause()); }))
+          .then(() => { pool.forEach((el) => { if (shutterUrl) el.src = shutterUrl; }); setState('running'); })
+          .finally(() => { unlocking = null; });
+        return unlocking;
+      };
+      ctx.suspend = () => { pool.forEach((el) => el.pause()); setState('suspended'); return Promise.resolve(); };
+    }
+
     /* shutter sound, synthesised in the browser (no audio file). Browsers allow sound only after the visitor's first tap, click or key press. */
-    const AC = window.AudioContext || window.webkitAudioContext;
+    const AC = window.AudioContext || window.webkitAudioContext || (typeof Audio === 'function' ? MediaCtx : null);
     const snd = { ctx: null, buf: null, bus: null, pref: null };
     try { snd.pref = localStorage.getItem('cia_sound'); } catch {}
     const soundOn = () => snd.pref !== 'off';
