@@ -787,6 +787,30 @@
     catch { const r = document.createRange(); r.selectNodeContents($('#shortBio')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Bio selected. Press Copy.'); }
   });
 
+  /* ---------- the next day: Pam Bondi at the Cabinet meeting (a portrait clip under the missing minute). A centred play button
+     starts it with sound, a tap on the picture pauses or resumes, and the button at the lower right goes full screen
+     (the native controls show there; on an iPhone the system player takes over). ---------- */
+  const bondi = $('#bondi');
+  if (bondi) {
+    const v = $('video', bondi), playBtn = $('.bondi__play', bondi), fullBtn = $('.bondi__full', bondi);
+    const sync = () => {
+      bondi.classList.toggle('is-playing', !v.paused && !v.ended);
+      playBtn.setAttribute('aria-label', v.ended ? 'Play again' : 'Play video');
+    };
+    const play = () => { v.muted = false; v.play().catch(() => {}); };
+    playBtn.addEventListener('click', play);
+    v.addEventListener('click', () => { if (v.paused) play(); else v.pause(); });
+    ['play', 'pause', 'ended'].forEach((ev) => v.addEventListener(ev, sync));
+    fullBtn.addEventListener('click', () => {
+      const enter = v.requestFullscreen || v.webkitRequestFullscreen;
+      if (enter) { const p = enter.call(v); if (p && p.catch) p.catch(() => {}); } else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+      if (v.paused) play();
+    });
+    const onFs = () => { v.controls = (document.fullscreenElement || document.webkitFullscreenElement) === v; };
+    document.addEventListener('fullscreenchange', onFs);
+    document.addEventListener('webkitfullscreenchange', onFs);
+  }
+
   /* ---------- press requests: the "Interviews & bookings" and "Representation & rights" cards open their own pop-up form.
      Answers go to PitchZing (POST /public/book-site/request), which stores them and emails each one on, Reply-To the
      requester. The cards keep their mailto links for a browser without this script. ---------- */
