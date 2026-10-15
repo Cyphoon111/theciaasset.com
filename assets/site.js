@@ -787,6 +787,64 @@
     catch { const r = document.createRange(); r.selectNodeContents($('#shortBio')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Bio selected. Press Copy.'); }
   });
 
+  /* ---------- press requests: the "Interviews & bookings" and "Representation & rights" cards open their own pop-up form.
+     Answers go to PitchZing (POST /public/book-site/request), which stores them and emails each one on, Reply-To the
+     requester. The cards keep their mailto links for a browser without this script. ---------- */
+  const REQUEST_URL = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-site/request';
+  const reqOpen = (kind) => {
+    const d = $(`#req-${kind}`);
+    if (!d) return;
+    const f = $('form', d), msg = $('.reqd__msg', d);
+    const em = f.elements.email;
+    if (!em.value) { try { em.value = localStorage.getItem('cia_email') || ''; } catch {} }   // the address from the opening screen
+    msg.textContent = ''; msg.classList.remove('is-err');
+    human.mount($('.human', d));
+    if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+    setTimeout(() => f.elements.name.focus(), 50);
+  };
+  $$('[data-request]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); reqOpen(a.dataset.request); }));
+  $$('a[href="#rights"]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); reqOpen('rights'); }));
+  $$('.reqd').forEach((d) => {
+    $$('[data-close]', d).forEach((b) => b.addEventListener('click', () => d.close()));
+    d.addEventListener('click', (e) => { if (e.target === d) d.close(); });   // a click on the dimmed backdrop
+  });
+  $$('.reqd__form').forEach((f) => {
+    const msg = $('.reqd__msg', f), btn = $('.reqd__send', f), box = $('.human', f);
+    const checks = {
+      name: (v) => v.length >= 2,
+      org_type: (v) => !!v,
+      org_name: (v) => v.length >= 2,
+      email: (v) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v),
+      phone: (v) => { const d = v.replace(/\D/g, ''); return d.length >= 7 && d.length <= 15 && !/[^\d\s()+.\-]/.test(v); },
+      website: (v) => /^(https?:\/\/)?[^\s/]+\.[^\s]{2,}/i.test(v),
+    };
+    f.addEventListener('input', (e) => { const fld = e.target.closest('.reqd__field'); if (fld) fld.classList.remove('is-bad'); });
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const v = (n) => String(f.elements[n].value || '').trim();
+      const bad = Object.keys(checks).filter((n) => !checks[n](v(n)));
+      $$('.reqd__field', f).forEach((fld) => fld.classList.toggle('is-bad', bad.includes(($('input, select', fld) || {}).name)));
+      msg.classList.remove('is-err');
+      if (bad.length) { msg.textContent = 'Please fill in every field marked *.'; msg.classList.add('is-err'); f.elements[bad[0]].focus(); return; }
+      const label = btn.innerHTML;
+      btn.disabled = true; btn.textContent = 'Sending…'; msg.textContent = '';
+      try {
+        const token = await human.token(box, 6000, () => { msg.textContent = 'Tick the box to confirm you are human.'; });
+        const body = { kind: f.dataset.kind, name: v('name'), org_type: v('org_type'), org_name: v('org_name'), email: v('email'), phone: v('phone'), website: v('website'), hp: v('hp'), human: token, site: 'theciaasset.com', page: location.href };
+        const r = await fetch(REQUEST_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.error || `The request could not be sent (${r.status}). Please try again.`);
+        const first = v('name').split(/\s+/)[0];
+        f.outerHTML = `<p class="reqd__done"><strong>Thank you${first ? `, ${first.replace(/[<>&"]/g, '')}` : ''}.</strong> Your ${f.dataset.kind === 'rights' ? 'inquiry' : 'request'} has been sent, and you will hear back by email or phone.</p><button class="btn btn--ghost btn--sm" type="button" data-close>Close</button>`;
+        $$('[data-close]', $(`#req-${body.kind}`)).forEach((b) => b.addEventListener('click', () => $(`#req-${body.kind}`).close()));
+      } catch (err) {
+        msg.textContent = err && err.message && !/Failed to fetch|NetworkError|Load failed/i.test(err.message) ? err.message : 'The request could not be sent. Check your connection and try again.';
+        msg.classList.add('is-err');
+        btn.disabled = false; btn.innerHTML = label;
+      }
+    });
+  });
+
   /* ---------- pre-order: the early-reader price ends with Election Day (midnight Eastern, November 4, 2026), then the full price shows.
      Square charges the item's own price, so raise it to $14.99 in the Square item library the same day. ---------- */
   if (Date.now() >= Date.parse('2026-11-04T05:00:00Z')) {

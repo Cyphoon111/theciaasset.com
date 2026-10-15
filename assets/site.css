@@ -478,6 +478,28 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .form__msg.is-err { color: #ff8a8f; }
 .form__fine { margin: 0; font-size: 12.5px; color: #8b8b94; }
 
+/* ---------- press request pop-ups: "Interviews & bookings" and "Representation & rights" ---------- */
+.reqd { width: min(560px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 34px 32px 28px; border: 0; border-top: 4px solid var(--red); border-radius: 16px; background: #fff; color: var(--ink); box-shadow: 0 40px 90px -30px rgba(0,0,0,.65); overflow: auto; }
+.reqd::backdrop { background: rgba(8,8,10,.72); }
+.reqd__x { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--paper-2); color: var(--ink); font: 400 22px/1 var(--body); cursor: pointer; }
+.reqd__x:hover { background: var(--paper-3); }
+.reqd__title { margin: 0 0 8px; padding-right: 34px; font: 400 clamp(30px, 6vw, 40px)/1 var(--display); text-transform: uppercase; }
+.reqd__sub { margin: 0 0 20px; color: var(--ink-2); font-size: 15.5px; }
+.reqd__form { display: grid; gap: 14px; }
+.reqd__field { display: grid; gap: 6px; }
+.reqd__field span { font: 700 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+.reqd__field i { font-style: normal; color: var(--red); }
+.reqd__field input, .reqd__field select { width: 100%; height: 48px; padding: 0 14px; border: 1px solid #d5d0c4; border-radius: 10px; background: #fff; color: var(--ink); font: 500 16px/1 var(--body); outline: none; appearance: none; -webkit-appearance: none; transition: border-color .2s, box-shadow .2s; }
+.reqd__field select { background-image: linear-gradient(45deg, transparent 50%, var(--ink-2) 50%), linear-gradient(135deg, var(--ink-2) 50%, transparent 50%); background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; }
+.reqd__field input:focus, .reqd__field select:focus { border-color: var(--red); box-shadow: 0 0 0 4px rgba(224,18,28,.15); }
+.reqd__field.is-bad input, .reqd__field.is-bad select { border-color: var(--red-ink); box-shadow: 0 0 0 4px rgba(224,18,28,.12); }
+.reqd__send { width: 100%; margin-top: 4px; }
+.reqd__msg { margin: 0; font-size: 14.5px; line-height: 1.5; color: var(--ink-2); }
+.reqd__msg:empty { display: none; }
+.reqd__msg.is-err { color: var(--red-ink); }
+.reqd__done { padding: 8px 0 4px; font-size: 17px; line-height: 1.55; color: var(--ink); }
+@media (max-width: 560px) { .reqd { padding: 30px 20px 22px; } }
+
 /* ---------- press ---------- */
 /* media contact: the author's PR firm (TruthPR), above the request cards */
 .prcontact { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px 36px; align-items: center; margin-bottom: 22px; padding: 26px 30px; border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 0 14px 14px 0; background: #fff; }
