@@ -34,7 +34,7 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=30">
+<link rel="stylesheet" href="assets/site.css?v=32">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -385,13 +385,13 @@
         </div>
       </div>
       <div class="press__grid">
-        <a class="pcard reveal" href="mailto:jsullivan@legalbrains.com?subject=Interview%20request%3A%20Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">
+        <a class="pcard reveal" data-request="interview" href="mailto:jsullivan@legalbrains.com?subject=Interview%20request%3A%20Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">
           <span class="pcard__k">01</span><h3>Interviews &amp; bookings</h3><p>TV, radio and podcast producers: request an interview with Jason Sullivan.</p><span class="pcard__go">Request an interview →</span>
         </a>
         <a class="pcard reveal" href="#notify" data-role="journalist">
           <span class="pcard__k">02</span><h3>Advance preview copies</h3><p>Available only to credentialed members of the media: journalists, editors, producers, podcast hosts and book reviewers. Every request is verified.</p><span class="pcard__go">Request a preview copy →</span>
         </a>
-        <a class="pcard reveal" id="rights" href="mailto:jsullivan@legalbrains.com?subject=Rights%20inquiry%3A%20Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">
+        <a class="pcard reveal" id="rights" data-request="rights" href="mailto:jsullivan@legalbrains.com?subject=Rights%20inquiry%3A%20Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">
           <span class="pcard__k">03</span><h3>Representation &amp; rights</h3><p>Literary agents and publishers: representation and rights inquiries.</p><span class="pcard__go">Send an inquiry →</span>
         </a>
       </div>
@@ -419,7 +419,42 @@
   </div>
 </footer>
 
+<dialog class="reqd" id="req-interview" aria-labelledby="req-interview-title">
+  <button class="reqd__x" type="button" aria-label="Close" data-close>×</button>
+  <h2 class="reqd__title" id="req-interview-title">Request an interview</h2>
+  <p class="reqd__sub">TV, radio, podcast, print and online: tell us who you are and how to reach you. Every request gets a reply.</p>
+  <form class="reqd__form" data-kind="interview" novalidate>
+    <label class="reqd__field"><span>Full name <i>*</i></span><input name="name" autocomplete="name" maxlength="120" required></label>
+    <label class="reqd__field"><span>You are with a <i>*</i></span><select name="org_type" required><option value="">Choose one</option><option>Media publication</option><option>TV show</option><option>Newspaper</option><option>Magazine</option><option>Podcast</option><option>Radio show</option><option>Writer</option><option>Journalist</option><option>Book reviewer</option></select></label>
+    <label class="reqd__field"><span>Name of the publication, show or outlet <i>*</i></span><input name="org_name" autocomplete="organization" maxlength="160" placeholder="Freelance? Write “Freelance”" required></label>
+    <label class="reqd__field"><span>Email <i>*</i></span><input type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254" placeholder="you@example.com" required></label>
+    <label class="reqd__field"><span>Phone <i>*</i></span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="40" required></label>
+    <label class="reqd__field"><span>Website <i>*</i></span><input type="url" name="website" autocomplete="url" inputmode="url" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="https://" required></label>
+    <div class="trap" aria-hidden="true"><label>Leave this empty <input name="hp" tabindex="-1" autocomplete="off"></label></div>
+    <div class="human"></div>
+    <button class="btn btn--red btn--lg reqd__send" type="submit">Send request <span aria-hidden="true">→</span></button>
+    <p class="reqd__msg" role="status" aria-live="polite"></p>
+  </form>
+</dialog>
+<dialog class="reqd" id="req-rights" aria-labelledby="req-rights-title">
+  <button class="reqd__x" type="button" aria-label="Close" data-close>×</button>
+  <h2 class="reqd__title" id="req-rights-title">Representation &amp; rights</h2>
+  <p class="reqd__sub">Literary agents and publishers: tell us who you are and how to reach you. Every inquiry gets a reply.</p>
+  <form class="reqd__form" data-kind="rights" novalidate>
+    <label class="reqd__field"><span>Full name <i>*</i></span><input name="name" autocomplete="name" maxlength="120" required></label>
+    <label class="reqd__field"><span>You are with a <i>*</i></span><select name="org_type" required><option value="">Choose one</option><option>Publishing company</option><option>Literary agency</option></select></label>
+    <label class="reqd__field"><span>Name of the publishing company or literary agency <i>*</i></span><input name="org_name" autocomplete="organization" maxlength="160" placeholder="" required></label>
+    <label class="reqd__field"><span>Company email <i>*</i></span><input type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254" placeholder="you@example.com" required></label>
+    <label class="reqd__field"><span>Phone <i>*</i></span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="40" required></label>
+    <label class="reqd__field"><span>Website <i>*</i></span><input type="url" name="website" autocomplete="url" inputmode="url" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="https://" required></label>
+    <div class="trap" aria-hidden="true"><label>Leave this empty <input name="hp" tabindex="-1" autocomplete="off"></label></div>
+    <div class="human"></div>
+    <button class="btn btn--red btn--lg reqd__send" type="submit">Send request <span aria-hidden="true">→</span></button>
+    <p class="reqd__msg" role="status" aria-live="polite"></p>
+  </form>
+</dialog>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=30" defer></script>
+<script src="assets/site.js?v=32" defer></script>
 </body>
 </html>
