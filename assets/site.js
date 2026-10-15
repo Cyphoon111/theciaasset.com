@@ -116,14 +116,18 @@
     const gateHuman = $('#gateHuman');
     const askTick = () => { gateErr.textContent = 'Please tick the box to confirm you are human.'; };
     if (!known) human.mount(gateHuman);
+    // The site opens at the very top (Jason, 2026-10-15): typing in the email box can scroll the page underneath (a phone's
+    // keyboard does), and a link may carry a #section; neither survives the opening.
     const openGate = () => {
       if (gateOpen) return;
       gateOpen = true;
       behind.forEach((el) => { el.inert = false; });
       if (gateBtn) { const r = gateBtn.getBoundingClientRect(); gate.style.setProperty('--gx', `${Math.round(r.left + r.width / 2)}px`); gate.style.setProperty('--gy', `${Math.round(r.top + r.height / 2)}px`); }
       if (document.activeElement && gate.contains(document.activeElement)) document.activeElement.blur();
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+      toTop();
       gate.classList.add('is-opening');
-      setTimeout(() => { document.documentElement.classList.remove('gate-on'); gate.remove(); }, reduce ? 30 : 860);
+      setTimeout(() => { document.documentElement.classList.remove('gate-on'); gate.remove(); toTop(); }, reduce ? 30 : 860);
       onGateOpen.splice(0).forEach((fn) => fn());
     };
     if (gateEmail) gateEmail.addEventListener('input', () => { gateForm.classList.remove('is-bad'); gateErr.textContent = ''; human.mount(gateHuman); });
@@ -161,6 +165,13 @@
   const nav = $('.nav');
   const onScroll = () => nav && nav.classList.toggle('is-scrolled', scrollY > 8);
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  // The logo (header and footer, href="#top") goes to the very top. #top is the sticky header itself, which a browser treats
+  // as already in view, so the jump is made here; the address keeps no #top.
+  $$('a[href="#top"]').forEach((a) => a.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  }));
   const menu = $('#navMenu'), links = $('#navLinks');
   if (menu && links) {
     menu.addEventListener('click', () => { const open = links.classList.toggle('is-open'); menu.setAttribute('aria-expanded', String(open)); menu.setAttribute('aria-label', open ? 'Close menu' : 'Open menu'); });
