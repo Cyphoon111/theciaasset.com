@@ -776,6 +776,13 @@
     catch { const r = document.createRange(); r.selectNodeContents($('#shortBio')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Bio selected. Press Copy.'); }
   });
 
+  /* ---------- pre-order: the early-reader price ends with Election Day (midnight Eastern, November 4, 2026), then the full price shows.
+     Square charges the item's own price, so raise it to $14.99 in the Square item library the same day. ---------- */
+  if (Date.now() >= Date.parse('2026-11-04T05:00:00Z')) {
+    $$('[data-early]').forEach((el) => el.remove());
+    $$('[data-price]').forEach((el) => { el.textContent = el.dataset.price; });
+  }
+
   /* ---------- links from earlier emails ---------- */
   const qp = new URLSearchParams(location.search);
   if (fresh && (qp.has('amount') || qp.has('section'))) setTimeout(() => $('#notify')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 600);
