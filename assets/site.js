@@ -846,10 +846,14 @@
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
       const v = (n) => String(f.elements[n].value || '').trim();
-      const bad = Object.keys(checks).filter((n) => !checks[n](v(n)));
+      // a field without `required` (the website on an interview request) may be left blank, but one that is filled in must be valid
+      const bad = Object.keys(checks).filter((n) => (v(n) || f.elements[n].required) && !checks[n](v(n)));
       $$('.reqd__field', f).forEach((fld) => fld.classList.toggle('is-bad', bad.includes(($('input, select', fld) || {}).name)));
       msg.classList.remove('is-err');
-      if (bad.length) { msg.textContent = 'Please fill in every field marked *.'; msg.classList.add('is-err'); f.elements[bad[0]].focus(); return; }
+      if (bad.length) {
+        msg.textContent = bad.some((n) => f.elements[n].required) ? 'Please fill in every field marked *.' : 'Please check the website address, or leave it blank.';
+        msg.classList.add('is-err'); f.elements[bad[0]].focus(); return;
+      }
       const label = btn.innerHTML;
       btn.disabled = true; btn.textContent = 'Sending…'; msg.textContent = '';
       try {

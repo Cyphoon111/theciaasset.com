@@ -35,7 +35,7 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=36">
+<link rel="stylesheet" href="assets/site.css?v=38">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -376,7 +376,7 @@
           </select>
         </label>
         <label class="form__field">
-          <span id="nEmailLabel">Email address</span>
+          <span><span id="nEmailLabel">Email address</span> <i>*</i></span>
           <input type="email" name="email" id="nEmail" autocomplete="email" placeholder="you@example.com" required>
           <small class="form__hint" id="nEmailHint" hidden>A work address at your outlet speeds up verification.</small>
         </label>
@@ -384,11 +384,11 @@
           <div class="form__pro-in">
             <p class="form__notice"><b>Media credentials required.</b> Advance preview copies are available only to credentialed members of the media. Tell us who you are. Every request is verified.</p>
             <div class="form__row">
-              <label class="form__field"><span>Full name</span><input name="name" id="nName" autocomplete="name" maxlength="120" tabindex="-1"></label>
-              <label class="form__field"><span>Title</span><input name="title" id="nTitle" autocomplete="organization-title" maxlength="120" placeholder="Investigative reporter" tabindex="-1"></label>
+              <label class="form__field"><span>Full name <i>*</i></span><input name="name" id="nName" autocomplete="name" maxlength="120" tabindex="-1"></label>
+              <label class="form__field"><span>Title <i>*</i></span><input name="title" id="nTitle" autocomplete="organization-title" maxlength="120" placeholder="Investigative reporter" tabindex="-1"></label>
             </div>
-            <label class="form__field"><span id="nOutletLabel">Outlet or publication</span><input name="outlet" id="nOutlet" autocomplete="organization" maxlength="160" placeholder="Publication name" tabindex="-1"></label>
-            <label class="form__field"><span>Link that shows your work</span><input type="url" name="link" id="nLink" inputmode="url" maxlength="500" placeholder="Author page, show page, Muck Rack or LinkedIn" tabindex="-1"></label>
+            <label class="form__field"><span><span id="nOutletLabel">Outlet or publication</span> <i>*</i></span><input name="outlet" id="nOutlet" autocomplete="organization" maxlength="160" placeholder="Publication name" tabindex="-1"></label>
+            <label class="form__field"><span>Link that shows your work <i>*</i></span><input type="url" name="link" id="nLink" inputmode="url" maxlength="500" placeholder="Author page, show page, Muck Rack or LinkedIn" tabindex="-1"></label>
             <div class="form__row">
               <label class="form__field" id="nAudienceWrap"><span>Audience <em>optional</em></span><input name="audience" id="nAudience" maxlength="80" placeholder="Monthly readers or viewers" tabindex="-1"></label>
               <label class="form__field"><span>Social handle <em>optional</em></span><input name="handle" id="nHandle" maxlength="120" placeholder="@yourhandle" tabindex="-1"></label>
@@ -479,7 +479,7 @@
     <label class="reqd__field"><span>Name of the publication, show or outlet <i>*</i></span><input name="org_name" autocomplete="organization" maxlength="160" placeholder="Freelance? Write “Freelance”" required></label>
     <label class="reqd__field"><span>Email <i>*</i></span><input type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254" placeholder="you@example.com" required></label>
     <label class="reqd__field"><span>Phone <i>*</i></span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="40" required></label>
-    <label class="reqd__field"><span>Website <i>*</i></span><input type="url" name="website" autocomplete="url" inputmode="url" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="https://" required></label>
+    <label class="reqd__field"><span>Website <em>(optional)</em></span><input type="url" name="website" autocomplete="url" inputmode="url" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="https://"></label>
     <div class="trap" aria-hidden="true"><label>Leave this empty <input name="hp" tabindex="-1" autocomplete="off"></label></div>
     <div class="human"></div>
     <button class="btn btn--red btn--lg reqd__send" type="submit">Send request <span aria-hidden="true">→</span></button>
@@ -505,6 +505,6 @@
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=35" defer></script>
+<script src="assets/site.js?v=36" defer></script>
 </body>
 </html>
