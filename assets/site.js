@@ -832,6 +832,25 @@
   const untilRelease = RELEASE_AT - Date.now();
   if (untilRelease <= 0) release(); else if (untilRelease < 2 ** 31 - 1) setTimeout(release, untilRelease);
 
+  /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle; the opening screen is skipped).
+     The store worker already emails the package to the address typed at Square's checkout; the pop-up says so and
+     offers a second address, which goes through the same free sign-up as the forms above. ---------- */
+  const thanks = $('#thanks');
+  const donatedFor = new URLSearchParams(location.search).get('donated');
+  if (thanks && (donatedFor === 'ebook' || donatedFor === 'bundle')) {
+    history.replaceState(null, '', location.pathname + location.hash);   // a refresh or a shared link does not reopen it
+    $('#thanksWhat').textContent = donatedFor === 'bundle' ? 'the ebook and the Master Claims document' : 'the ebook';
+    $('#thanksForm').dataset.product = donatedFor;
+    if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a few minutes';
+    if (Date.now() >= FULL_AT) {   // donations no longer come with a package once the giveaway is over
+      $('#thanksSent').textContent = 'Your support means a great deal.';
+      $('#thanksElsewhere').hidden = true;
+    }
+    $$('[data-close]', thanks).forEach((b) => b.addEventListener('click', () => thanks.close()));
+    thanks.addEventListener('click', (e) => { if (e.target === thanks) thanks.close(); });   // a click on the dimmed backdrop
+    if (typeof thanks.showModal === 'function') thanks.showModal(); else thanks.setAttribute('open', '');
+  }
+
   /* ---------- links from earlier emails ---------- */
   const qp = new URLSearchParams(location.search);
   if (fresh && (qp.has('amount') || qp.has('section'))) setTimeout(() => $('#notify')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 600);

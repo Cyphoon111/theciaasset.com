@@ -426,6 +426,18 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .pkg__msg:empty { display: none; }
 .pkg__msg.is-err { color: var(--red-ink); }
 .pkg__donate { margin-top: 12px; }
+/* thank-you pop-up for donors sent back from Square (?donated=ebook|bundle) */
+.thanks { width: min(520px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 34px 30px 28px; border: 0; border-top: 4px solid var(--red); border-radius: 16px; background: #fff; color: var(--ink); box-shadow: 0 40px 90px -30px rgba(0,0,0,.65); }
+.thanks::backdrop { background: rgba(8,8,10,.72); }
+.thanks h2 { margin: 0 0 14px; padding-right: 30px; font: 400 clamp(30px, 6vw, 40px)/1 var(--display); text-transform: uppercase; }
+.thanks p { margin: 0 0 12px; color: var(--ink-2); }
+.thanks strong { color: var(--ink); }
+.thanks .pkg__form { margin-top: 4px; }
+.thanks .pkg__msg { margin: 0; }
+.thanks__x { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--paper-2); color: var(--ink); font: 400 22px/1 var(--body); cursor: pointer; }
+.thanks__x:hover { background: var(--paper-3); }
+.thanks__done { margin-top: 18px; }
+@media (max-width: 560px) { .thanks { padding: 30px 20px 22px; } .thanks .pkg__form { grid-template-columns: 1fr; } .thanks .btn { width: 100%; } }
 .pkg__buy { margin-top: 14px; }
 
 /* ---------- notify ---------- */

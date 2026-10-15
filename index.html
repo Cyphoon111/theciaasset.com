@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>/* a refresh opens at the very top, never where the reader left off */ if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-/* the opening screen: the visitor enters an email to open the file, and that tap or key press turns the sound on */ document.documentElement.classList.add('gate-on');</script>
+/* the opening screen: the visitor enters an email to open the file, and that tap or key press turns the sound on.
+   A donor sent back from Square (?donated=…) skips it: the thank-you pop-up opens instead. */ if (!/[?&]donated=/.test(location.search)) document.documentElement.classList.add('gate-on');</script>
 <title>Jeffrey Epstein Was A CIA Asset | Jason Sullivan</title>
 <meta name="description" content="The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein. A forthcoming work of non-fiction by Jason Sullivan, the investigator who broke the Epstein “missing minute.”">
 <link rel="canonical" href="https://theciaasset.com/">
@@ -35,7 +36,7 @@
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
 <meta name="store-url" content="https://theciaasset-store.pitchzing.workers.dev">
-<link rel="stylesheet" href="assets/site.css?v=22">
+<link rel="stylesheet" href="assets/site.css?v=23">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -445,7 +446,24 @@
   </div>
 </footer>
 
+<dialog class="thanks" id="thanks" aria-labelledby="thanksTitle">
+  <button class="thanks__x" type="button" aria-label="Close" data-close>×</button>
+  <h2 id="thanksTitle">Thank you for your donation.</h2>
+  <p id="thanksSent">Your copy of <strong id="thanksWhat">the ebook</strong> will be emailed to the address you used at checkout <span id="thanksWhen">at release: Tuesday, October 20, at 8 AM Eastern</span>.</p>
+  <div id="thanksElsewhere">
+    <p>Want it sent to a different address?</p>
+    <form class="pkg__form" id="thanksForm" data-product="ebook" novalidate>
+      <label class="sr" for="thanksEmail">Email address for your copy</label>
+      <input id="thanksEmail" type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com" required>
+      <button class="btn btn--red" type="submit">Send it here</button>
+      <div class="human"></div>
+      <p class="pkg__msg" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+  <button class="btn btn--ghost btn--sm thanks__done" type="button" data-close>Done</button>
+</dialog>
+
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=26" defer></script>
+<script src="assets/site.js?v=27" defer></script>
 </body>
 </html>
