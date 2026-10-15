@@ -389,6 +389,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .bondi__cap a:hover { text-decoration: underline; }
 .bondi__meta { display: block; margin-top: 8px; font: 700 10.5px/1.6 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
 .minute__copy p { color: var(--ink-2); margin: 18px 0 0; }
+.minute__copy .kicker { margin: 0 0 14px; }
 .minute__copy .lede { color: var(--ink); }
 .minute__line { font: 700 20px/1.4 var(--body); color: var(--ink) !important; padding-top: 18px; border-top: 1px solid var(--line); margin-top: 28px !important; }
 
@@ -587,6 +588,11 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
   .stamp { left: 34%; bottom: 24%; top: auto; }
   .premise__grid, .minute__grid, .author__grid, .notify__box, .preorder__box { grid-template-columns: 1fr; }
   .premise__lead, .dossier, .minute__copy { position: static; }
+  /* the missing minute, one column: the date and title lead, then the two videos, then the text */
+  .minute__grid { gap: 0; }
+  .minute__copy { display: contents; }
+  .minute__copy > .kicker, .minute__copy > .h-display { order: -1; }
+  .minute__media { margin: 28px 0 10px; }
   .dossier { transform: none; max-width: 520px; }
   .files { grid-template-columns: 1fr; gap: 22px; padding-left: 30px; }
   .files::before { left: 6px; transform: none; }
