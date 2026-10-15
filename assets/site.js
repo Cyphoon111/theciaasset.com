@@ -783,6 +783,45 @@
     $$('[data-price]').forEach((el) => { el.textContent = el.dataset.price; });
   }
 
+  /* ---------- giveaway: both packages are free until midnight Eastern after Election Day (November 4, 05:00 UTC); then the
+     sign-up forms and Donate buttons ([data-giveaway]) give way to the paid packages ([data-paid]). A page left open
+     switches on the minute. Sign-ups go to the store worker, which emails the book (at release, or within minutes after). ---------- */
+  const FULL_AT = Date.parse('2026-11-04T05:00:00Z');
+  const STORE_URL = ($('meta[name="store-url"]') || {}).content || '';
+  const toPaid = () => {
+    $$('[data-giveaway]').forEach((el) => { el.hidden = true; });
+    $$('[data-paid]').forEach((el) => { el.hidden = false; });
+  };
+  const untilFull = FULL_AT - Date.now();
+  if (untilFull <= 0) toPaid(); else if (untilFull < 2 ** 31 - 1) setTimeout(toPaid, untilFull);
+  $$('.pkg__form').forEach((f) => {
+    const input = $('input[type="email"]', f), btn = $('button', f), msg = $('.pkg__msg', f), box = $('.human', f);
+    // the address typed at the opening screen fills in here, and the human check starts loading before the click
+    input.addEventListener('focus', () => {
+      const g = $('#gateEmail');
+      if (!input.value && g && g.value.trim()) input.value = g.value.trim();
+      human.mount(box);
+    });
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = input.value.trim();
+      msg.classList.remove('is-err');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'Enter a valid email address.'; msg.classList.add('is-err'); input.focus(); return; }
+      const label = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Sending…'; msg.textContent = '';
+      try {
+        const token = await human.token(box, 6000, () => { msg.textContent = 'Tick the box to confirm you are human.'; });
+        const r = await fetch(`${STORE_URL}/free`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, product: f.dataset.product, token }) });
+        const j = await r.json().catch(() => ({}));
+        msg.textContent = j.message || (r.ok ? 'You are in.' : 'The sign-up did not go through. Please try again.');
+        if (r.ok) { input.value = ''; toast('You are in.'); } else msg.classList.add('is-err');
+      } catch {
+        msg.textContent = 'The sign-up could not be sent. Check your connection and try again.';
+        msg.classList.add('is-err');
+      } finally { btn.disabled = false; btn.textContent = label; }
+    });
+  });
+
   /* ---------- release: at 8 AM Eastern on October 20, 2026 (EDT, 12:00 UTC) the pre-order wording becomes the release wording.
      A page left open switches on the minute. The book itself is emailed by the store worker, not by this page. ---------- */
   const RELEASE_AT = Date.parse('2026-10-20T12:00:00Z');

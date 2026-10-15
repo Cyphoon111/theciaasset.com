@@ -34,7 +34,8 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=19">
+<meta name="store-url" content="https://theciaasset-store.pitchzing.workers.dev">
+<link rel="stylesheet" href="assets/site.css?v=22">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -300,10 +301,47 @@
     <div class="wrap preorder__box reveal">
       <div class="preorder__cover"><img src="assets/cover-760.jpg" alt="" loading="lazy" width="506" height="760"></div>
       <div class="preorder__copy">
-        <p class="kicker">Free until Election Day</p>
-        <h2 class="h-display">Read it <span class="red">free.</span></h2>
-        <p class="preorder__lead">The ebook, and the ebook with the entire Master Claims document, are free until Election Day, November 3. The free sign-up opens here shortly, and your copy is emailed at release: Tuesday, October 20, 2026, at 8 AM Eastern.</p>
-        <p class="preorder__fine">From November 4, the ebook is $14.99 and the ebook with the Master Claims document is $19.99.</p>
+        <p class="kicker" data-giveaway>Free until Election Day</p>
+        <p class="kicker" data-paid hidden>Available now</p>
+        <h2 class="h-display" data-giveaway>Read it <span class="red">free.</span></h2>
+        <h2 class="h-display" data-paid hidden>Read it <span class="red">now.</span></h2>
+        <p class="preorder__lead" data-giveaway data-release-text="Both editions are free until Election Day, November 3. Enter your email and your copy arrives within minutes.">Both editions are free until Election Day, November 3. Enter your email and your copy is emailed at release: Tuesday, October 20, 2026, at 8 AM Eastern.</p>
+        <p class="preorder__lead" data-paid hidden>Your copy is emailed to you within minutes of checkout.</p>
+        <div class="pkgs">
+          <article class="pkg">
+            <div class="pkg__head">
+              <h3 class="pkg__name">The ebook</h3>
+              <p class="pkg__price"><b data-giveaway>Free</b><span class="pkg__later" data-giveaway>$14.99 from Nov 4</span><b data-paid hidden>$14.99</b></p>
+            </div>
+            <form class="pkg__form" data-giveaway data-product="ebook" novalidate>
+              <label class="sr" for="freeEbook">Email address for the free ebook</label>
+              <input id="freeEbook" type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com" required>
+              <button class="btn btn--red" type="submit">Email me the ebook</button>
+              <div class="human"></div>
+              <p class="pkg__msg" role="status" aria-live="polite"></p>
+            </form>
+            <a class="btn btn--ghost btn--sm pkg__donate" data-giveaway href="https://square.link/u/DONATE_EBOOK" target="_blank" rel="noopener">Donate</a>
+            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="https://square.link/u/Ixh9rcrv" target="_blank" rel="noopener">Buy the ebook <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="pkg pkg--bundle">
+            <div class="pkg__head">
+              <h3 class="pkg__name">The ebook + Master Claims Document</h3>
+              <p class="pkg__price"><b data-giveaway>Free</b><span class="pkg__later" data-giveaway>$19.99 from Nov 4</span><b data-paid hidden>$19.99</b></p>
+            </div>
+            <p class="pkg__what">The book plus the entire Master Claims document.</p>
+            <form class="pkg__form" data-giveaway data-product="bundle" novalidate>
+              <label class="sr" for="freeBundle">Email address for the free ebook and Master Claims document</label>
+              <input id="freeBundle" type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com" required>
+              <button class="btn btn--red" type="submit">Email me both</button>
+              <div class="human"></div>
+              <p class="pkg__msg" role="status" aria-live="polite"></p>
+            </form>
+            <a class="btn btn--ghost btn--sm pkg__donate" data-giveaway href="https://square.link/u/DONATE_BUNDLE" target="_blank" rel="noopener">Donate</a>
+            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="https://square.link/u/aZYSl5PA" target="_blank" rel="noopener">Buy the ebook + Master Claims <span aria-hidden="true">→</span></a>
+          </article>
+        </div>
+        <p class="preorder__fine" data-giveaway>Donate any amount from $1 through Square; a donation also gets you that package by email. Donations go directly to the author and are not tax-deductible.</p>
+        <p class="preorder__fine" data-paid hidden>Secure checkout by Square. Everything you buy is emailed to the address you enter at checkout.</p>
       </div>
     </div>
   </section>
@@ -408,6 +446,6 @@
 </footer>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=25" defer></script>
+<script src="assets/site.js?v=26" defer></script>
 </body>
 </html>
