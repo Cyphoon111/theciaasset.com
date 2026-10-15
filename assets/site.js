@@ -783,42 +783,42 @@
     $$('[data-price]').forEach((el) => { el.textContent = el.dataset.price; });
   }
 
-  /* ---------- giveaway: both packages are free until midnight Eastern after Election Day (November 4, 05:00 UTC); then the
-     sign-up forms and Donate buttons ([data-giveaway]) give way to the paid packages ([data-paid]). A page left open
-     switches on the minute. Sign-ups go to the store worker, which emails the book (at release, or within minutes after). ---------- */
+  /* ---------- donations until midnight Eastern after Election Day (November 4, 05:00 UTC): each package has one button,
+     "Donate & get …", to its Square donation link (any amount from $1; the donor's checkout email is where the book goes).
+     Then the donation buttons ([data-giveaway]) give way to the paid packages ([data-paid]); a page left open switches
+     on the minute. ---------- */
   const FULL_AT = Date.parse('2026-11-04T05:00:00Z');
-  const STORE_URL = ($('meta[name="store-url"]') || {}).content || '';
   const toPaid = () => {
     $$('[data-giveaway]').forEach((el) => { el.hidden = true; });
     $$('[data-paid]').forEach((el) => { el.hidden = false; });
   };
   const untilFull = FULL_AT - Date.now();
   if (untilFull <= 0) toPaid(); else if (untilFull < 2 ** 31 - 1) setTimeout(toPaid, untilFull);
-  $$('.pkg__form').forEach((f) => {
-    const input = $('input[type="email"]', f), btn = $('button', f), msg = $('.pkg__msg', f), box = $('.human', f);
-    // the address typed at the opening screen fills in here, and the human check starts loading before the click
-    input.addEventListener('focus', () => {
-      const g = $('#gateEmail');
-      if (!input.value && g && g.value.trim()) input.value = g.value.trim();
-      human.mount(box);
+
+  // One-time / Monthly switch (one-time on every visit): swaps each donation button's link and wording, and "From $1" → "/mo".
+  const freqOpts = $$('.freq__opt');
+  const monthlyBits = $$('[data-monthly-text]');
+  monthlyBits.forEach((el) => {
+    const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
+    el.dataset.onceText = t ? t.nodeValue.trim() : '';
+    if (el.href) el.dataset.onceHref = el.getAttribute('href');
+  });
+  const setFreq = (freq) => {
+    freqOpts.forEach((o) => o.setAttribute('aria-checked', String(o.dataset.freq === freq)));
+    monthlyBits.forEach((el) => {
+      const monthly = freq === 'monthly';
+      const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
+      if (t) t.nodeValue = (monthly ? el.dataset.monthlyText : el.dataset.onceText) + (el.matches('a') ? ' ' : '');
+      if (el.dataset.onceHref) el.setAttribute('href', monthly ? el.dataset.monthlyHref : el.dataset.onceHref);
     });
-    f.addEventListener('submit', async (e) => {
+  };
+  freqOpts.forEach((o) => {
+    o.addEventListener('click', () => setFreq(o.dataset.freq));
+    o.addEventListener('keydown', (e) => {
+      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
       e.preventDefault();
-      const email = input.value.trim();
-      msg.classList.remove('is-err');
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'Enter a valid email address.'; msg.classList.add('is-err'); input.focus(); return; }
-      const label = btn.textContent;
-      btn.disabled = true; btn.textContent = 'Sending…'; msg.textContent = '';
-      try {
-        const token = await human.token(box, 6000, () => { msg.textContent = 'Tick the box to confirm you are human.'; });
-        const r = await fetch(`${STORE_URL}/free`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email, product: f.dataset.product, token }) });
-        const j = await r.json().catch(() => ({}));
-        msg.textContent = j.message || (r.ok ? 'You are in.' : 'The sign-up did not go through. Please try again.');
-        if (r.ok) { input.value = ''; toast('You are in.'); } else msg.classList.add('is-err');
-      } catch {
-        msg.textContent = 'The sign-up could not be sent. Check your connection and try again.';
-        msg.classList.add('is-err');
-      } finally { btn.disabled = false; btn.textContent = label; }
+      const next = freqOpts.find((x) => x !== o);
+      setFreq(next.dataset.freq); next.focus();
     });
   });
 
@@ -833,18 +833,16 @@
   if (untilRelease <= 0) release(); else if (untilRelease < 2 ** 31 - 1) setTimeout(release, untilRelease);
 
   /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle; the opening screen is skipped).
-     The store worker already emails the package to the address typed at Square's checkout; the pop-up says so and
-     offers a second address, which goes through the same free sign-up as the forms above. ---------- */
+     The book goes to the address typed at Square's checkout as a private reader link; the pop-up says so. ---------- */
   const thanks = $('#thanks');
   const donatedFor = new URLSearchParams(location.search).get('donated');
   if (thanks && (donatedFor === 'ebook' || donatedFor === 'bundle')) {
     history.replaceState(null, '', location.pathname + location.hash);   // a refresh or a shared link does not reopen it
     $('#thanksWhat').textContent = donatedFor === 'bundle' ? 'the ebook and the Master Claims document' : 'the ebook';
-    $('#thanksForm').dataset.product = donatedFor;
     if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a few minutes';
     if (Date.now() >= FULL_AT) {   // donations no longer come with a package once the giveaway is over
       $('#thanksSent').textContent = 'Your support means a great deal.';
-      $('#thanksElsewhere').hidden = true;
+      $('#thanksHow').hidden = true;
     }
     $$('[data-close]', thanks).forEach((b) => b.addEventListener('click', () => thanks.close()));
     thanks.addEventListener('click', (e) => { if (e.target === thanks) thanks.close(); });   // a click on the dimmed backdrop
