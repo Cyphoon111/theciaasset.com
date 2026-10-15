@@ -783,6 +783,16 @@
     $$('[data-price]').forEach((el) => { el.textContent = el.dataset.price; });
   }
 
+  /* ---------- release: at 8 AM Eastern on October 20, 2026 (EDT, 12:00 UTC) the pre-order wording becomes the release wording.
+     A page left open switches on the minute. The book itself is emailed by the store worker, not by this page. ---------- */
+  const RELEASE_AT = Date.parse('2026-10-20T12:00:00Z');
+  const release = () => $$('[data-release-text]').forEach((el) => {
+    const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
+    if (t) t.nodeValue = el.dataset.releaseText + (/\s$/.test(t.nodeValue) ? ' ' : '');
+  });
+  const untilRelease = RELEASE_AT - Date.now();
+  if (untilRelease <= 0) release(); else if (untilRelease < 2 ** 31 - 1) setTimeout(release, untilRelease);
+
   /* ---------- links from earlier emails ---------- */
   const qp = new URLSearchParams(location.search);
   if (fresh && (qp.has('amount') || qp.has('section'))) setTimeout(() => $('#notify')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 600);
