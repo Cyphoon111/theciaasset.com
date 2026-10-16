@@ -810,6 +810,14 @@
     document.addEventListener('fullscreenchange', onFs);
     document.addEventListener('webkitfullscreenchange', onFs);
   }
+  // "Read the transcript" opens her answer about the missing minute in a pop-up (closed like the press pop-ups, below);
+  // without this script the link still goes to the full Roll Call transcript
+  $$('[data-transcript]').forEach((a) => a.addEventListener('click', (e) => {
+    const d = document.getElementById(a.dataset.transcript);
+    if (!d) return;
+    e.preventDefault();
+    if (typeof d.showModal === 'function') d.showModal(); else d.setAttribute('open', '');
+  }));
 
   /* ---------- press requests: the "Interviews & bookings" and "Representation & rights" cards open their own pop-up form.
      Answers go to PitchZing (POST /public/book-site/request), which stores them and emails each one on, Reply-To the

@@ -524,6 +524,16 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .reqd__msg.is-err { color: var(--red-ink); }
 .reqd__done { padding: 8px 0 4px; font-size: 17px; line-height: 1.55; color: var(--ink); }
 @media (max-width: 560px) { .reqd { padding: 30px 20px 22px; } }
+/* transcript pop-up (Pam Bondi on the missing minute) */
+.tx__meta { margin: 0 0 12px; padding-right: 40px; font: 700 11px/1.5 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--red-ink); }
+.tx .reqd__title { margin-bottom: 20px; }
+.tx__quote { margin: 0; padding: 2px 0 2px 20px; border-left: 3px solid var(--red); }
+.tx__quote p { margin: 0 0 14px; font-size: 17px; line-height: 1.6; color: var(--ink); }
+.tx__quote p:last-child { margin-bottom: 0; }
+.tx__quote .tx__who { margin-bottom: 10px; font: 700 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
+.tx__src { margin: 22px 0 0; font-size: 13.5px; line-height: 1.5; color: var(--muted); }
+.tx__src a { color: var(--red); font-weight: 600; text-decoration: none; }
+.tx__src a:hover { text-decoration: underline; }
 
 /* ---------- press ---------- */
 /* media contact: the author's PR firm (TruthPR), above the request cards */
