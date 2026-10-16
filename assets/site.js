@@ -706,7 +706,7 @@
     const msg = $('#nMsg'), btn = $('#nBtn'), roleSel = $('#nRole'), pro = $('#nPro');
     const emailEl = $('#nEmail'), emailLabel = $('#nEmailLabel'), emailHint = $('#nEmailHint');
     const proInputs = $$('input, textarea', pro);
-    const REQUIRED = ['nName', 'nTitle', 'nOutlet', 'nLink'];
+    const REQUIRED = ['nName', 'nTitle', 'nOutlet'];
     const ROLES = {
       journalist: { outlet: 'Outlet or publication', outletPh: 'Publication name', titlePh: 'Investigative reporter', audience: true, audiencePh: 'Monthly readers' },
       producer: { outlet: 'Network, station or show', outletPh: 'Network and show name', titlePh: 'Senior producer', audience: true, audiencePh: 'Nightly or weekly viewers' },
@@ -754,9 +754,10 @@
         if (v('nName').length < 2) return bad($('#nName'), 'Please enter your full name.');
         if (v('nTitle').length < 2) return bad($('#nTitle'), 'Please enter your title.');
         if (v('nOutlet').length < 2) return bad($('#nOutlet'), `Please enter your ${$('#nOutletLabel').textContent.toLowerCase()}.`);
+        // the link that shows the work is optional (2026-10-15), but one that is given must be a real address
         let link = v('nLink'); if (link && !/^https?:\/\//i.test(link)) link = `https://${link}`;
-        let okLink = false; try { const u = new URL(link); okLink = u.hostname.includes('.'); } catch {}
-        if (!okLink) return bad($('#nLink'), 'Please add a link that shows your work, such as your author page or show page.');
+        let okLink = !link; try { if (link) okLink = new URL(link).hostname.includes('.'); } catch {}
+        if (!okLink) return bad($('#nLink'), 'Please check the link to your work, or leave it blank.');
         if (!$('#nAgree').checked) return bad($('#nAgree'), 'Please agree to keep the advance material confidential.');
         Object.assign(body, { name: v('nName'), title: v('nTitle'), outlet: v('nOutlet'), link, audience: v('nAudience'), handle: v('nHandle'), note: $('#nNote').value.trim(), agreed: true });
       }
