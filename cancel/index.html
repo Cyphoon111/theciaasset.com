@@ -20,6 +20,9 @@
   which emails such a link to an address that has a monthly donation. The page talks to PitchZing's book store
   (worker/src/bookstore.mjs: /public/book-store/cancel-request and /public/book-store/cancel/<token>), which cancels the
   Square subscription at the end of the month already paid. Nothing is refunded.
+  Cancelling asks "Are you sure you wish to cancel?" (30 more days with the book, thanks), then needs the "Yes, I wish to
+  cancel" choice and Cloudflare's "Confirm you are human" check before the button works; the server requires both too.
+  After 30 days the copy ends and points to the site to get the book (unless the donor also bought it or gave once).
 -->
 <style>
   :root { --paper: #ffffff; --paper-2: #f6f5f1; --ink: #0b0b0d; --ink-2: #3b3b42; --muted: #6b6b73; --line: #e6e3da; --red: #e0121c; --red-ink: #b3121a; --ok: #157347; --okbg: #e8f6ee; --errbg: #fdecec; }
@@ -63,6 +66,14 @@
   .sep { border: 0; border-top: 1px solid var(--line); margin: 24px 0; }
   .fine { margin: 20px 0 0; color: var(--muted); font-size: 13px; }
   .fine b { color: var(--ink-2); }
+  .sure { margin: 4px 0 0; padding: 16px; border-radius: 12px; background: var(--paper-2); }
+  .sure h2 { margin: 0 0 8px; font: 700 18px/1.3 Inter, sans-serif; }
+  .sure p { margin: 0 0 14px; font-size: 15px; color: var(--ink-2); }
+  .yes { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font-weight: 600; cursor: pointer; }
+  .yes input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--red); flex: none; }
+  .yes span { display: inline; margin: 0; font: 600 15px/1.4 Inter, sans-serif; letter-spacing: 0; text-transform: none; color: var(--ink); }
+  .human-box { min-height: 65px; margin: 0 0 14px; }
+  .human-box__label { margin: 0 0 6px; font: 700 11px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
   [hidden] { display: none !important; }
   @media (max-width: 480px) { .card { padding: 24px 18px; } .row .btn { width: 100%; } }
 </style>
@@ -75,7 +86,7 @@
 <main>
   <div class="card">
     <h1>Cancel a monthly donation</h1>
-    <p class="lead">You can stop a monthly donation at any time. You will not be charged again, and your copy of the book stays yours.</p>
+    <p class="lead">You can stop a monthly donation at any time. You will not be charged again, and you can keep enjoying the book for another 30 days.</p>
     <p class="msg" id="msg" role="status" aria-live="polite"></p>
     <div id="list" hidden></div>
     <div id="ask" hidden>
@@ -94,11 +105,12 @@
   'use strict';
   var API = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-store';
   var SITEKEY = '0x4AAAAAAFW8xroLmVpmYKc-';
+  var DAYS = 30;   // reading time left after cancelling (the server's ACCESS_AFTER_CANCEL_DAYS; it says the exact date)
   var $ = function (id) { return document.getElementById(id); };
   var token = (location.hash || '').replace(/^#/, '').replace(/[^A-Za-z0-9]/g, '');
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
   var money = function (c) { return c == null ? null : '$' + (c / 100).toFixed(2); };
-  var day = function (d) { return d ? new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) : ''; };
+  var day = function (d) { return d ? new Date(String(d).slice(0, 10) + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) : ''; };
   function say(text, kind) { var m = $('msg'); m.className = 'msg' + (kind ? ' ' + kind : ''); m.textContent = text || ''; }
   function call(path, body) {
     return fetch(API + path, { method: body ? 'POST' : 'GET', headers: body ? { 'content-type': 'application/json' } : {}, body: body ? JSON.stringify(body) : undefined, cache: 'no-store' })
@@ -106,48 +118,49 @@
       .catch(function () { return { error: 'No connection. Check your signal and try again.' }; });
   }
 
-  // ---- the human check (Cloudflare Turnstile): invisible to most people, one box to tick when it is unsure
-  var ts = { token: '', id: null, waiters: [] };
-  function mountHuman() {
-    if (ts.loading) return; ts.loading = true;
-    window.__tsReady = function () {
-      try {
-        ts.id = window.turnstile.render($('human'), { sitekey: SITEKEY, appearance: 'interaction-only', action: 'cancel',
-          callback: function (t) { ts.token = t; ts.waiters.splice(0).forEach(function (f) { f(t); }); },
-          'expired-callback': function () { ts.token = ''; },
-          'error-callback': function () { ts.waiters.splice(0).forEach(function (f) { f(''); }); } });
-      } catch (e) { ts.waiters.splice(0).forEach(function (f) { f(''); }); }
-    };
-    var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__tsReady'; s.async = true;
-    s.onerror = function () { ts.waiters.splice(0).forEach(function (f) { f(''); }); };
-    document.head.appendChild(s);
+  // ---- Cloudflare Turnstile ("Confirm you are human")
+  var tsLib = null;
+  function turnstile() {
+    return tsLib || (tsLib = new Promise(function (res, rej) {
+      window.__tsReady = function () { res(window.turnstile); };
+      var s = document.createElement('script'); s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=__tsReady'; s.async = true;
+      s.onerror = function () { rej(new Error('blocked')); };
+      document.head.appendChild(s);
+    }));
   }
-  function humanToken() {
-    return new Promise(function (res) {
-      if (ts.token) { var t = ts.token; ts.token = ''; try { window.turnstile.reset(ts.id); } catch (e) {} return res(t); }
-      ts.waiters.push(function (t) { ts.token = ''; res(t); });
-      setTimeout(function () { res(''); }, 15000);
-    });
+  // one widget: { token, id, ready(promise of a token) }; appearance 'always' shows the check, 'interaction-only' hides it unless needed
+  function widget(el, appearance, onChange) {
+    var w = { token: '', id: null, waiters: [] };
+    turnstile().then(function (ts) {
+      w.id = ts.render(el, { sitekey: SITEKEY, appearance: appearance, action: 'cancel',
+        callback: function (t) { w.token = t; w.waiters.splice(0).forEach(function (f) { f(t); }); if (onChange) onChange(); },
+        'expired-callback': function () { w.token = ''; if (onChange) onChange(); },
+        'error-callback': function () { w.token = ''; w.waiters.splice(0).forEach(function (f) { f(''); }); if (onChange) onChange(); } });
+    }).catch(function () { w.waiters.splice(0).forEach(function (f) { f(''); }); });
+    w.take = function (ms) { return new Promise(function (res) { if (w.token) return res(w.token); w.waiters.push(res); setTimeout(function () { res(''); }, ms || 15000); }); };
+    w.reset = function () { w.token = ''; try { window.turnstile.reset(w.id); } catch (e) {} if (onChange) onChange(); };
+    return w;
   }
 
   // ---- ask for a link by email
-  function showAsk(afterList) {
-    $('ask').hidden = false; $('askSep').hidden = !afterList; mountHuman();
-  }
+  var askHuman = null;
+  function showAsk(afterList) { $('ask').hidden = false; $('askSep').hidden = !afterList; if (!askHuman) askHuman = widget($('human'), 'interaction-only'); }
   $('askForm').addEventListener('submit', function (e) {
     e.preventDefault();
     var email = $('email').value.trim(), btn = $('askBtn');
     if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) { say('Please enter the email address you donate with.', 'err'); $('email').focus(); return; }
     btn.disabled = true; btn.textContent = 'Sending…'; say('');
-    humanToken().then(function (t) { return call('/cancel-request', { email: email, human: t }); }).then(function (r) {
-      btn.disabled = false; btn.textContent = 'Email me a link to cancel';
+    askHuman.take().then(function (t) { return call('/cancel-request', { email: email, human: t }); }).then(function (r) {
+      btn.disabled = false; btn.textContent = 'Email me a link to cancel'; askHuman.reset();
       if (r.error) return say(r.error, 'err');
       say(r.message || 'If that address has a monthly donation, we have emailed it a link to cancel.', 'ok');
     });
   });
 
   // ---- with a link: the address's monthly donations, each with its own Cancel
+  var info = null;
   function render(d) {
+    info = d;
     var list = $('list'); list.hidden = false;
     var active = (d.donations || []).filter(function (x) { return !x.cancelled; });
     if (!(d.donations || []).length) {
@@ -158,25 +171,43 @@
     say(active.length ? 'Monthly donations for ' + d.email + ':' : 'Every monthly donation for ' + d.email + ' is already cancelled.');
     list.innerHTML = d.donations.map(function (x) {
       var amt = money(x.cents) ? money(x.cents) + ' a month' : 'Monthly donation';
-      if (x.cancelled) return '<div class="don is-done"><p class="don__amt">' + esc(amt) + '</p><p class="don__meta">Cancelled' + (x.endsOn ? ' · ends ' + esc(day(x.endsOn)) + ', with no further charges' : '') + '</p></div>';
-      return '<div class="don" data-id="' + esc(x.id) + '" data-amt="' + esc(amt) + '"><p class="don__amt">' + esc(amt) + '</p><p class="don__meta">' + (x.startDate ? 'Since ' + esc(day(x.startDate)) : '') + (x.paidThrough ? ' · paid through ' + esc(day(x.paidThrough)) : '') + '</p><div class="row"><button class="btn btn--red" type="button" data-act="ask">Cancel this monthly donation</button></div></div>';
+      if (x.cancelled) return '<div class="don is-done"><p class="don__amt">' + esc(amt) + '</p><p class="don__meta">Cancelled' + (x.endsOn ? ' · no further charges after ' + esc(day(x.endsOn)) : '') + (d.accessUntil ? ' · you can enjoy the book until ' + esc(day(d.accessUntil)) : '') + '</p></div>';
+      return '<div class="don" data-id="' + esc(x.id) + '" data-amt="' + esc(amt) + '"><p class="don__amt">' + esc(amt) + '</p><p class="don__meta">' + (x.startDate ? 'Since ' + esc(day(x.startDate)) : '') + (x.paidThrough ? ' · paid through ' + esc(day(x.paidThrough)) : '') + '</p><div class="act"><button class="btn btn--red" type="button" data-act="ask">Cancel this monthly donation</button></div></div>';
     }).join('');
+  }
+  // "Are you sure?": thanks, 30 more days, the Yes choice, then the human check; the button works only with both
+  function sure(box) {
+    var id = box.getAttribute('data-id'), amt = box.getAttribute('data-amt'), until = new Date(Date.now() + (info.accessAfterCancelDays || DAYS) * 86400e3);
+    var act = box.querySelector('.act');
+    act.innerHTML = '<div class="sure" role="group" aria-labelledby="sure-' + esc(id) + '"><h2 id="sure-' + esc(id) + '">Are you sure you wish to cancel?</h2>' +
+      '<p>If you cancel your ' + esc(amt.replace(' a month', '')) + ' monthly donation, you can still visit and enjoy the book for another ' + (info.accessAfterCancelDays || DAYS) + ' days, until <b>' + esc(day(until.toISOString())) + '</b>.</p>' +
+      '<p>Thank you for supporting the book and Jason Sullivan’s ongoing work. Donations already made are final.</p>' +
+      '<label class="yes"><input type="radio" name="yes-' + esc(id) + '" value="yes"><span>Yes, I wish to cancel my monthly donation.</span></label>' +
+      '<p class="human-box__label">Confirm you are human</p><div class="human-box"></div>' +
+      '<div class="row"><button class="btn btn--red" type="button" data-act="yes" disabled>Cancel my monthly donation</button><button class="btn btn--ghost" type="button" data-act="keep">Keep my donation</button></div></div>';
+    var yes = act.querySelector('input[type=radio]'), go = act.querySelector('[data-act="yes"]');
+    var check = function () { go.disabled = !(yes.checked && w.token); };
+    var w = widget(act.querySelector('.human-box'), 'always', check);
+    box._human = w;
+    yes.addEventListener('change', check);
+    yes.focus();
   }
   $('list').addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b) return;
-    var box = b.closest('.don'), id = box.getAttribute('data-id'), amt = box.getAttribute('data-amt'), row = box.querySelector('.row');
-    if (b.getAttribute('data-act') === 'ask') {
-      row.outerHTML = '<p class="confirm">Cancel the ' + esc(amt.replace(' a month', '')) + ' monthly donation? You will not be charged again. Donations already made are final.</p><div class="row"><button class="btn btn--red" type="button" data-act="yes">Yes, cancel it</button><button class="btn btn--ghost" type="button" data-act="keep">Keep it</button></div>';
-      return;
-    }
-    if (b.getAttribute('data-act') === 'keep') { load(); return; }
+    var box = b.closest('.don'), id = box.getAttribute('data-id'), amt = box.getAttribute('data-amt');
+    var what = b.getAttribute('data-act');
+    if (what === 'ask') return sure(box);
+    if (what === 'keep') return load();
+    var w = box._human, yes = box.querySelector('input[type=radio]');
+    if (!yes || !yes.checked) return say('Please choose “Yes, I wish to cancel my monthly donation” first.', 'err');
+    if (!w || !w.token) return say('Please confirm you are human first.', 'err');
     b.disabled = true; b.textContent = 'Cancelling…'; say('');
-    call('/cancel/' + token, { subscriptionId: id }).then(function (r) {
-      if (r.error) { b.disabled = false; b.textContent = 'Yes, cancel it'; return say(r.error, 'err'); }
+    call('/cancel/' + token, { subscriptionId: id, confirm: true, human: w.token }).then(function (r) {
+      if (r.error) { w.reset(); b.textContent = 'Cancel my monthly donation'; return say(r.error, 'err'); }
       var c = r.cancelled || {};
       box.className = 'don is-done';
-      box.innerHTML = '<p class="don__amt">' + esc(amt) + '</p><p class="don__meta">Cancelled' + (c.endsOn ? ' · ends ' + esc(day(c.endsOn)) + ', with no further charges' : ', with no further charges') + '</p>';
-      say('Your monthly donation is cancelled' + (c.endsOn ? ': it ends on ' + day(c.endsOn) : '') + ', and you will not be charged again. A confirmation is on its way to your inbox. Thank you for supporting this work.', 'ok');
+      box.innerHTML = '<p class="don__amt">' + esc(amt) + '</p><p class="don__meta">Cancelled · no further charges' + (r.accessUntil ? ' · you can enjoy the book until ' + esc(day(r.accessUntil)) : '') + '</p>';
+      say('Your monthly donation is cancelled, and you will not be charged again. ' + (r.accessUntil ? 'You can keep visiting and enjoying the book until ' + day(r.accessUntil) + '. ' : 'Your copy of the book stays yours. ') + 'A confirmation is on its way to your inbox. Thank you for supporting the book and Jason Sullivan’s ongoing work.', 'ok');
     });
   });
   function load() {
