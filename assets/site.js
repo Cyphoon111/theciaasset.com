@@ -945,7 +945,10 @@
   if (thanks && (donatedFor === 'ebook' || donatedFor === 'bundle')) {
     history.replaceState(null, '', location.pathname + location.hash);   // a refresh or a shared link does not reopen it
     $('#thanksWhat').textContent = donatedFor === 'bundle' ? 'the ebook and the Master Claims document' : 'the ebook';
-    if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a few minutes';
+    if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a minute';
+    // tell the book store to look at Square now, so the copy is emailed within seconds (bookstore.mjs ping; it reads
+    // Square itself, so this only says "look now")
+    try { fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-store/ping', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ from: 'thank-you', for: donatedFor }) }).catch(() => {}); } catch {}
     if (Date.now() >= FULL_AT) {   // donations no longer come with a package once the giveaway is over
       $('#thanksSent').textContent = 'Your support means a great deal.';
       $('#thanksHow').hidden = true;
