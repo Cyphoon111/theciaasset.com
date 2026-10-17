@@ -780,13 +780,40 @@
     });
   }
 
-  /* ---------- press kit ---------- */
-  const copyBtn = $('#copyBio');
-  if (copyBtn) copyBtn.addEventListener('click', async () => {
-    const text = $('#shortBio').textContent.trim();
-    try { await navigator.clipboard.writeText(text); toast('Short bio copied.'); }
-    catch { const r = document.createRange(); r.selectNodeContents($('#shortBio')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Bio selected. Press Copy.'); }
-  });
+  /* ---------- press kit: one tap shows the short or the full bio in the card and copies it. The full bio is the author
+     section's own text ("The operator behind the curtain"), so the two never drift apart. ---------- */
+  const bioCard = $('#bioCard');
+  if (bioCard) {
+    const short = $('#shortBio'), full = $('#fullBio'), title = $('#bioTitle');
+    const fullParas = $$('.author__bio .prose p').map((p) => {
+      const c = p.cloneNode(true);
+      c.querySelectorAll('[aria-hidden="true"]').forEach((e) => e.remove());
+      return c.textContent.replace(/\s+/g, ' ').trim();
+    }).filter(Boolean);
+    full.replaceChildren(...fullParas.map((t) => Object.assign(document.createElement('p'), { textContent: t })));
+    // copies plain text during the tap itself, which browsers allow even where the newer clipboard API is refused (that API
+    // is the fallback); readonly keeps an iPhone's keyboard from opening
+    const copyNow = (text) => {
+      const ta = Object.assign(document.createElement('textarea'), { value: text });
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px';
+      document.body.append(ta); ta.select(); ta.setSelectionRange(0, text.length);
+      let ok = false; try { ok = document.execCommand('copy'); } catch {}
+      ta.remove(); getSelection().removeAllRanges();
+      return ok;
+    };
+    $$('[data-bio]', bioCard).forEach((btn) => btn.addEventListener('click', async () => {
+      const isFull = btn.dataset.bio === 'full';
+      const text = isFull ? fullParas.join('\n\n') : short.textContent.trim();
+      const copying = copyNow(text) ? Promise.resolve() : navigator.clipboard?.writeText(text);
+      const at = bioCard.getBoundingClientRect().top + scrollY;   // the card's place on the page (nothing above it changes)
+      short.hidden = isFull; full.hidden = !isFull; title.textContent = isFull ? 'Full bio' : 'Short bio';
+      // the browser keeps the buttons where they were, so the new text can start above the screen: bring its heading back
+      requestAnimationFrame(() => { const navH = $('.nav')?.offsetHeight || 0; if (at - scrollY < navH) scrollTo({ top: at - navH - 12, behavior: 'smooth' }); });
+      try { if (!copying) throw 0; await copying; toast(isFull ? 'Full bio copied.' : 'Short bio copied.'); }
+      catch { const r = document.createRange(); r.selectNodeContents(isFull ? full : short); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Bio selected. Press Copy.'); }
+    }));
+  }
 
   /* ---------- the next day: Pam Bondi at the Cabinet meeting (a portrait clip under the missing minute). A centred play button
      starts it with sound, a tap on the picture pauses or resumes, and the button at the lower right goes full screen

@@ -35,7 +35,7 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=48">
+<link rel="stylesheet" href="assets/site.css?v=49">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -514,10 +514,14 @@
         </a>
       </div>
       <div class="kit reveal">
-        <div class="kit__item">
-          <h3>Short bio</h3>
+        <div class="kit__item" id="bioCard">
+          <h3 id="bioTitle">Short bio</h3>
           <p id="shortBio">Jason Sullivan is an investigator and open-source intelligence operator who has spent more than a decade behind the scenes of American politics. Special Counsel Robert Mueller’s team interrogated him over whether he had been a go-between for Roger Stone and WikiLeaks founder Julian Assange before he testified to a federal grand jury, and January 6th Committee counsel later interviewed him. He was never charged. When The New York Times, Rolling Stone and MSNBC wrote about him, he let his lawyers do the talking. Since 2022 he has been Chief Investigator at The Ticktin Law Group for President Trump’s longtime friend and attorney Peter Ticktin. In July 2025 he broke the Epstein “missing minute” story. His first book, Jeffrey Epstein Was A CIA Asset, asks who made Jeffrey Epstein.</p>
-          <button class="btn btn--ghost btn--sm" id="copyBio" type="button">Copy short bio</button>
+          <div class="kit__full" id="fullBio" hidden></div>
+          <div class="kit__btns">
+            <button class="btn btn--ghost btn--sm" id="copyBio" type="button" data-bio="short">Copy short bio</button>
+            <button class="btn btn--ghost btn--sm" id="copyFullBio" type="button" data-bio="full">Copy full bio</button>
+          </div>
         </div>
         <div class="kit__item kit__item--cover">
           <img src="assets/cover-760.jpg" alt="" loading="lazy" width="506" height="760">
@@ -617,6 +621,6 @@
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=44" defer></script>
+<script src="assets/site.js?v=45" defer></script>
 </body>
 </html>

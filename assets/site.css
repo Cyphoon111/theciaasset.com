@@ -646,6 +646,8 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .kit__item--cover { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 24px; align-items: center; }
 .kit__item--cover img { width: 120px; height: auto; aspect-ratio: 1100 / 1650; object-fit: cover; border-radius: 2px 5px 5px 2px; box-shadow: -4px 0 0 #0b0b0d inset, 0 18px 30px -14px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.18); transform: rotate(-2deg); transition: transform .4s var(--ease); }
 .kit__item--cover:hover img { transform: rotate(0deg) translateY(-3px); }
+.kit__btns { display: flex; flex-wrap: wrap; gap: 10px; }
+@media (max-width: 560px) { .kit__item { padding: 22px 18px; } .kit__btns { gap: 8px; } .kit__btns .btn { padding: 0 12px; letter-spacing: .03em; } }
 .kit__meta { display: block; margin: -8px 0 16px; font: 600 11px/1 var(--mono); letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
 
 /* ---------- footer ---------- */
