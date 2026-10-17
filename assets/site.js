@@ -815,27 +815,34 @@
     }));
   }
 
-  /* ---------- press kit: on an iPhone or iPad the cover button saves to Photos (Jason, 2026-10-17). A web page cannot write
-     to Photos itself, so the tap opens the share sheet with the picture, and its Save Image puts it there. The share sheet
-     opens only during the tap, so the picture is read ahead (the hero has it already). A browser without a share sheet
-     shows the cover in a pop-up, to press and hold (Save to Photos). Android keeps the download, which Gallery and Google
-     Photos show. ---------- */
-  const coverDl = $('#coverDl');
+  /* ---------- press kit: on an iPhone or iPad the cover and author-photo buttons save to Photos (Jason, 2026-10-17). A web
+     page cannot write to Photos itself, so the tap opens the share sheet with the picture, and its Save Image puts it
+     there. The share sheet opens only during the tap, so each picture is read ahead as the press kit comes near. A browser
+     without a share sheet shows the picture in a pop-up, to press and hold (Save to Photos). Android keeps the download,
+     which Gallery and Google Photos show. ---------- */
   const IOS = !/Android/i.test(navigator.userAgent)   // an iPad reports itself as a Mac with a touch screen
     && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
-  if (coverDl && IOS) {
-    coverDl.textContent = 'Save to Photos';
-    let file = null;
-    fetch(coverDl.href).then((r) => (r.ok ? r.blob() : null)).then((b) => {
-      if (b) file = new File([b], coverDl.getAttribute('download') || 'cover.jpg', { type: 'image/jpeg' });
-    }).catch(() => {});
-    const pressAndHold = () => { const d = $('#cover-save'); if (d && typeof d.showModal === 'function') d.showModal(); else location.href = coverDl.href; };
-    coverDl.addEventListener('click', (e) => {
+  if (IOS) $$('[data-photos]').forEach((a) => {
+    a.textContent = 'Save to Photos';
+    let file = null, asked = false;
+    const load = () => { if (asked) return; asked = true; fetch(a.href).then((r) => (r.ok ? r.blob() : null)).then((b) => {
+      if (b) file = new File([b], a.getAttribute('download') || 'photo.jpg', { type: 'image/jpeg' });
+    }).catch(() => { asked = false; }); };
+    if ('IntersectionObserver' in window) new IntersectionObserver((es, io) => { if (es.some((x) => x.isIntersecting)) { io.disconnect(); load(); } }, { rootMargin: '1200px 0px' }).observe(a);
+    else load();
+    const pressAndHold = () => {
+      const d = $('#photo-save');
+      if (!d || typeof d.showModal !== 'function') { location.href = a.href; return; }
+      $('#photo-save-title').textContent = a.dataset.saveTitle || 'Save the picture';
+      $('.coverd__img', d).src = a.href;
+      d.showModal();
+    };
+    a.addEventListener('click', (e) => {
       e.preventDefault();
       if (file && navigator.canShare?.({ files: [file] })) navigator.share({ files: [file] }).catch((err) => { if (err?.name !== 'AbortError') pressAndHold(); });
       else pressAndHold();
     });
-  }
+  });
 
   /* ---------- the next day: Pam Bondi at the Cabinet meeting (a portrait clip under the missing minute). A centred play button
      starts it with sound, a tap on the picture pauses or resumes, and the button at the lower right goes full screen

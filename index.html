@@ -35,7 +35,7 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=50">
+<link rel="stylesheet" href="assets/site.css?v=51">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -523,9 +523,15 @@
             <button class="btn btn--ghost btn--sm" id="copyFullBio" type="button" data-bio="full">Copy full bio</button>
           </div>
         </div>
-        <div class="kit__item kit__item--cover">
-          <img src="assets/cover-760.jpg" alt="" loading="lazy" width="506" height="760">
-          <div><h3>Cover art</h3><p>High-resolution front cover for coverage and listings.</p><span class="kit__meta">JPG · 1100 × 1650</span><a class="btn btn--ghost btn--sm" id="coverDl" href="assets/cover.jpg" download="Jeffrey-Epstein-Was-A-CIA-Asset-cover.jpg">Download cover</a></div>
+        <div class="kit__col">
+          <div class="kit__item kit__item--cover">
+            <img src="assets/cover-760.jpg" alt="" loading="lazy" width="506" height="760">
+            <div><h3>Cover art</h3><p>High-resolution front cover for coverage and listings.</p><span class="kit__meta">JPG · 1100 × 1650</span><a class="btn btn--ghost btn--sm" id="coverDl" data-photos data-save-title="Save the cover" href="assets/cover.jpg" download="Jeffrey-Epstein-Was-A-CIA-Asset-cover.jpg">Download cover</a></div>
+          </div>
+          <div class="kit__item kit__item--photo">
+            <img src="assets/jason-sullivan-photo-480.jpg" alt="Jason Sullivan" loading="lazy" width="480" height="360">
+            <div><h3>Author photo</h3><p>Jason Sullivan at the federal courthouse in Washington, D.C. Photo: Kevin Lamarque/Reuters.</p><span class="kit__meta">JPG · 1600 × 1200</span><a class="btn btn--ghost btn--sm" id="photoDl" data-photos data-save-title="Save the photo" href="assets/jason-sullivan-photo.jpg" download="Jason-Sullivan-photo.jpg">Download photo</a></div>
+          </div>
         </div>
       </div>
     </div>
@@ -620,15 +626,16 @@
   <p class="tx__src">Source: <a href="https://rollcall.com/factbase/trump/transcript/donald-trump-remarks-cabinet-meeting-july-8-2025/" target="_blank" rel="noopener">Roll Call Factbase transcript of the meeting <span aria-hidden="true">↗</span></a></p>
 </dialog>
 
-<!-- Saving the cover on an iPhone or iPad whose browser has no share sheet: the cover itself, to press and hold -->
-<dialog class="reqd coverd" id="cover-save" aria-labelledby="cover-save-title">
+<!-- Saving the cover or the author photo on an iPhone or iPad whose browser has no share sheet: the picture itself, to
+     press and hold (site.js sets the picture and the title) -->
+<dialog class="reqd coverd" id="photo-save" aria-labelledby="photo-save-title">
   <button class="reqd__x" type="button" aria-label="Close" data-close>×</button>
-  <h2 class="reqd__title" id="cover-save-title">Save the cover</h2>
-  <p class="reqd__sub">Press and hold the cover, then tap <strong>Save to Photos</strong>.</p>
-  <img class="coverd__img" src="assets/cover.jpg" alt="Jeffrey Epstein Was A CIA Asset, front cover" width="1100" height="1650" loading="lazy">
+  <h2 class="reqd__title" id="photo-save-title">Save the cover</h2>
+  <p class="reqd__sub">Press and hold the picture, then tap <strong>Save to Photos</strong>.</p>
+  <img class="coverd__img" src="assets/cover.jpg" alt="" loading="lazy">
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=46" defer></script>
+<script src="assets/site.js?v=47" defer></script>
 </body>
 </html>
