@@ -595,6 +595,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .amt__opt[aria-checked="true"] { border-color: var(--red); background: var(--red); color: #fff; }
 .amt__opt:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
 .amt__fine { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+#amtGo:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 .amt__fine a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 @media (max-width: 560px) { .reqd { padding: 30px 20px 22px; } }
 /* transcript pop-up (Pam Bondi on the missing minute) */

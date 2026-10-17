@@ -839,7 +839,13 @@
   $$('a[href="#rights"]').forEach((a) => a.addEventListener('click', (e) => { e.preventDefault(); reqOpen('rights'); }));
   $$('.reqd').forEach((d) => {
     $$('[data-close]', d).forEach((b) => b.addEventListener('click', () => d.close()));
-    d.addEventListener('click', (e) => { if (e.target === d) d.close(); });   // a click on the dimmed backdrop
+    // a click on the dimmed backdrop, outside the box: on an iPhone the keyboard closing as a button is tapped moves the box,
+    // and the tap can land on its own padding (target is the dialog too), which must not close it (Jason, 2026-10-17)
+    d.addEventListener('click', (e) => {
+      if (e.target !== d) return;
+      const r = d.getBoundingClientRect();
+      if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) d.close();
+    });
   });
   $$('.reqd__form').forEach((f) => {
     const msg = $('.reqd__msg', f), btn = $('.reqd__send', f), box = $('.human', f);
@@ -939,36 +945,53 @@
   if (amt) {
     const MIN = 1000, MAX = 500000;
     const opts = $$('.amt__opt', amt), other = $('#amtOther'), go = $('#amtGo'), msg = $('#amtMsg');
-    let monthly = false, cents = 0, busy = false;
+    let monthly = false, cents = 0, busy = false, raisedAt = 0;
     const usd = (c) => '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 });
+    const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('is-err', !!bad); };
+    const under = () => `$10${monthly ? ' a month' : ''} is the minimum for the ebook plus the entire Master Claims document.`;
+    // the button can only be pressed for $10 to $5,000: below $10 it reads "$10 minimum" and is greyed out
     const paint = () => {
       opts.forEach((o) => o.setAttribute('aria-checked', String(!other.value.trim() && Number(o.dataset.cents) === cents)));
-      go.firstChild.nodeValue = cents >= MIN && cents <= MAX ? `Donate ${usd(cents)}${monthly ? ' a month' : ''} ` : 'Continue to secure checkout ';
+      const ok = cents >= MIN && cents <= MAX;
+      go.disabled = !ok || busy;
+      go.firstChild.nodeValue = ok ? `Donate ${usd(cents)}${monthly ? ' a month' : ''} ` : cents > MAX ? `${usd(MAX)} at most ` : `$10 minimum `;
+      if (other.value.trim() && cents < MIN) say(under(), true); else if (cents > MAX) say(`Please choose ${usd(MAX)} or less here.`, true); else if (msg.classList.contains('is-err')) say('');
     };
-    const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('is-err', !!bad); };
     const fromOther = () => { const v = parseFloat(other.value.replace(/[$,\s]/g, '')); return Number.isFinite(v) ? Math.round(v * 100) : 0; };
     opts.forEach((o) => { o.setAttribute('role', 'radio'); o.addEventListener('click', () => { other.value = ''; cents = Number(o.dataset.cents); say(''); paint(); }); });
-    other.addEventListener('input', () => { cents = fromOther(); say(''); paint(); });
+    // digits and one decimal point only; nothing under $10 survives leaving the box: it becomes $10
+    other.addEventListener('input', () => {
+      const clean = other.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/^(\d*\.\d{0,2}).*$/, '$1');
+      if (clean !== other.value) other.value = clean;
+      cents = fromOther(); paint();
+    });
+    other.addEventListener('blur', () => {
+      if (!other.value.trim()) return;
+      if (cents < MIN) { cents = MIN; other.value = '10'; raisedAt = Date.now(); paint(); say(`Raised to the $10${monthly ? ' a month' : ''} minimum. Tap Donate to continue.`); }
+    });
     $$('[data-amount]').forEach((b) => b.addEventListener('click', () => {
       monthly = $('.freq__opt[data-freq="monthly"]')?.getAttribute('aria-checked') === 'true';
       $('#amtTitle').textContent = monthly ? 'Choose your monthly donation' : 'Choose your donation';
       $('#amtSub').textContent = monthly ? 'From $10 a month. Square’s secure checkout opens next for exactly this amount, each month until you cancel.' : 'From $10. Square’s secure checkout opens next for exactly this amount.';
       $('#amtFine').innerHTML = monthly ? 'Cancel anytime at <a href="/cancel/">theciaasset.com/cancel</a>. All donations are final: no refunds.' : 'All donations are final: no refunds.';
-      cents = 2000; other.value = ''; say(''); busy = false; go.disabled = false; paint();
+      cents = 2000; other.value = ''; say(''); busy = false; paint();
       if (typeof amt.showModal === 'function') amt.showModal(); else amt.setAttribute('open', '');
     }));
     $('#amtForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (busy) return;
-      if (!(cents >= MIN)) { say(`The ebook plus the entire Master Claims document starts at $10${monthly ? ' a month' : ''}. Please choose $10 or more.`, true); other.focus(); return; }
+      if (Date.now() - raisedAt < 700) return;   // the tap that left the box (and raised it to $10) only shows the new amount
+      if (!(cents >= MIN)) { say(under(), true); paint(); return; }
       if (cents > MAX) { say(`Please choose ${usd(MAX)} or less here.`, true); other.focus(); return; }
       busy = true; go.disabled = true; say('Opening Square’s secure checkout…');
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
       try {
-        const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product: 'bundle', monthly, cents }) });
+        const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product: 'bundle', monthly, cents }), signal: ctl.signal });
         const j = await r.json().catch(() => ({}));
         if (!r.ok || !j.url) throw new Error(j.error || 'The checkout did not open. Please try again.');
         location.href = j.url;
-      } catch (err) { busy = false; go.disabled = false; say(err.message, true); }
+      } catch (err) { busy = false; paint(); say(err.name === 'AbortError' ? 'Square did not answer in time. Please tap again.' : err.message, true); }
+      finally { clearTimeout(timer); }
     });
   }
 
