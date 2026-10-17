@@ -490,11 +490,17 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 /* giveaway until Nov 4 ([data-giveaway]), then the same packages for sale ([data-paid]); site.js flips them on the minute */
 .preorder [hidden] { display: none !important; }
 /* one-time / monthly switch above the packages (one-time on every visit) */
-.freq-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 24px 0 0; }
+.freq-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 24px 0 0; }
+.freq-line { display: inline-flex; align-items: center; gap: 8px; }
 .freq { display: inline-flex; padding: 4px; border: 1px solid var(--line); border-radius: 999px; background: #fff; }
 .freq__note { margin: 0; font: 600 13.5px/1.35 var(--body); color: var(--gold-ink); }
-.freq__note::before { content: '← '; color: var(--red); }
-@media (max-width: 560px) { .freq__note::before { content: '↑ '; } }
+/* a large, bold, flashing red arrow right of the Monthly button, pointing at it, on every screen (Jason, 2026-10-17);
+   it fades and nudges about once a second, well under the 3-flashes-a-second limit for flashing content */
+.freq__arrow { flex: none; width: 34px; height: 34px; color: var(--red); animation: freqArrow 1.1s ease-in-out infinite; }
+.freq { flex: none; }
+.freq__opt { white-space: nowrap; }
+@media (max-width: 560px) { .freq__opt { padding: 0 14px; } .freq__arrow { width: 30px; height: 30px; } }
+@keyframes freqArrow { 0%, 100% { opacity: 1; transform: translateX(0); } 50% { opacity: .2; transform: translateX(7px); } }
 .freq__opt { height: 38px; padding: 0 20px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2); font: 700 12.5px/1 var(--body); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: background .2s, color .2s; }
 .freq__opt[aria-checked="true"] { background: var(--ink); color: #fff; }
 .freq__opt:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
@@ -751,4 +757,5 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
   .hud__rec b { animation-duration: 1.2s !important; animation-iteration-count: infinite !important; }
   .brand__mark::after { animation-duration: 2.4s !important; animation-iteration-count: infinite !important; }
   .race__bar { transition-duration: 1.4s !important; }
+  .freq__arrow { animation-duration: 1.1s !important; animation-iteration-count: infinite !important; }
 }

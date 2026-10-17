@@ -901,7 +901,7 @@
   const untilFull = FULL_AT - Date.now();
   if (untilFull <= 0) toPaid(); else if (untilFull < 2 ** 31 - 1) setTimeout(toPaid, untilFull);
 
-  // One-time / Monthly switch (one-time on every visit): swaps each donation button's link and wording, and "From $1" → "/mo".
+  // One-time / Monthly switch (Monthly on every visit; Jason, 2026-10-17): swaps each donation button's link and wording, and "From $1" → "/mo".
   const freqOpts = $$('.freq__opt');
   const monthlyBits = $$('[data-monthly-text]');
   monthlyBits.forEach((el) => {
@@ -927,6 +927,7 @@
       setFreq(next.dataset.freq); next.focus();
     });
   });
+  if (freqOpts.length) setFreq('monthly');
 
   /* ---------- release: at 8 AM Eastern on October 20, 2026 (EDT, 12:00 UTC) the pre-order wording becomes the release wording.
      A page left open switches on the minute. The book itself is emailed by the store worker, not by this page. ---------- */
