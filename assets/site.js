@@ -914,7 +914,7 @@
     monthlyBits.forEach((el) => {
       const monthly = freq === 'monthly';
       const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
-      if (t) t.nodeValue = (monthly ? el.dataset.monthlyText : el.dataset.onceText) + (el.matches('a') ? ' ' : '');
+      if (t) t.nodeValue = (monthly ? el.dataset.monthlyText : el.dataset.onceText) + (el.matches('a, button') ? ' ' : '');
       if (el.dataset.onceHref) el.setAttribute('href', monthly ? el.dataset.monthlyHref : el.dataset.onceHref);
     });
   };
@@ -928,6 +928,49 @@
     });
   });
   if (freqOpts.length) setFreq('monthly');
+
+  /* ---------- the ebook plus the entire Master Claims document: its amount is chosen here, from $10, one-time or monthly
+     (Jason, 2026-10-16/17: "It must NEVER allow anyone to donate less than $10 in order to obtain The Book + The Master
+     Claims Document!"; "Make this the case for both Monthly AND One time"). A Square donation link takes any amount from $1,
+     so PitchZing opens a Square checkout for exactly the amount chosen (POST /public/book-store/checkout): a payment, or a
+     monthly subscription at that amount. Below $10 there is no checkout. ---------- */
+  const CHECKOUT_URL = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-store/checkout';
+  const amt = $('#amt');
+  if (amt) {
+    const MIN = 1000, MAX = 500000;
+    const opts = $$('.amt__opt', amt), other = $('#amtOther'), go = $('#amtGo'), msg = $('#amtMsg');
+    let monthly = false, cents = 0, busy = false;
+    const usd = (c) => '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 });
+    const paint = () => {
+      opts.forEach((o) => o.setAttribute('aria-checked', String(!other.value.trim() && Number(o.dataset.cents) === cents)));
+      go.firstChild.nodeValue = cents >= MIN && cents <= MAX ? `Donate ${usd(cents)}${monthly ? ' a month' : ''} ` : 'Continue to secure checkout ';
+    };
+    const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('is-err', !!bad); };
+    const fromOther = () => { const v = parseFloat(other.value.replace(/[$,\s]/g, '')); return Number.isFinite(v) ? Math.round(v * 100) : 0; };
+    opts.forEach((o) => { o.setAttribute('role', 'radio'); o.addEventListener('click', () => { other.value = ''; cents = Number(o.dataset.cents); say(''); paint(); }); });
+    other.addEventListener('input', () => { cents = fromOther(); say(''); paint(); });
+    $$('[data-amount]').forEach((b) => b.addEventListener('click', () => {
+      monthly = $('.freq__opt[data-freq="monthly"]')?.getAttribute('aria-checked') === 'true';
+      $('#amtTitle').textContent = monthly ? 'Choose your monthly donation' : 'Choose your donation';
+      $('#amtSub').textContent = monthly ? 'From $10 a month. Square’s secure checkout opens next for exactly this amount, each month until you cancel.' : 'From $10. Square’s secure checkout opens next for exactly this amount.';
+      $('#amtFine').innerHTML = monthly ? 'Cancel anytime at <a href="/cancel/">theciaasset.com/cancel</a>. All donations are final: no refunds.' : 'All donations are final: no refunds.';
+      cents = 2000; other.value = ''; say(''); busy = false; go.disabled = false; paint();
+      if (typeof amt.showModal === 'function') amt.showModal(); else amt.setAttribute('open', '');
+    }));
+    $('#amtForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (busy) return;
+      if (!(cents >= MIN)) { say(`The ebook plus the entire Master Claims document starts at $10${monthly ? ' a month' : ''}. Please choose $10 or more.`, true); other.focus(); return; }
+      if (cents > MAX) { say(`Please choose ${usd(MAX)} or less here.`, true); other.focus(); return; }
+      busy = true; go.disabled = true; say('Opening Square’s secure checkout…');
+      try {
+        const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product: 'bundle', monthly, cents }) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.url) throw new Error(j.error || 'The checkout did not open. Please try again.');
+        location.href = j.url;
+      } catch (err) { busy = false; go.disabled = false; say(err.message, true); }
+    });
+  }
 
   /* ---------- release: at 8 AM Eastern on October 20, 2026 (EDT, 12:00 UTC) the pre-order wording becomes the release wording.
      A page left open switches on the minute. The book itself is emailed by the store worker, not by this page. ---------- */

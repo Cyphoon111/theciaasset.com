@@ -35,7 +35,7 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=46">
+<link rel="stylesheet" href="assets/site.css?v=47">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -413,15 +413,14 @@
           </article>
           <article class="pkg pkg--bundle">
             <div class="pkg__head">
-              <h3 class="pkg__name">The ebook + Master Claims Document</h3>
+              <h3 class="pkg__name">The ebook plus the entire Master Claims Document</h3>
               <p class="pkg__price"><b data-giveaway data-monthly-text="From $10/mo">From $10</b><span class="pkg__later" data-giveaway>$19.99 from Nov 4</span><b data-paid hidden>$19.99</b></p>
             </div>
-            <p class="pkg__what">The book plus the entire Master Claims document.</p>
-            <a class="btn btn--red btn--lg pkg__buy" data-giveaway href="https://square.link/u/eIWncZkT" data-monthly-href="https://square.link/u/YJgqx293" data-monthly-text="Donate monthly &amp; get both" target="_blank" rel="noopener">Donate &amp; get both <span aria-hidden="true">→</span></a>
-            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="https://square.link/u/aZYSl5PA" target="_blank" rel="noopener">Buy the ebook + Master Claims <span aria-hidden="true">→</span></a>
+            <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="bundle" data-monthly-text="Donate monthly &amp; get both" aria-haspopup="dialog">Donate &amp; get both <span aria-hidden="true">→</span></button>
+            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="https://square.link/u/aZYSl5PA" target="_blank" rel="noopener">Buy the ebook plus the entire Master Claims document <span aria-hidden="true">→</span></a>
           </article>
         </div>
-        <p class="preorder__fine" data-giveaway>You choose the amount at Square’s secure checkout, which also asks for your phone number for the receipt. Your copy is emailed to the address you enter there and opens in our protected online reader, for you alone. A monthly donation repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>; your copy comes with the first one. Donations go directly to the author and are not tax-deductible. <b>All donations are final: no refunds.</b></p>
+        <p class="preorder__fine" data-giveaway>For the ebook you choose the amount at Square’s secure checkout; for the ebook plus the entire Master Claims document you choose it here, from $10, and Square’s checkout opens for exactly that amount. Square’s checkout also asks for your phone number for the receipt. Your copy is emailed to the address you enter there and opens in our protected online reader, for you alone. A monthly donation repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>; your copy comes with the first one. Donations go directly to the author and are not tax-deductible. <b>All donations are final: no refunds.</b></p>
         <p class="preorder__fine" data-paid hidden>Secure checkout by Square, which also asks for your phone number for the receipt. Your copy is emailed to the address you enter at checkout and opens in our protected online reader, for you alone. <b>All sales are final: no refunds.</b></p>
       </div>
     </div>
@@ -539,6 +538,26 @@
   </div>
 </footer>
 
+<dialog class="reqd amt" id="amt" aria-labelledby="amtTitle">
+  <button class="reqd__x" type="button" aria-label="Close" data-close>×</button>
+  <p class="amt__kicker">The ebook plus the entire Master Claims document</p>
+  <h2 class="reqd__title" id="amtTitle">Choose your donation</h2>
+  <p class="reqd__sub" id="amtSub">From $10. Square’s secure checkout opens next for exactly this amount.</p>
+  <form class="amt__form" id="amtForm" novalidate>
+    <div class="amt__grid" role="radiogroup" aria-label="Amount">
+      <button type="button" class="amt__opt" data-cents="1000">$10</button>
+      <button type="button" class="amt__opt" data-cents="2000">$20</button>
+      <button type="button" class="amt__opt" data-cents="5000">$50</button>
+      <button type="button" class="amt__opt" data-cents="10000">$100</button>
+      <button type="button" class="amt__opt" data-cents="30000">$300</button>
+      <button type="button" class="amt__opt" data-cents="50000">$500</button>
+    </div>
+    <label class="reqd__field amt__other"><span>Other amount</span><input id="amtOther" type="text" inputmode="decimal" autocomplete="off" placeholder="$10 or more" aria-describedby="amtMsg"></label>
+    <button class="btn btn--red btn--lg reqd__send" type="submit" id="amtGo">Continue to secure checkout <span aria-hidden="true">→</span></button>
+    <p class="reqd__msg" id="amtMsg" role="status" aria-live="polite"></p>
+    <p class="amt__fine" id="amtFine">All donations are final: no refunds.</p>
+  </form>
+</dialog>
 <dialog class="thanks" id="thanks" aria-labelledby="thanksTitle">
   <button class="thanks__x" type="button" aria-label="Close" data-close>×</button>
   <h2 id="thanksTitle">Thank you for your donation.</h2>
@@ -598,6 +617,6 @@
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=42" defer></script>
+<script src="assets/site.js?v=43" defer></script>
 </body>
 </html>

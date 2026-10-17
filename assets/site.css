@@ -586,6 +586,16 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .reqd__msg:empty { display: none; }
 .reqd__msg.is-err { color: var(--red-ink); }
 .reqd__done { padding: 8px 0 4px; font-size: 17px; line-height: 1.55; color: var(--ink); }
+/* the ebook plus the entire Master Claims document: its amount, chosen here from $10 (Jason, 2026-10-17) */
+.amt__kicker { margin: 0 0 10px; padding-right: 34px; font: 700 11.5px/1.45 var(--caps); letter-spacing: .2em; text-transform: uppercase; color: var(--gold-ink); }
+.amt__form { display: grid; gap: 14px; }
+.amt__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.amt__opt { height: 54px; border: 1.5px solid #d5d0c4; border-radius: 12px; background: #fff; color: var(--ink); font: 400 26px/1 var(--display); letter-spacing: .02em; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+.amt__opt:hover { border-color: var(--red); }
+.amt__opt[aria-checked="true"] { border-color: var(--red); background: var(--red); color: #fff; }
+.amt__opt:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.amt__fine { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.amt__fine a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 @media (max-width: 560px) { .reqd { padding: 30px 20px 22px; } }
 /* transcript pop-up (Pam Bondi on the missing minute) */
 .tx__meta { margin: 0 0 12px; padding-right: 40px; font: 700 11px/1.5 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--red-ink); }
