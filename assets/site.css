@@ -648,6 +648,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .kit__item--cover:hover img { transform: rotate(0deg) translateY(-3px); }
 .kit__btns { display: flex; flex-wrap: wrap; gap: 10px; }
 @media (max-width: 560px) { .kit__item { padding: 22px 18px; } .kit__btns { gap: 8px; } .kit__btns .btn { padding: 0 12px; letter-spacing: .03em; } }
+.coverd__img { display: block; width: min(100%, 300px); height: auto; margin: 0 auto; border-radius: 3px; box-shadow: 0 18px 30px -14px rgba(0,0,0,.55); -webkit-touch-callout: default; }
 .kit__meta { display: block; margin: -8px 0 16px; font: 600 11px/1 var(--mono); letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
 
 /* ---------- footer ---------- */
