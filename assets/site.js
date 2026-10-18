@@ -74,6 +74,7 @@
   /* ---------- sign-ups are never dropped: one that cannot be sent (no signal, a busy moment) is kept on this device and
      sent again a few seconds, then minutes later, and on the next visit, until the list confirms it ---------- */
   const SIGNUP_URL = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-site/notify', QKEY = 'cia_signup_queue';
+  const KNOWN_URL = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-site/known';
   const readQ = () => { try { const q = JSON.parse(localStorage.getItem(QKEY) || '[]'); return Array.isArray(q) ? q : []; } catch { return []; } };
   const writeQ = (q) => { try { if (q.length) localStorage.setItem(QKEY, JSON.stringify(q.slice(-20))); else localStorage.removeItem(QKEY); } catch {} };
   let mem = [], qTimer = 0, qTry = 0, qBusy = false;
@@ -112,7 +113,7 @@
     // a returning visitor's email is filled in, so one tap opens the file
     let known = '';
     try { known = localStorage.getItem('cia_email') || ''; } catch {}
-    if (gateEmail) { if (known) gateEmail.value = known; if (fine) gateEmail.focus({ preventScroll: true }); }
+    if (gateEmail) { if (known) gateEmail.value = known; if (fine && !document.documentElement.classList.contains('gate-ask')) gateEmail.focus({ preventScroll: true }); }
     const gateHuman = $('#gateHuman');
     const askTick = () => { gateErr.textContent = 'Please tick the box to confirm you are human.'; };
     if (!known) human.mount(gateHuman);
@@ -130,6 +131,16 @@
       setTimeout(() => { document.documentElement.classList.remove('gate-on'); gate.remove(); toTop(); }, reduce ? 30 : 860);
       onGateOpen.splice(0).forEach((fn) => fn());
     };
+    // a returning visitor this browser has forgotten (cleared data, or Safari after a week away) may still be known to
+    // PitchZing by network and browser together (Jason, 2026-10-17): then the site opens without the screen. It waits at
+    // most 1.5 s for the answer before showing the screen's form.
+    if (document.documentElement.classList.contains('gate-ask')) {
+      const show = () => { document.documentElement.classList.remove('gate-ask'); if (gateEmail && fine && !gateOpen) gateEmail.focus({ preventScroll: true }); };
+      const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 1500);
+      fetch(KNOWN_URL, { signal: ctl.signal, cache: 'no-store' }).then((r) => r.json())
+        .then((j) => { if (j && j.known) { try { localStorage.setItem('cia_in', '1'); } catch {} openGate(); } else show(); })
+        .catch(show).finally(() => clearTimeout(tm));
+    }
     if (gateEmail) gateEmail.addEventListener('input', () => { gateForm.classList.remove('is-bad'); gateErr.textContent = ''; human.mount(gateHuman); });
     let checking = false;
     if (gateForm) gateForm.addEventListener('submit', async (e) => {
@@ -151,6 +162,7 @@
         try { localStorage.setItem('cia_email', email); } catch {}
         queueSignup({ email, role: 'reader', site: 'theciaasset.com', page: location.href, via: 'gate', human: t, website: (gateForm.elements.website || {}).value || '' });
       }
+      try { localStorage.setItem('cia_in', '1'); } catch {}   // the next visit opens straight into the site
       openGate();
     });
   }
