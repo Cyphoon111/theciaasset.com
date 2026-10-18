@@ -1003,7 +1003,7 @@
     // the amounts are those its Square donation links suggested). min: the least that gets that package.
     const KINDS = {
       ebook: { name: 'The ebook', what: 'the ebook', min: 100, start: 1000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },
-      bundle: { name: 'The ebook plus the entire Master Claims document', what: 'the ebook plus the entire Master Claims document', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000] },
+      bundle: { name: 'The ebook plus the entire Master Claims document', what: 'the ebook plus the entire Master Claims document', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },   // $1,000 too (Jason, 2026-10-17)
     };
     const MAX = 500000;
     const grid = $('.amt__grid', amt), other = $('#amtOther'), go = $('#amtGo'), msg = $('#amtMsg');
