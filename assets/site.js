@@ -113,10 +113,12 @@
     // a returning visitor's email is filled in, so one tap opens the file
     let known = '';
     try { known = localStorage.getItem('cia_email') || ''; } catch {}
-    if (gateEmail) { if (known) gateEmail.value = known; if (fine && !document.documentElement.classList.contains('gate-ask')) gateEmail.focus({ preventScroll: true }); }
+    const isBack = () => document.documentElement.classList.contains('gate-back');   // a returning visitor: one tap, no email
+    const focusGate = () => { if (!fine || gateOpen) return; if (isBack()) { if (gateBtn) gateBtn.focus({ preventScroll: true }); } else if (gateEmail) gateEmail.focus({ preventScroll: true }); };
+    if (gateEmail) { if (known) gateEmail.value = known; if (!document.documentElement.classList.contains('gate-ask')) focusGate(); }
     const gateHuman = $('#gateHuman');
     const askTick = () => { gateErr.textContent = 'Please tick the box to confirm you are human.'; };
-    if (!known) human.mount(gateHuman);
+    if (!known && !isBack() && !document.documentElement.classList.contains('gate-ask')) human.mount(gateHuman);
     // The site opens at the very top (Jason, 2026-10-15): typing in the email box can scroll the page underneath (a phone's
     // keyboard does), and a link may carry a #section; neither survives the opening.
     const openGate = () => {
@@ -135,10 +137,10 @@
     // PitchZing by network and browser together (Jason, 2026-10-17): then the site opens without the screen. It waits at
     // most 1.5 s for the answer before showing the screen's form.
     if (document.documentElement.classList.contains('gate-ask')) {
-      const show = () => { document.documentElement.classList.remove('gate-ask'); if (gateEmail && fine && !gateOpen) gateEmail.focus({ preventScroll: true }); };
+      const show = () => { document.documentElement.classList.remove('gate-ask'); if (!isBack() && !known) human.mount(gateHuman); focusGate(); };
       const ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), 1500);
       fetch(KNOWN_URL, { signal: ctl.signal, cache: 'no-store' }).then((r) => r.json())
-        .then((j) => { if (j && j.known) { try { localStorage.setItem('cia_in', '1'); } catch {} openGate(); } else show(); })
+        .then((j) => { if (j && j.known) { try { localStorage.setItem('cia_in', '1'); } catch {} document.documentElement.classList.add('gate-back'); } show(); })
         .catch(show).finally(() => clearTimeout(tm));
     }
     if (gateEmail) gateEmail.addEventListener('input', () => { gateForm.classList.remove('is-bad'); gateErr.textContent = ''; human.mount(gateHuman); });
@@ -146,6 +148,7 @@
     if (gateForm) gateForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       if (checking) return;
+      if (isBack()) { openGate(); return; }   // the tap itself opens the file and lets the shutter sound play
       const email = gateEmail.value.trim();
       if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)) {
         gateForm.classList.add('is-bad');

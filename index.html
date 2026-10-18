@@ -6,9 +6,10 @@
 <script>/* a refresh opens at the very top, never where the reader left off */ if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 /* the opening screen: the visitor enters an email to open the file, and that tap or key press turns the sound on.
    A donor sent back from Square (?donated=…) skips it: the thank-you pop-up opens instead. A visitor who has entered an
-   email before skips it too (Jason, 2026-10-17): this browser remembers, or else site.js asks PitchZing whether this
-   network and browser signed up (gate-ask keeps the screen's form out of sight while it asks). */
-if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(localStorage.getItem('cia_in') || localStorage.getItem('cia_email')); } catch (e) {} if (!seen) document.documentElement.classList.add('gate-on', 'gate-ask'); }</script>
+   email before gets it with no email to type (gate-back, Jason, 2026-10-17): "Welcome back" and one tap, which opens the
+   file and turns the shutter sound on (a browser plays sound only after a tap). This browser remembers them, or else
+   site.js asks PitchZing whether this network and browser signed up (gate-ask keeps the form out of sight meanwhile). */
+if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(localStorage.getItem('cia_in') || localStorage.getItem('cia_email')); } catch (e) {} document.documentElement.classList.add('gate-on', seen ? 'gate-back' : 'gate-ask'); }</script>
 <title>Jeffrey Epstein Was A CIA Asset | Jason Sullivan</title>
 <meta name="description" content="The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein. A forthcoming work of non-fiction by Jason Sullivan, the investigator who broke the Epstein “missing minute.”">
 <link rel="canonical" href="https://theciaasset.com/">
@@ -38,7 +39,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=55">
+<link rel="stylesheet" href="assets/site.css?v=56">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -51,6 +52,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
     <h2 class="gate__title" id="gateTitle">Jeffrey Epstein was a <span class="red">CIA asset</span></h2>
     <p class="gate__by">By Jason Sullivan</p>
     <form class="gate__form" id="gateForm" novalidate>
+      <p class="gate__welcome">Welcome back</p>
       <label class="gate__label" for="gateEmail">Enter your email to open the file</label>
       <div class="gate__row">
         <input class="gate__input" id="gateEmail" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" placeholder="you@example.com" required aria-describedby="gateErr gateFine">
@@ -640,6 +642,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=52" defer></script>
+<script src="assets/site.js?v=53" defer></script>
 </body>
 </html>

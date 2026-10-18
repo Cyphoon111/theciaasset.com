@@ -97,6 +97,12 @@ html.gate-ask .gate > * { visibility: hidden; }   /* asking PitchZing whether th
 .human:not(.is-asking) iframe { max-height: 0; }
 .gate__err { min-height: 18px; margin: 10px 0 0; font: 600 13px/1.35 var(--body); color: #ff6b72; }
 .gate__err:empty { min-height: 0; margin: 0; }
+/* a returning visitor: "Welcome back" and the one button, no email to type (Jason, 2026-10-17) */
+.gate__welcome { display: none; margin: 0 0 16px; font: 700 12px/1.3 var(--mono); letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.78); }
+html.gate-back .gate__welcome { display: block; }
+html.gate-back .gate__label, html.gate-back .gate__input, html.gate-back .gate__fine, html.gate-back .human--gate, html.gate-back .gate__err { display: none; }
+html.gate-back .gate__row { justify-content: center; padding: 0; border: 0; background: none; box-shadow: none; }
+html.gate-back .gate__row .gate__btn { height: 64px; padding: 0 34px; }
 .gate__fine { margin: 12px 0 0; font: 400 13px/1.4 var(--body); color: rgba(255,255,255,.5); }
 .gate__hint { margin: 16px 0 0; font: 600 11px/1 var(--mono); letter-spacing: .26em; text-transform: uppercase; color: rgba(255,255,255,.5); }
 .gate.is-opening { animation: gateOpen .85s cubic-bezier(.7, 0, .2, 1) forwards; pointer-events: none; }
