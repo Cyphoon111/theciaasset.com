@@ -198,10 +198,18 @@
     bookWrap.addEventListener('pointerleave', () => { book.style.removeProperty('--ry'); book.style.removeProperty('--rx'); });
   }
 
-  /* ---------- stamp: lands right after the lens takes its first burst ---------- */
+  /* ---------- stamp: CLASSIFIED until the lens's first three-frame burst; on that burst's first frame it is stamped again,
+     DECLASSIFIED, and stays so (Jason, 2026-10-17: "show the word: "CLASSIFIED" until the moment that the first triple clicks
+     of the camera and the moment the triple clicks execute, I want the word to change from CLASSIFIED to DECLASSIFIED") ---------- */
   const stamp = $('#stamp'), stage = $('.hero__stage');
-  let stamped = false;
-  const stampIn = () => { if (stamped || !stamp || reduce) return; stamped = true; stamp.classList.add('is-in'); setTimeout(() => stage && stage.classList.add('is-thud'), 170); };
+  let declassified = false;
+  const declassify = () => {
+    if (declassified || !stamp) return; declassified = true;
+    stamp.firstElementChild.textContent = 'DECLASSIFIED';
+    if (reduce) return;
+    stamp.classList.remove('is-in'); void stamp.offsetWidth; stamp.classList.add('is-in');
+    setTimeout(() => stage && stage.classList.add('is-thud'), 170);
+  };
 
   /* ---------- lens: the viewfinder floats over the photo, zeroes in on the author's face and fires a three-frame burst ---------- */
   const lens = $('#lens');
@@ -545,7 +553,7 @@
       status('SUBJECT ACQUIRED'); idShow(T);
     };
     const nudge = () => { if (!sndBtn || !soundOn() || audioLive()) return; sndBtn.classList.remove('is-nudge'); void sndBtn.offsetWidth; sndBtn.classList.add('is-nudge'); clearTimeout(nudge.t); nudge.t = setTimeout(() => sndBtn.classList.remove('is-nudge'), 1800); };
-    const fire = () => { blinks.push(T); if (!reduce) kicks.push(T); fired++; setShots(fired); flash(); if (fired === 1) nudge(); };
+    const fire = () => { blinks.push(T); if (!reduce) kicks.push(T); fired++; setShots(fired); flash(); if (fired === 1) { nudge(); declassify(); } };
     onFirstLive = () => {
       if ((phase === 'snap' || phase === 'locked') && !burstSound && fired < 3) { burstSound = soundShots(fired); return; }
       if (!live || visRatio < 0.5) return;
@@ -590,7 +598,7 @@
         if (phase === 'snap' && (s >= LOCK_AT || now >= shotWall[0])) { if (s < LOCK_AT) T = t0 + LOCK_AT; lockOn(); }
         if (phase === 'locked') {
           while (fired < 3 && now >= shotWall[fired]) fire();
-          if (fired === 3 && now >= shotWall[2] + 200) { phase = 'hold'; holdUntil = T + 6; if (cyc === 0) setTimeout(stampIn, 120); }
+          if (fired === 3 && now >= shotWall[2] + 200) { phase = 'hold'; holdUntil = T + 6; }
         } else if (phase === 'hold' && T >= holdUntil) { cyc++; toFloat(); }
       }
 
