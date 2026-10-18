@@ -590,6 +590,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .amt__kicker { margin: 0 0 10px; padding-right: 34px; font: 700 11.5px/1.45 var(--caps); letter-spacing: .2em; text-transform: uppercase; color: var(--gold-ink); }
 .amt__form { display: grid; gap: 14px; }
 .amt__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.amt__grid .amt__opt:nth-child(3n+1):last-child { grid-column: 1 / -1; }   /* a seventh amount ($1,000) takes the whole row */
 .amt__opt { height: 54px; border: 1.5px solid #d5d0c4; border-radius: 12px; background: #fff; color: var(--ink); font: 400 26px/1 var(--display); letter-spacing: .02em; cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
 .amt__opt:hover { border-color: var(--red); }
 .amt__opt[aria-checked="true"] { border-color: var(--red); background: var(--red); color: #fff; }

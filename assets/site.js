@@ -999,23 +999,29 @@
   const CHECKOUT_URL = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-store/checkout';
   const amt = $('#amt');
   if (amt) {
-    const MIN = 1000, MAX = 500000;
-    const opts = $$('.amt__opt', amt), other = $('#amtOther'), go = $('#amtGo'), msg = $('#amtMsg');
-    let monthly = false, cents = 0, busy = false, raisedAt = 0;
+    // the same window for both (Jason, 2026-10-17: the ebook's button opens it too, with the ebook's agreed amounts, $10 first;
+    // the amounts are those its Square donation links suggested). min: the least that gets that package.
+    const KINDS = {
+      ebook: { name: 'The ebook', what: 'the ebook', min: 100, start: 1000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },
+      bundle: { name: 'The ebook plus the entire Master Claims document', what: 'the ebook plus the entire Master Claims document', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000] },
+    };
+    const MAX = 500000;
+    const grid = $('.amt__grid', amt), other = $('#amtOther'), go = $('#amtGo'), msg = $('#amtMsg');
+    let product = 'bundle', K = KINDS.bundle, monthly = false, cents = 0, busy = false, raisedAt = 0;
     const usd = (c) => '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 });
     const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('is-err', !!bad); };
-    const under = () => `$10${monthly ? ' a month' : ''} is the minimum for the ebook plus the entire Master Claims document.`;
-    // the button can only be pressed for $10 to $5,000: below $10 it reads "$10 minimum" and is greyed out
+    const under = () => `${usd(K.min)}${monthly ? ' a month' : ''} is the minimum for ${K.what}.`;
+    // the button can only be pressed from the minimum to $5,000: below it, it reads "$10 minimum" (or $1) and is greyed out
     const paint = () => {
-      opts.forEach((o) => o.setAttribute('aria-checked', String(!other.value.trim() && Number(o.dataset.cents) === cents)));
-      const ok = cents >= MIN && cents <= MAX;
+      $$('.amt__opt', grid).forEach((o) => o.setAttribute('aria-checked', String(!other.value.trim() && Number(o.dataset.cents) === cents)));
+      const ok = cents >= K.min && cents <= MAX;
       go.disabled = !ok || busy;
-      go.firstChild.nodeValue = ok ? `Donate ${usd(cents)}${monthly ? ' a month' : ''} ` : cents > MAX ? `${usd(MAX)} at most ` : `$10 minimum `;
-      if (other.value.trim() && cents < MIN) say(under(), true); else if (cents > MAX) say(`Please choose ${usd(MAX)} or less here.`, true); else if (msg.classList.contains('is-err')) say('');
+      go.firstChild.nodeValue = ok ? `Donate ${usd(cents)}${monthly ? ' a month' : ''} ` : cents > MAX ? `${usd(MAX)} at most ` : `${usd(K.min)} minimum `;
+      if (other.value.trim() && cents < K.min) say(under(), true); else if (cents > MAX) say(`Please choose ${usd(MAX)} or less here.`, true); else if (msg.classList.contains('is-err')) say('');
     };
     const fromOther = () => { const v = parseFloat(other.value.replace(/[$,\s]/g, '')); return Number.isFinite(v) ? Math.round(v * 100) : 0; };
-    opts.forEach((o) => { o.setAttribute('role', 'radio'); o.addEventListener('click', () => { other.value = ''; cents = Number(o.dataset.cents); say(''); paint(); }); });
-    // digits and one decimal point only; nothing under $10 survives leaving the box: it becomes $10
+    grid.addEventListener('click', (e) => { const o = e.target.closest('.amt__opt'); if (!o) return; other.value = ''; cents = Number(o.dataset.cents); say(''); paint(); });
+    // digits and one decimal point only; nothing under the minimum survives leaving the box: it becomes the minimum
     other.addEventListener('input', () => {
       const clean = other.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1').replace(/^(\d*\.\d{0,2}).*$/, '$1');
       if (clean !== other.value) other.value = clean;
@@ -1023,26 +1029,30 @@
     });
     other.addEventListener('blur', () => {
       if (!other.value.trim()) return;
-      if (cents < MIN) { cents = MIN; other.value = '10'; raisedAt = Date.now(); paint(); say(`Raised to the $10${monthly ? ' a month' : ''} minimum. Tap Donate to continue.`); }
+      if (cents < K.min) { cents = K.min; other.value = String(K.min / 100); raisedAt = Date.now(); paint(); say(`Raised to the ${usd(K.min)}${monthly ? ' a month' : ''} minimum. Tap Donate to continue.`); }
     });
     $$('[data-amount]').forEach((b) => b.addEventListener('click', () => {
+      product = b.dataset.amount === 'ebook' ? 'ebook' : 'bundle'; K = KINDS[product];
       monthly = $('.freq__opt[data-freq="monthly"]')?.getAttribute('aria-checked') === 'true';
+      $('#amtKicker').textContent = K.name;
       $('#amtTitle').textContent = monthly ? 'Choose your monthly donation' : 'Choose your donation';
-      $('#amtSub').textContent = monthly ? 'From $10 a month. Square’s secure checkout opens next for exactly this amount, each month until you cancel.' : 'From $10. Square’s secure checkout opens next for exactly this amount.';
+      $('#amtSub').textContent = monthly ? `From ${usd(K.min)} a month. Square’s secure checkout opens next for exactly this amount, each month until you cancel.` : `From ${usd(K.min)}. Square’s secure checkout opens next for exactly this amount.`;
       $('#amtFine').innerHTML = monthly ? 'Cancel anytime at <a href="/cancel/">theciaasset.com/cancel</a>. All donations are final: no refunds.' : 'All donations are final: no refunds.';
-      cents = 2000; other.value = ''; say(''); busy = false; paint();
+      grid.innerHTML = K.amounts.map((c) => `<button type="button" class="amt__opt" role="radio" data-cents="${c}">${usd(c)}</button>`).join('');
+      other.placeholder = `${usd(K.min)} or more`;
+      cents = K.start; other.value = ''; say(''); busy = false; paint();
       if (typeof amt.showModal === 'function') amt.showModal(); else amt.setAttribute('open', '');
     }));
     $('#amtForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       if (busy) return;
-      if (Date.now() - raisedAt < 700) return;   // the tap that left the box (and raised it to $10) only shows the new amount
-      if (!(cents >= MIN)) { say(under(), true); paint(); return; }
+      if (Date.now() - raisedAt < 700) return;   // the tap that left the box (and raised it to the minimum) only shows the new amount
+      if (!(cents >= K.min)) { say(under(), true); paint(); return; }
       if (cents > MAX) { say(`Please choose ${usd(MAX)} or less here.`, true); other.focus(); return; }
       busy = true; go.disabled = true; say('Opening Square’s secure checkout…');
       const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
       try {
-        const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product: 'bundle', monthly, cents }), signal: ctl.signal });
+        const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product, monthly, cents }), signal: ctl.signal });
         const j = await r.json().catch(() => ({}));
         if (!r.ok || !j.url) throw new Error(j.error || 'The checkout did not open. Please try again.');
         location.href = j.url;
