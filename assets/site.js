@@ -201,8 +201,9 @@
   $$('.reveal').forEach((el) => revObs.observe(el));
 
   /* ---------- 3D book tilt ---------- */
-  const bookWrap = $('.hero__book'), book = $('#book3d');
-  if (book && bookWrap && fine && !reduce) {
+  // every 3D book (the page's and, since 2026-10-17, the opening screen's) turns to face the pointer and eases back when it leaves
+  if (fine && !reduce) $$('.hero__book').forEach((bookWrap) => {
+    const book = $('.book', bookWrap); if (!book) return;
     let raf = 0;
     bookWrap.addEventListener('pointermove', (e) => {
       const b = bookWrap.getBoundingClientRect();
@@ -211,7 +212,7 @@
       raf = requestAnimationFrame(() => { book.style.setProperty('--ry', `${(12 - dx * 26).toFixed(2)}deg`); book.style.setProperty('--rx', `${(3 - dy * 10).toFixed(2)}deg`); });
     });
     bookWrap.addEventListener('pointerleave', () => { book.style.removeProperty('--ry'); book.style.removeProperty('--rx'); });
-  }
+  });
 
   /* ---------- stamp: CLASSIFIED until the lens's first three-frame burst; on that burst's first frame it is stamped again,
      DECLASSIFIED, and stays so (Jason, 2026-10-17: "show the word: "CLASSIFIED" until the moment that the first triple clicks

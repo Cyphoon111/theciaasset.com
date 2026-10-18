@@ -39,13 +39,26 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=56">
+<link rel="stylesheet" href="assets/site.css?v=57">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
 </head>
 <body>
 <div class="gate" id="gate" role="dialog" aria-modal="true" aria-labelledby="gateTitle">
+  <!-- the same 3D book as the page's own, turning to face the pointer (Jason, 2026-10-17) -->
+  <div class="hero__book gate__book" aria-hidden="true">
+    <div class="book">
+      <div class="book__spine"><span>JEFFREY EPSTEIN WAS A <b>CIA ASSET</b></span><em>SULLIVAN</em></div>
+      <div class="book__pages"></div>
+      <div class="book__back"></div>
+      <div class="book__cover">
+        <img src="assets/cover.jpg" srcset="assets/cover-760.jpg 506w, assets/cover.jpg 1100w" sizes="(max-width: 899px) 120px, 320px" width="1100" height="1650" alt="">
+        <i class="book__sheen"></i>
+      </div>
+    </div>
+    <div class="book__floor"></div>
+  </div>
   <div class="gate__in">
     <p class="gate__tag">Classified</p>
     <p class="gate__file">File 0001 · Eyes only</p>
@@ -642,6 +655,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=53" defer></script>
+<script src="assets/site.js?v=54" defer></script>
 </body>
 </html>
