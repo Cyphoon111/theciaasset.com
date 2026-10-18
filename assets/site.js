@@ -516,6 +516,14 @@
     const flash = () => { if (flashEl && flashEl.animate) flashEl.animate([{ opacity: 0.22 }, { opacity: 0 }], { duration: 200, easing: 'cubic-bezier(.2,.7,.2,1)' }); };
     const setShots = (k) => shotEls.forEach((el, i) => el.classList.toggle('on', i < k));
 
+    // where each pass zeroes in and fires its burst (Jason, 2026-10-17): his face, then his pocket square, then his hand
+    // holding the cup of coffee, and round again. Fractions of the photo; the ID tag comes up on the face only.
+    const TARGETS = [
+      { x: FX, y: FY, face: true, found: 'FACE DETECTED' },
+      { x: 0.599, y: 0.405, face: false, found: 'OBJECT DETECTED' },   // the pocket square
+      { x: 0.464, y: 0.649, face: false, found: 'OBJECT DETECTED' },   // the hand holding the coffee
+    ];
+    let tgt = TARGETS[0];
     /* timeline: wait → float → hover → snap → locked (burst) → hold → float … */
     let T = 0, phase = 'idle', t0 = 0, cyc = 0, pathNow = null, dur = 4.4, appr = [FX, FY], lockT = 0;
     let from = [FX, FY], fromZoom = ZOOM0, fromDim = 0, fromSnap = SNAP0, fFrom = 0.6, f = 0.5, lastF = 0.5;
@@ -524,15 +532,16 @@
     const idShow = (now) => { idT0 = now; idN = -1; lens.classList.add('is-id'); };
     const idHide = () => { idT0 = -1; lens.classList.remove('is-id'); };
     const toFloat = () => {
+      tgt = TARGETS[cyc % TARGETS.length];
       const pts = PATHS[cyc % PATHS.length], last = pts[pts.length - 1];
-      const dx = (last[0] - FX) * W, dy = (last[1] - FY) * H, dl = Math.hypot(dx, dy) || 1;
-      appr = [FX + ((dx / dl) * R * 0.95) / W, FY + ((dy / dl) * R * 0.95) / H];
+      const dx = (last[0] - tgt.x) * W, dy = (last[1] - tgt.y) * H, dl = Math.hypot(dx, dy) || 1;
+      appr = [tgt.x + ((dx / dl) * R * 0.95) / W, tgt.y + ((dy / dl) * R * 0.95) / H];
       pathNow = mkPath([cyc === 0 ? ENTRY : [x / W, y / H], ...pts, appr]);
       fromZoom = v.zoom; fromDim = v.dim; fromSnap = v.snap; fFrom = f;
       dur = cyc === 0 ? 3.2 : 4.3; phase = 'float'; t0 = T;
       lens.classList.remove('is-locked', 'is-burst'); setShots(0); idHide(); status('SCANNING');
     };
-    const toHover = () => { phase = 'hover'; t0 = T; status('FACE DETECTED'); };
+    const toHover = () => { phase = 'hover'; t0 = T; status(tgt.found); };
     // the focus bites, the brackets lock red and the first frame is taken at the same instant, LOCK_AT into the zero-in
     const LOCK_AT = 0.45, SHOT_GAP = 0.2;
     let shotWall = [];
@@ -562,7 +571,7 @@
     const lockOn = () => {
       phase = 'locked'; lockT = T;
       lens.classList.remove('is-locked'); void lens.offsetWidth; lens.classList.add('is-locked', 'is-burst');
-      status('SUBJECT ACQUIRED'); idShow(T);
+      status('SUBJECT ACQUIRED'); if (tgt.face) idShow(T);
     };
     const nudge = () => { if (!sndBtn || !soundOn() || audioLive()) return; sndBtn.classList.remove('is-nudge'); void sndBtn.offsetWidth; sndBtn.classList.add('is-nudge'); clearTimeout(nudge.t); nudge.t = setTimeout(() => sndBtn.classList.remove('is-nudge'), 1800); };
     const fire = () => { blinks.push(T); if (!reduce) kicks.push(T); fired++; setShots(fired); flash(); if (fired === 1) { nudge(); declassify(); } };
@@ -595,14 +604,14 @@
         if (pt >= dur) toHover();
       } else if (phase === 'hover') {
         const pt = T - t0, k = inOut(pt / 0.5) * 0.14;
-        px = appr[0] + (FX - appr[0]) * k; py = appr[1] + (FY - appr[1]) * k;
+        px = appr[0] + (tgt.x - appr[0]) * k; py = appr[1] + (tgt.y - appr[1]) * k;
         f = 0.45 + 0.3 * Math.sin(pt * 18);
         v.snap = SNAP0 - 0.1 * inOut(pt / 0.5);
         if (pt >= 0.5) toSnap();
       }
       if (phase === 'snap' || phase === 'locked' || phase === 'hold') {
         const s = T - t0, k = spring(s, 12, 0.62), u = clamp((s - 0.1) / (LOCK_AT - 0.1), 0, 1);
-        px = from[0] + (FX - from[0]) * k; py = from[1] + (FY - from[1]) * k;
+        px = from[0] + (tgt.x - from[0]) * k; py = from[1] + (tgt.y - from[1]) * k;
         v.zoom = fromZoom + (ZOOM1 - fromZoom) * spring(s, 10, 0.85);
         v.dim = fromDim + (DIM1 - fromDim) * out3(s / 0.6);
         v.snap = s < LOCK_AT ? fromSnap + (1.12 - fromSnap) * out3(s / LOCK_AT) : 1 + 0.12 * Math.exp(-(s - LOCK_AT) * 14) * Math.cos((s - LOCK_AT) * 30);
