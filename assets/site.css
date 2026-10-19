@@ -78,15 +78,20 @@ html.gate-ask .gate > * { visibility: hidden; }   /* asking PitchZing whether th
    short screen and left out where there is no room */
 .gate__book { flex: none; width: clamp(210px, 22vw, 320px); margin-right: clamp(32px, 5vw, 80px); }
 .gate__book .book__floor { margin-top: 18px; }
+/* on a phone the cover is the feature (Jason, 2026-10-19: "make the book cover larger and more featured on mobile"):
+   it takes the height the screen has left over the text below it, which is shorter for a returning visitor (one
+   button) than for a new one (the email form) */
 @media (max-width: 899px) {
-  html.gate-on .gate { flex-direction: column; }
-  .gate__book { width: 118px; margin: 0 0 18px; }
-  .gate__book .book { --t: 16px; }
+  html.gate-on .gate { flex-direction: column; padding: 16px; }
+  .gate__book { width: clamp(96px, calc((100vh - 555px) / 1.5), min(220px, 58vw)); width: clamp(96px, calc((100svh - 555px) / 1.5), min(220px, 58vw)); margin: 0 0 14px; }
+  html.gate-back .gate__book { width: clamp(120px, calc((100vh - 440px) / 1.5), min(270px, 66vw)); width: clamp(120px, calc((100svh - 440px) / 1.5), min(270px, 66vw)); }
+  .gate__book .book { --t: 18px; }
   .gate__book .book__spine span, .gate__book .book__spine em { display: none; }
   .gate__book .book__floor { height: 14px; margin-top: 10px; }
+  .gate__tag { margin-bottom: 14px; }
 }
-@media (max-width: 899px) and (max-height: 760px) { .gate__book { width: 90px; margin-bottom: 12px; } .gate__tag { margin-bottom: 14px; } }
-@media (max-width: 899px) and (max-height: 620px) { .gate__book { display: none; } }
+@media (max-width: 899px) and (max-height: 680px) { .gate .gate__book { display: none; } html.gate-back .gate .gate__book { display: block; } }
+@media (max-width: 899px) and (max-height: 610px) { html.gate-back .gate .gate__book { display: none; } }
 .gate__tag { display: inline-block; margin: 0 0 22px; padding: 9px 18px 7px; border: 3px solid var(--red); border-radius: 4px; color: var(--red); font: 400 clamp(20px, 2.8vw, 30px)/1 var(--stencil); letter-spacing: .14em; text-transform: uppercase; transform: rotate(-6deg); }
 .gate__file { margin: 0 0 16px; font: 700 12px/1 var(--mono); letter-spacing: .32em; text-transform: uppercase; color: rgba(255,255,255,.55); }
 .gate__title { margin: 0; font: 400 clamp(44px, 7.2vw, 104px)/.95 var(--display); letter-spacing: .01em; text-transform: uppercase; }
