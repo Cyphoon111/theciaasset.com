@@ -709,8 +709,9 @@
   /* ---------- the missing minute: loop the clip from the Unleashed.news post and flag the moment the clock skips ---------- */
   const cctv = $('#cctv'), vid = $('#cctvVideo');
   if (cctv && vid) {
-    // seconds in the clip: the player controls are off screen between START and END; the clock skips at JUMP
-    const START = 2.05, END = 12.75, JUMP = 8.68;
+    // seconds in the clip: it starts on the first frame reading 11:58:55 PM, the player controls are off screen until END,
+    // and the clock skips at JUMP
+    const START = 4.92, END = 12.75, JUMP = 8.68;
     let on = false, raf = 0, gap = false;
     const tick = () => {
       if (!on) return;
