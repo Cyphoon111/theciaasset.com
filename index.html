@@ -411,7 +411,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
         <h2 class="h-display" data-giveaway>Read it <span class="red">first.</span></h2>
         <h2 class="h-display" data-paid hidden>Read it <span class="red">now.</span></h2>
         <p class="preorder__lead" data-giveaway data-release-text="Until Election Day, November 3, donate any amount from $1 and get the book, or from $10 for the book with the entire Master Claims document. Your copy is emailed to you within minutes.">Until Election Day, November 3, donate any amount from $1 and get the book, or from $10 for the book with the entire Master Claims document. Your copy is emailed to you at release: Tuesday, October 20, 2026, at 8 AM Eastern.</p>
-        <p class="preorder__lead" data-paid hidden>The book is out now. Get the ebook, or the ebook with the entire Master Claims document, and start reading today: your copy is emailed to you within minutes of checkout.</p>
+        <p class="preorder__lead" data-paid hidden>The book is out now. Get the ebook, or the ebook with the entire Master Claims document,<span data-audiobook hidden> or the audiobook in the author’s own voice,</span> and start reading today: your copy is emailed to you within minutes of checkout.</p>
         <div class="freq-row" data-giveaway>
           <div class="freq-line">
             <div class="freq" role="radiogroup" aria-label="How often to donate">
@@ -439,8 +439,19 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
             <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="bundle" aria-haspopup="dialog">Donate &amp; get both <span aria-hidden="true">→</span></button>
             <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="https://square.link/u/aZYSl5PA" target="_blank" rel="noopener">Buy the ebook plus the entire Master Claims document <span aria-hidden="true">→</span></a>
           </article>
+          <!-- The audiobook (2026-10-20): shown once PitchZing says its files are up (site.js asks /public/book-store/audiobook).
+               The narration in the author's own voice plus the ebook; it plays inside the buyer's protected copy. -->
+          <article class="pkg pkg--audio" data-audiobook hidden>
+            <div class="pkg__head">
+              <h3 class="pkg__name">The audiobook</h3>
+              <p class="pkg__price"><b data-giveaway data-monthly-text="From $10/mo">From $10</b><span class="pkg__later" data-giveaway>$19.99 from Nov 4</span><b data-paid hidden>$19.99</b></p>
+            </div>
+            <p class="pkg__what" id="audiobookWhat">The whole book in the author’s own voice, with the ebook. It plays in your protected copy, chapter by chapter, and keeps your place.</p>
+            <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="audiobook" aria-haspopup="dialog">Donate &amp; get the audiobook <span aria-hidden="true">→</span></button>
+            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="#preorder" data-audiobook-buy target="_blank" rel="noopener">Buy the audiobook <span aria-hidden="true">→</span></a>
+          </article>
         </div>
-        <p class="preorder__fine" data-giveaway>You choose the amount here (the ebook from $1, the ebook plus the entire Master Claims document from $10), and Square’s secure checkout opens for exactly that amount. Square’s checkout also asks for your phone number for the receipt. Your copy is emailed to the address you enter there and opens in our protected online reader, for you alone. A monthly donation repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>; your copy comes with the first one. Donations go directly to the author and are not tax-deductible. <b>All donations are final: no refunds.</b></p>
+        <p class="preorder__fine" data-giveaway>You choose the amount here (the ebook from $1, the ebook plus the entire Master Claims document from $10<span data-audiobook hidden>, the audiobook from $10</span>), and Square’s secure checkout opens for exactly that amount. Square’s checkout also asks for your phone number for the receipt. Your copy is emailed to the address you enter there and opens in our protected online reader, for you alone. A monthly donation repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>; your copy comes with the first one. Donations go directly to the author and are not tax-deductible. <b>All donations are final: no refunds.</b></p>
         <p class="preorder__fine" data-paid hidden>Secure checkout by Square, which also asks for your phone number for the receipt. Your copy is emailed to the address you enter at checkout and opens in our protected online reader, for you alone. <b>All sales are final: no refunds.</b></p>
       </div>
     </div>

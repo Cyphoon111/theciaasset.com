@@ -534,6 +534,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .pkgs { display: grid; gap: 16px; margin: 18px 0 4px; }
 .pkg { padding: 20px 22px; border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 0 14px 14px 0; background: #fff; }
 .pkg--bundle { border-left-color: var(--gold); }
+.pkg--audio { border-left-color: var(--ink); }
 .pkg__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 14px; }
 .pkg__name { margin: 0; font: 400 24px/1.1 var(--display); letter-spacing: .02em; text-transform: uppercase; }
 .pkg__price { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0; }

@@ -1038,6 +1038,7 @@
     const KINDS = {
       ebook: { name: 'The ebook', what: 'the ebook', min: 100, start: 1000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },
       bundle: { name: 'The ebook plus the entire Master Claims document', what: 'the ebook plus the entire Master Claims document', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },   // $1,000 too (Jason, 2026-10-17)
+      audiobook: { name: 'The audiobook', what: 'the audiobook', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },   // from $10 (Jason, 2026-10-20), with the ebook
     };
     const MAX = 500000;
     const grid = $('.amt__grid', amt), other = $('#amtOther'), go = $('#amtGo'), msg = $('#amtMsg');
@@ -1066,7 +1067,7 @@
       if (cents < K.min) { cents = K.min; other.value = String(K.min / 100); raisedAt = Date.now(); paint(); say(`Raised to the ${usd(K.min)}${monthly ? ' a month' : ''} minimum. Tap Donate to continue.`); }
     });
     $$('[data-amount]').forEach((b) => b.addEventListener('click', () => {
-      product = b.dataset.amount === 'ebook' ? 'ebook' : 'bundle'; K = KINDS[product];
+      product = KINDS[b.dataset.amount] ? b.dataset.amount : 'bundle'; K = KINDS[product];
       monthly = $('.freq__opt[data-freq="monthly"]')?.getAttribute('aria-checked') === 'true';
       $('#amtKicker').textContent = K.name;
       $('#amtTitle').textContent = monthly ? 'Choose your monthly donation' : 'Choose your donation';
@@ -1105,13 +1106,27 @@
   const untilRelease = RELEASE_AT - Date.now();
   if (untilRelease <= 0) release(); else if (untilRelease < 2 ** 31 - 1) setTimeout(release, untilRelease);
 
-  /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle; the opening screen is skipped).
+  /* ---------- the audiobook (2026-10-20): its package stays hidden until PitchZing says its files are up and it is on sale
+     (the store answers ready, with how long it is); then its card, the "or the audiobook" mentions and its fine print show. ---------- */
+  if ($('[data-audiobook]')) {
+    fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-store/audiobook').then((r) => r.json()).then((j) => {
+      if (!j || !j.ready) return;
+      const what = $('#audiobookWhat');
+      if (what && j.hours) what.textContent = `About ${j.hours} hours in ${j.chapters} chapters, the whole book in the author’s own voice, with the ebook. It plays in your protected copy, chapter by chapter, and keeps your place.`;
+      // its fixed-price button (from Nov 4) needs its Square payment link; until that is in the page it stays hidden
+      const buy = $('[data-audiobook-buy]');
+      if (buy && /#preorder$/.test(buy.getAttribute('href') || '')) buy.removeAttribute('data-paid');
+      $$('[data-audiobook]').forEach((el) => { el.hidden = false; });
+    }).catch(() => {});
+  }
+
+  /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle|audiobook; the opening screen is skipped).
      The book goes to the address typed at Square's checkout as a private reader link; the pop-up says so. ---------- */
   const thanks = $('#thanks');
   const donatedFor = new URLSearchParams(location.search).get('donated');
-  if (thanks && (donatedFor === 'ebook' || donatedFor === 'bundle')) {
+  if (thanks && (donatedFor === 'ebook' || donatedFor === 'bundle' || donatedFor === 'audiobook')) {
     history.replaceState(null, '', location.pathname + location.hash);   // a refresh or a shared link does not reopen it
-    $('#thanksWhat').textContent = donatedFor === 'bundle' ? 'the ebook and the Master Claims document' : 'the ebook';
+    $('#thanksWhat').textContent = donatedFor === 'bundle' ? 'the ebook and the Master Claims document' : donatedFor === 'audiobook' ? 'the audiobook and the ebook' : 'the ebook';
     if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a minute';
     // tell the book store to look at Square now, so the copy is emailed within seconds (bookstore.mjs ping; it reads
     // Square itself, so this only says "look now")
