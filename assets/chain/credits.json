@@ -1,12 +1,57 @@
 [
   {
-    "file": "file-01.png",
-    "subject": "Columbia University (Low Memorial Library)",
-    "caption": "Low Memorial Library, Columbia University, Morningside Heights, Manhattan, photographed in 2019.",
-    "author": "Ajay Suresh",
+    "file": "school-ps188.png",
+    "subject": "Public School 188, Coney Island",
+    "caption": "P.S. 188, 3314 Neptune Avenue, Coney Island, Brooklyn, cropped from a 360-degree street photograph taken on 19 August 2025.",
+    "author": "KartaView contributor",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source": "https://kartaview.org/details/11622209/0/track-info"
+  },
+  {
+    "file": "school-mark-twain.png",
+    "subject": "Mark Twain Junior High School (I.S. 239), Coney Island",
+    "caption": "Mark Twain Intermediate School 239, 2401 Neptune Avenue, Coney Island, Brooklyn, photographed in 2011.",
+    "author": "Jim.henderson",
+    "license": "CC0 1.0",
+    "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:CI_Mark_Twain_IS_239_jeh.jpg"
+  },
+  {
+    "file": "school-lafayette.png",
+    "subject": "Lafayette High School, Brooklyn",
+    "caption": "Lafayette High School, 2630 Benson Avenue, Bath Beach, Brooklyn, photographed in 2016.",
+    "author": "Mrkid37",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Lafayette_High_school.jpg"
+  },
+  {
+    "file": "school-interlochen.png",
+    "subject": "Interlochen (National Music Camp), Michigan",
+    "caption": "Kresge Auditorium at the Interlochen Center for the Arts, Interlochen, Michigan, photographed in 2018.",
+    "author": "rossograph",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Kresge_Auditorium-Interlochen.jpg"
+  },
+  {
+    "file": "school-cooper-union.png",
+    "subject": "Cooper Union, Manhattan",
+    "caption": "The Cooper Union Foundation Building, Astor Place, Manhattan, photographed in 2010.",
+    "author": "Beyond My Ken",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "source": "https://commons.wikimedia.org/wiki/File:Cooper_Union_Foundation_Building_front.jpg"
+  },
+  {
+    "file": "school-courant.png",
+    "subject": "Courant Institute of Mathematical Sciences, NYU",
+    "caption": "Warren Weaver Hall, 251 Mercer Street, home of NYU's Courant Institute, photographed in 2016.",
+    "author": "Billie Grace Ward",
     "license": "CC BY 2.0",
     "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-    "source": "https://commons.wikimedia.org/wiki/File:Columbia_University_-_Low_Memorial_Library_(48170370506).jpg"
+    "source": "https://commons.wikimedia.org/wiki/File:Warren_Weaver_Hall_(30522452382).jpg"
   },
   {
     "file": "file-02.png",

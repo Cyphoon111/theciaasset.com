@@ -335,6 +335,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .file:nth-child(even)::before { left: -40px; }
 .file__no { font: 700 11px/1 var(--mono); letter-spacing: .18em; color: var(--muted); }
 .file__year { display: block; margin: 12px 0 6px; font: 400 54px/1 var(--display); color: var(--red); }
+.file__year--span { white-space: nowrap; }   /* a school's years, "1958–1964": one line, never split at the dash */
 .file h3 { margin: 0 0 10px; font: 800 21px/1.25 var(--body); letter-spacing: -.01em; }
 .file p { margin: 0; color: var(--ink-2); font-size: 16px; }
 .file__tag { position: absolute; top: 22px; right: 22px; font: 400 11px/1 var(--stencil); letter-spacing: .14em; color: var(--red); border: 2px solid var(--red); padding: 5px 8px 4px; transform: rotate(6deg); opacity: .8; font-style: normal; }
@@ -779,6 +780,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
   .hud__c { width: 18px; height: 18px; }
   .file { padding: 24px 22px; }
   .file__year { font-size: 44px; }
+  .file__year--span { font-size: 34px; }
   .file__pic { width: 116px; margin: 20px 0 10px 14px; }
   .grade__cat b { font-size: 60px; }
   .kit__item--cover { grid-template-columns: 92px minmax(0, 1fr); gap: 18px; }
