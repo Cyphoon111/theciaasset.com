@@ -556,6 +556,24 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 /* thank-you pop-up for donors sent back from Square (?donated=ebook|bundle) */
 .thanks { width: min(520px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 34px 30px 28px; border: 0; border-top: 4px solid var(--red); border-radius: 16px; background: #fff; color: var(--ink); box-shadow: 0 40px 90px -30px rgba(0,0,0,.65); }
 .thanks::backdrop { background: rgba(8,8,10,.72); }
+
+/* the chain of custody photo pop-up: a click or tap on any card photo (or the poster) opens it large; a click outside the
+   photo, the × or Esc closes it (Jason, 2026-10-23) */
+#files .file__pic:has(img), #files .poster__pic { cursor: zoom-in; }
+#files .file__pic:has(img):focus-visible, #files .poster__pic:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; }
+.zoom { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; }
+.zoom[open] { display: grid; place-items: center; }
+.zoom::backdrop { background: rgba(8,8,10,.86); }
+.zoom__fig { margin: 0; padding: 10px 10px 0; max-width: min(94vw, 1180px); background: #fff; box-shadow: 0 40px 90px -30px rgba(0,0,0,.8); cursor: zoom-out; }
+.zoom[open] .zoom__fig { animation: zoomIn .28s var(--ease) both; }
+@keyframes zoomIn { from { opacity: 0; transform: scale(.96); } }
+.zoom__img { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - 130px); margin: 0 auto; background: #ececee; }
+.zoom__cap { padding: 9px 2px 11px; font: 700 11px/1.45 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: #55555c; max-width: 72ch; }
+.zoom__cap b { color: var(--ink); }
+.zoom__x { position: fixed; top: 14px; right: 14px; z-index: 2; width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255,255,255,.94); color: var(--ink); font: 400 26px/1 var(--body); cursor: pointer; box-shadow: 0 6px 18px -6px rgba(0,0,0,.5); }
+.zoom__x:hover { background: #fff; }
+html:has(.zoom[open]) { overflow: hidden; }
+@media (max-width: 560px) { .zoom__fig { padding: 6px 6px 0; } .zoom__img { max-height: calc(100dvh - 150px); } .zoom__cap { font-size: 10px; } }
 .thanks h2 { margin: 0 0 14px; padding-right: 30px; font: 400 clamp(30px, 6vw, 40px)/1 var(--display); text-transform: uppercase; }
 .thanks p { margin: 0 0 12px; color: var(--ink-2); }
 .thanks strong { color: var(--ink); }

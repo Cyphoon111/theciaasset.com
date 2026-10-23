@@ -39,7 +39,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=61">
+<link rel="stylesheet" href="assets/site.css?v=62">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/"}
 </script>
@@ -614,6 +614,12 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
   <button class="btn btn--red thanks__done" type="button" data-close>Done</button>
 </dialog>
 
+<!-- The chain of custody: any photo on a card opens here, large (site.js, "photo pop-up") -->
+<dialog class="zoom" id="zoom" aria-label="Enlarged photo">
+  <button class="zoom__x" type="button" aria-label="Close" data-close>×</button>
+  <figure class="zoom__fig"><img class="zoom__img" alt=""><figcaption class="zoom__cap"></figcaption></figure>
+</dialog>
+
 <dialog class="reqd" id="req-interview" aria-labelledby="req-interview-title">
   <button class="reqd__x" type="button" aria-label="Close" data-close>×</button>
   <h2 class="reqd__title" id="req-interview-title">Request an interview</h2>
@@ -674,6 +680,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=55" defer></script>
+<script src="assets/site.js?v=56" defer></script>
 </body>
 </html>

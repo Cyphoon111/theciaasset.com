@@ -706,6 +706,39 @@
     draw();
   }
 
+  /* ---------- chain of custody photo pop-up (Jason, 2026-10-23: "All images located on the cards within The chain of custody
+     should expand in a pop-up when clicked"). Every card photo and the poster open large in #zoom. The cards show small crops
+     (assets/chain/X.png or .jpg); the pop-up shows the whole photo from assets/chain/full/X.jpg, the small one standing in
+     until it has loaded. Click/tap or Enter/Space opens; the ×, Esc, or a click anywhere (photo or backdrop) closes. ---------- */
+  const zoom = $('#zoom');
+  if (files && zoom && typeof zoom.showModal === 'function') {
+    const zImg = $('.zoom__img', zoom), zCap = $('.zoom__cap', zoom);
+    let want = '';
+    const fullOf = (src) => src.replace(/assets\/chain\/([^/?#]+)\.(png|jpe?g)(?=$|[?#])/, 'assets/chain/full/$1.jpg');
+    const open = (img) => {
+      const small = img.currentSrc || img.src, full = fullOf(small);
+      zImg.src = small; zImg.alt = img.alt;
+      zCap.innerHTML = img.closest('figure')?.querySelector('figcaption')?.innerHTML || '';
+      want = full;
+      if (full !== small) {   // swap once the big one is loaded and decoded (so the frame never flashes empty), waiting at most 0.4 s on the decode
+        const pre = new Image();
+        pre.onload = () => {
+          const swap = () => { if (want === full && zoom.open) zImg.src = full; };
+          Promise.race([pre.decode ? pre.decode() : 0, new Promise((r) => setTimeout(r, 400))]).then(swap, swap);
+        };
+        pre.src = full;
+      }
+      zoom.showModal();
+    };
+    $$('#files .file__pic img, #files .poster__pic img').forEach((img) => {
+      const fig = img.closest('figure');
+      fig.tabIndex = 0; fig.setAttribute('role', 'button'); fig.setAttribute('aria-label', `Enlarge photo: ${img.alt}`);
+      fig.addEventListener('click', () => open(img));
+      fig.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(img); } });
+    });
+    zoom.addEventListener('click', () => zoom.close());   // the ×, the photo and the dark backdrop all close it
+  }
+
   /* ---------- the missing minute: loop the clip from the Unleashed.news post and flag the moment the clock skips ---------- */
   const cctv = $('#cctv'), vid = $('#cctvVideo');
   if (cctv && vid) {
