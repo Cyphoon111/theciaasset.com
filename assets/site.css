@@ -561,9 +561,10 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
    photo, the × or Esc closes it (Jason, 2026-10-23) */
 #files .file__pic:has(img), #files .poster__pic { cursor: zoom-in; }
 #files .file__pic:has(img):focus-visible, #files .poster__pic:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; }
-.zoom { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: transparent; overflow: hidden; }
+/* the dark veil is the dialog's own background, which fills the window; Edge was seen not painting a ::backdrop here */
+.zoom { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgba(8,8,10,.86); overflow: hidden; }
 .zoom[open] { display: grid; place-items: center; }
-.zoom::backdrop { background: rgba(8,8,10,.86); }
+.zoom::backdrop { background: transparent; }
 .zoom__fig { margin: 0; padding: 10px 10px 0; max-width: min(94vw, 1180px); background: #fff; box-shadow: 0 40px 90px -30px rgba(0,0,0,.8); cursor: zoom-out; }
 .zoom[open] .zoom__fig { animation: zoomIn .28s var(--ease) both; }
 @keyframes zoomIn { from { opacity: 0; transform: scale(.96); } }
