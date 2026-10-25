@@ -79,8 +79,8 @@ async function buildOverlay() {
   // Unleashed.news logo, bottom dead centre. The logo is designed as a white die-cut
   // sticker (glow and shadow baked into the white), so it is shown untouched on a white
   // rounded sticker rather than cut out: cropped to its content, rounded corners, done.
-  const unW = 520;
-  const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 22);
+  const unW = 416;                                              // 520 less 20% (Jason, 2026-10-25)
+  const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 18);
   await writeFile(`${OUT}/unleashed-sticker.png`, unleashed);
   const unH = (await sharp(unleashed).metadata()).height;
   const unLayer = { input: unleashed, left: Math.round(W / 2 - unW / 2), top: H - M - unH };
