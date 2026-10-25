@@ -75,7 +75,8 @@ async function buildOverlay() {
     <!-- cover frame -->
     <rect x="${cvX - 4}" y="${cvY - 4}" width="${cvW + 8}" height="${cvH + 8}" rx="4" fill="${GOLD}"/>
     <!-- lower third -->
-    <rect x="0" y="${SY}" width="${W}" height="${SH}" fill="${PAPER}" fill-opacity="${FROST}"/>
+    <mask id="strip"><rect x="0" y="${SY}" width="${W}" height="${SH}" fill="#fff"/><rect x="${unX}" y="${unY}" width="${unW}" height="${unH}" fill="#000"/></mask>
+    <rect x="0" y="${SY}" width="${W}" height="${SH}" fill="${PAPER}" fill-opacity="${FROST}" mask="url(#strip)"/>
     <image x="${unX}" y="${unY}" width="${unW}" height="${unH}" opacity="${FROST}" href="data:image/png;base64,${unleashed.toString("base64")}"/>
     <!-- the QR keeps a solid white tile: a see-through quiet zone can break a scan -->
     <rect x="${qrX - 6}" y="${qrY - 6}" width="${qrSize + 12}" height="${qrSize + 12}" rx="6" fill="${PAPER}"/>
