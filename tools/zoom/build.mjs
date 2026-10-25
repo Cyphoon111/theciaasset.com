@@ -48,27 +48,33 @@ const SANS = `font-family="Helvetica Neue, Helvetica, Arial, sans-serif"`;
 // ---------- 1. Transparent overlay (OBS) ----------
 // Kept inside a 4:3 centre crop (x 240..1680) so it survives if the show crops his tile.
 async function buildOverlay() {
-  const qrSize = 230, pad = 14, tile = qrSize + pad * 2;
-  const M = 12;                                        // margin from the frame edge
-  const qrX = W - M - tile, qrY = H - M - tile;        // bottom-right corner
-  const ltX = M, ltY = H - M - 130, ltW = 500, ltH = 130;   // lower third, bottom-left corner
+  // One white banner across the bottom (Jason, 2026-10-25: "a white banner at the bottom
+  // that includes the book logo, Unleashed.news logo and the QR code all fit proportionally
+  // within it. The book floats above it."). Left: the mark + THE CIA ASSET + URL. Centre:
+  // the Unleashed.news logo (already on white). Right: the QR with its label. A red rule
+  // along the top. The 3D book stands above the left block.
+  const SH = 170, SY = H - SH;                              // banner strip
+  const pad = 16;
+  const qrSize = SH - 2 * pad, qrX = W - 60 - qrSize, qrY = SY + pad;
+  const ltX = 60, ltY = SY;                                 // left block
+  const unW = 360;                                          // Unleashed.news width in the strip
 
-  // Book cover, standing just above the lower third, centred over the bar.
-  const cvW = 230, cvH = Math.round(cvW * 3 / 2), cvX = ltX + Math.round((ltW - cvW) / 2), cvY = ltY - 18 - cvH;
+  // Book cover, standing above the left block, centred over the wordmark.
+  const cvW = 230, cvH = Math.round(cvW * 3 / 2), cvX = 150, cvY = SY - 22 - cvH;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     <!-- cover frame -->
     <rect x="${cvX - 4}" y="${cvY - 4}" width="${cvW + 8}" height="${cvH + 8}" rx="4" fill="${GOLD}"/>
     <!-- lower third -->
-    <rect x="${ltX}" y="${ltY}" width="${ltW}" height="${ltH}" rx="16" fill="${INK}" fill-opacity="0.9"/>
-    <rect x="${ltX}" y="${ltY}" width="8" height="${ltH}" rx="4" fill="${RED}"/>
-    ${mark(ltX + 62, ltY + ltH / 2, 34)}
-    <text x="${ltX + 120}" y="${ltY + 64}" ${WORD} font-size="56" fill="#fff">THE <tspan fill="${RED}">CIA</tspan> ASSET</text>
-    <text x="${ltX + 122}" y="${ltY + 108}" ${SANS} font-weight="bold" font-size="34" fill="${GOLD}">theciaasset.com</text>
-    <!-- QR tile -->
-    <rect x="${qrX}" y="${qrY - 46}" width="${tile}" height="40" rx="10" fill="${INK}" fill-opacity="0.9"/>
-    <text x="${qrX + tile / 2}" y="${qrY - 18}" ${SANS} font-weight="bold" font-size="20" fill="#fff" text-anchor="middle" letter-spacing="2">SCAN FOR THE BOOK</text>
-    <rect x="${qrX}" y="${qrY}" width="${tile}" height="${tile}" rx="12" fill="${PAPER}"/>
+    <rect x="0" y="${SY}" width="${W}" height="${SH}" fill="${PAPER}"/>
+    <rect x="0" y="${SY}" width="${W}" height="5" fill="${RED}"/>
+    <circle cx="${ltX + 40}" cy="${SY + SH / 2}" r="38" fill="none" stroke="${INK}" stroke-width="7"/>
+    <circle cx="${ltX + 40}" cy="${SY + SH / 2}" r="14" fill="${RED}"/>
+    <text x="${ltX + 104}" y="${SY + 84}" ${WORD} font-size="62" fill="${INK}">THE <tspan fill="${RED}">CIA</tspan> ASSET</text>
+    <text x="${ltX + 106}" y="${SY + 132}" ${SANS} font-weight="bold" font-size="36" fill="#9c7a2c">theciaasset.com</text>
+    <!-- QR label -->
+    <text x="${qrX - 28}" y="${SY + SH / 2 - 6}" ${SANS} font-weight="bold" font-size="22" fill="${INK}" text-anchor="end" letter-spacing="2">SCAN FOR</text>
+    <text x="${qrX - 28}" y="${SY + SH / 2 + 24}" ${SANS} font-weight="bold" font-size="22" fill="${INK}" text-anchor="end" letter-spacing="2">THE BOOK</text>
   </svg>`;
 
   const qr = await qrPng(qrSize);
@@ -76,24 +82,22 @@ async function buildOverlay() {
   const cover = await sharp(coverSrc).resize(cvW, cvH, { fit: "cover" }).png().toBuffer();
   const base = sharp({ create: { width: W, height: H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } });
 
-  // Unleashed.news logo, bottom dead centre. The logo is designed as a white die-cut
-  // sticker (glow and shadow baked into the white), so it is shown untouched on a white
-  // rounded sticker rather than cut out: cropped to its content, rounded corners, done.
-  const unW = 416;                                              // 520 less 20% (Jason, 2026-10-25)
-  const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 18);
+  // Unleashed.news logo, untouched (it lives on white, and so does the strip), centred.
+  const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 0);
   await writeFile(`${OUT}/unleashed-sticker.png`, unleashed);
   const unH = (await sharp(unleashed).metadata()).height;
-  const unLayer = { input: unleashed, left: Math.round(W / 2 - unW / 2), top: H - M - unH };
+  const unLayer = { input: unleashed, left: Math.round(W / 2 - unW / 2), top: SY + Math.round((SH - unH) / 2) };
+  const qrLayer = { input: qr, left: qrX, top: qrY };
 
   // Static banner (flat cover baked in): the fallback for anything that can only take a picture.
   await writeFile(`${OUT}/overlay-1920x1080.png`, await base.clone()
-    .composite([{ input: Buffer.from(svg) }, { input: cover, left: cvX, top: cvY }, { input: qr, left: qrX + pad, top: qrY + pad }, unLayer])
+    .composite([{ input: Buffer.from(svg) }, { input: cover, left: cvX, top: cvY }, qrLayer, unLayer])
     .png().toBuffer());
 
   // Base for the animated page: everything except the cover, which the page draws itself in 3D.
   const svgNoFrame = svg.replace(/<!-- cover frame -->[\s\S]*?<!-- lower third -->/, "<!-- lower third -->");
   await writeFile(`${OUT}/overlay-base.png`, await base.clone()
-    .composite([{ input: Buffer.from(svgNoFrame) }, { input: qr, left: qrX + pad, top: qrY + pad }, unLayer])
+    .composite([{ input: Buffer.from(svgNoFrame) }, qrLayer, unLayer])
     .png().toBuffer());
   await writeFile(`${OUT}/cover.jpg`, await sharp(coverSrc).resize(760).jpeg({ quality: 90 }).toBuffer());
 
