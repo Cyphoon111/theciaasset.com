@@ -58,7 +58,8 @@ async function buildOverlay() {
   const pad = 10;
   const qrSize = SH - 2 * pad, qrX = W - 50 - qrSize, qrY = SY + pad;
   const ltX = 50, ltY = SY;                                 // left block
-  const unW = 290;                                          // Unleashed.news width in the strip
+  const unW = 236;                                          // Unleashed.news width in the strip (URL sits under it)
+  const UNPINK = "#d6077c";                                 // the logo's badge pink
 
   const FROST = 0.86;                                       // strip opacity (Jason: "slightly translucent")
 
@@ -69,7 +70,7 @@ async function buildOverlay() {
   const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 0);
   await writeFile(`${OUT}/unleashed-sticker.png`, unleashed);
   const unH = (await sharp(unleashed).metadata()).height;
-  const unX = Math.round(W / 2 - unW / 2), unY = SY + Math.round((SH - unH) / 2);
+  const unX = Math.round(W / 2 - unW / 2), unY = SY + 10;
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     <!-- cover frame -->
@@ -78,6 +79,7 @@ async function buildOverlay() {
     <mask id="strip"><rect x="0" y="${SY}" width="${W}" height="${SH}" fill="#fff"/><rect x="${unX}" y="${unY}" width="${unW}" height="${unH}" fill="#000"/></mask>
     <rect x="0" y="${SY}" width="${W}" height="${SH}" fill="${PAPER}" fill-opacity="${FROST}" mask="url(#strip)"/>
     <image x="${unX}" y="${unY}" width="${unW}" height="${unH}" opacity="${FROST}" href="data:image/png;base64,${unleashed.toString("base64")}"/>
+    <text x="${W / 2}" y="${unY + unH + 22}" ${SANS} font-weight="bold" font-size="21" fill="${UNPINK}" text-anchor="middle" letter-spacing="1.5">unleashed.news</text>
     <!-- the QR keeps a solid white tile: a see-through quiet zone can break a scan -->
     <rect x="${qrX - 6}" y="${qrY - 6}" width="${qrSize + 12}" height="${qrSize + 12}" rx="6" fill="${PAPER}"/>
     <!-- red rule --><rect x="0" y="${SY}" width="${W}" height="${RULE}" fill="${RED}"/><!-- /red rule -->
@@ -152,11 +154,19 @@ async function buildOverlay() {
   /* the red rule along the top of the banner, with a slow left-to-right shimmer */
   .rule { position: absolute; left: 0; top: ${SY}px; width: ${W}px; height: ${RULE}px; background: ${RED}; overflow: hidden; }
   .rule::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 28%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.85) 50%, transparent);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.95) 50%, transparent);
     animation: shimmer 9s linear infinite; }
-  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(${Math.round(W / (W * 0.28))}00%); } }
+  /* a gloss sweeping the banner itself, same width, same clock as the rule, so they move as one;
+     it stops short of the QR tile so the code never loses contrast */
+  .gloss { position: absolute; left: 0; top: ${SY + RULE}px; width: ${W}px; height: ${SH - RULE}px; overflow: hidden;
+    clip-path: inset(0 ${W - (qrX - 24)}px 0 0); pointer-events: none; }
+  .gloss::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 28%;
+    background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.55) 44%, rgba(255,255,255,.9) 50%, rgba(201,162,75,.28) 58%, transparent 74%);
+    animation: shimmer 9s linear infinite; }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
 </style>
 <img class="banner" src="overlay-base.png" alt="">
+<div class="gloss"></div>
 <div class="rule"></div>
 <div class="book__floor"></div>
 <div class="stage">
