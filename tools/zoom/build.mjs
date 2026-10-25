@@ -161,7 +161,11 @@ async function buildOverlay() {
   .gloss { position: absolute; left: 0; top: ${SY + RULE}px; width: ${W}px; height: ${SH - RULE}px; overflow: hidden;
     clip-path: inset(0 ${W - (qrX - 24)}px 0 0); pointer-events: none; }
   .gloss::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 28%;
-    background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.55) 44%, rgba(255,255,255,.9) 50%, rgba(201,162,75,.28) 58%, transparent 74%);
+    background: linear-gradient(100deg,
+      transparent 14%, rgba(11,11,13,.07) 30%,           /* soft shade leading the flash */
+      rgba(255,255,255,.95) 46%, rgba(255,246,214,1) 50%, /* the flash, warming to gold */
+      rgba(201,162,75,.45) 56%, rgba(11,11,13,.07) 68%,  /* gold tail, soft shade trailing */
+      transparent 84%);
     animation: shimmer 9s linear infinite; }
   @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
 </style>
