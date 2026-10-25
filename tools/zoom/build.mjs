@@ -60,14 +60,25 @@ async function buildOverlay() {
   const ltX = 50, ltY = SY;                                 // left block
   const unW = 290;                                          // Unleashed.news width in the strip
 
+  const FROST = 0.86;                                       // strip opacity (Jason: "slightly translucent")
+
   // Book cover, standing above the left block, centred over the wordmark.
   const cvW = 230, cvH = Math.round(cvW * 3 / 2), cvX = 150, cvY = SY - 22 - cvH;
+
+  // Unleashed.news logo, untouched (it lives on white), centred, frosted like the strip.
+  const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 0);
+  await writeFile(`${OUT}/unleashed-sticker.png`, unleashed);
+  const unH = (await sharp(unleashed).metadata()).height;
+  const unX = Math.round(W / 2 - unW / 2), unY = SY + Math.round((SH - unH) / 2);
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     <!-- cover frame -->
     <rect x="${cvX - 4}" y="${cvY - 4}" width="${cvW + 8}" height="${cvH + 8}" rx="4" fill="${GOLD}"/>
     <!-- lower third -->
-    <rect x="0" y="${SY}" width="${W}" height="${SH}" fill="${PAPER}"/>
+    <rect x="0" y="${SY}" width="${W}" height="${SH}" fill="${PAPER}" fill-opacity="${FROST}"/>
+    <image x="${unX}" y="${unY}" width="${unW}" height="${unH}" opacity="${FROST}" href="data:image/png;base64,${unleashed.toString("base64")}"/>
+    <!-- the QR keeps a solid white tile: a see-through quiet zone can break a scan -->
+    <rect x="${qrX - 6}" y="${qrY - 6}" width="${qrSize + 12}" height="${qrSize + 12}" rx="6" fill="${PAPER}"/>
     <!-- red rule --><rect x="0" y="${SY}" width="${W}" height="${RULE}" fill="${RED}"/><!-- /red rule -->
     <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="29" fill="none" stroke="${INK}" stroke-width="6"/>
     <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="11" fill="${RED}"/>
@@ -83,23 +94,18 @@ async function buildOverlay() {
   const cover = await sharp(coverSrc).resize(cvW, cvH, { fit: "cover" }).png().toBuffer();
   const base = sharp({ create: { width: W, height: H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } });
 
-  // Unleashed.news logo, untouched (it lives on white, and so does the strip), centred.
-  const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 0);
-  await writeFile(`${OUT}/unleashed-sticker.png`, unleashed);
-  const unH = (await sharp(unleashed).metadata()).height;
-  const unLayer = { input: unleashed, left: Math.round(W / 2 - unW / 2), top: SY + Math.round((SH - unH) / 2) };
   const qrLayer = { input: qr, left: qrX, top: qrY };
 
   // Static banner (flat cover baked in): the fallback for anything that can only take a picture.
   await writeFile(`${OUT}/overlay-1920x1080.png`, await base.clone()
-    .composite([{ input: Buffer.from(svg) }, { input: cover, left: cvX, top: cvY }, qrLayer, unLayer])
+    .composite([{ input: Buffer.from(svg) }, { input: cover, left: cvX, top: cvY }, qrLayer])
     .png().toBuffer());
 
   // Base for the animated page: everything except the cover, which the page draws itself in 3D.
   const svgNoFrame = svg.replace(/<!-- cover frame -->[\s\S]*?<!-- lower third -->/, "<!-- lower third -->")
     .replace(/<!-- red rule -->[\s\S]*?<!-- \/red rule -->/, "");   // the page draws the rule itself, with the shimmer
   await writeFile(`${OUT}/overlay-base.png`, await base.clone()
-    .composite([{ input: Buffer.from(svgNoFrame) }, qrLayer, unLayer])
+    .composite([{ input: Buffer.from(svgNoFrame) }, qrLayer])
     .png().toBuffer());
   await writeFile(`${OUT}/cover.jpg`, await sharp(coverSrc).resize(760).jpeg({ quality: 90 }).toBuffer());
 
