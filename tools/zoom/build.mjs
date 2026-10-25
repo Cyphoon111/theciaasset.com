@@ -27,7 +27,7 @@ async function stickerPng(src, width, radius) {
       if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
     }
   }
-  const m = Math.round((x1 - x0) * 0.035);                      // breathing room around the artwork
+  const m = Math.round((x1 - x0) * 0.012);                      // a sliver of white around the artwork
   const left = Math.max(0, x0 - m), top = Math.max(0, y0 - m);
   const cw = Math.min(info.width - left, x1 - x0 + 2 * m), ch = Math.min(info.height - top, y1 - y0 + 2 * m);
   const scaled = await sharp(src).extract({ left, top, width: cw, height: ch }).resize({ width }).png().toBuffer();
