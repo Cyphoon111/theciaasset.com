@@ -132,7 +132,7 @@ async function buildOverlay() {
     opacity: 0; animation: captionFade 60s linear infinite; }
   @keyframes tour {
     0%, 1.5%   { transform: translate(0, 0) scale(1); }
-    5%, 16.5%  { transform: translate(${Math.round(W / 2 - 200 - (cvX + cvW / 2))}px, -34px) scale(1.3); }   /* 2.1 s glide, hover ~7 s */
+    5%, 16.5%  { transform: translate(${620 - (cvX + cvW / 2)}px, -120px) scale(1.3); }   /* hover: centre x≈620, level with his face, clear of it (Jason, 2026-10-25) */
     20%, 100%  { transform: translate(0, 0) scale(1); }
   }
   @keyframes captionFade { 0%, 5% { opacity: 0; } 7%, 15.5% { opacity: 1; } 17%, 100% { opacity: 0; } }
