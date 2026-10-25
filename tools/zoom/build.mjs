@@ -16,6 +16,26 @@ async function qrPng(size) {
   return sharp(Buffer.from(svg)).resize(size, size, { kernel: "nearest" }).png().toBuffer();
 }
 
+// A logo that lives on white, as a white sticker: crop to the artwork (plus a margin),
+// scale to `width`, round the corners with `radius`. Nothing inside is altered.
+async function stickerPng(src, width, radius) {
+  const { data, info } = await sharp(src).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  let x0 = info.width, x1 = 0, y0 = info.height, y1 = 0;
+  for (let i = 0; i < info.width * info.height; i++) {
+    if (Math.min(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]) < 236) {
+      const x = i % info.width, y = (i - x) / info.width;
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+  }
+  const m = Math.round((x1 - x0) * 0.035);                      // breathing room around the artwork
+  const left = Math.max(0, x0 - m), top = Math.max(0, y0 - m);
+  const cw = Math.min(info.width - left, x1 - x0 + 2 * m), ch = Math.min(info.height - top, y1 - y0 + 2 * m);
+  const scaled = await sharp(src).extract({ left, top, width: cw, height: ch }).resize({ width }).png().toBuffer();
+  const h = (await sharp(scaled).metadata()).height;
+  const mask = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${h}"><rect width="${width}" height="${h}" rx="${radius}" fill="#fff"/></svg>`);
+  return sharp(scaled).composite([{ input: mask, blend: "dest-in" }]).png().toBuffer();
+}
+
 // The site's mark: white ring, red centre.
 function mark(cx, cy, r) {
   return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#fff" stroke-width="${r * 0.19}"/>
@@ -56,9 +76,12 @@ async function buildOverlay() {
   const cover = await sharp(coverSrc).resize(cvW, cvH, { fit: "cover" }).png().toBuffer();
   const base = sharp({ create: { width: W, height: H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } });
 
-  // Unleashed.news logo, bottom dead centre (unleashed-logo.png comes from cutout-unleashed.mjs).
+  // Unleashed.news logo, bottom dead centre. The logo is designed as a white die-cut
+  // sticker (glow and shadow baked into the white), so it is shown untouched on a white
+  // rounded sticker rather than cut out: cropped to its content, rounded corners, done.
   const unW = 520;
-  const unleashed = await sharp(`${OUT}/unleashed-logo.png`).resize({ width: unW }).png().toBuffer();
+  const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 22);
+  await writeFile(`${OUT}/unleashed-sticker.png`, unleashed);
   const unH = (await sharp(unleashed).metadata()).height;
   const unLayer = { input: unleashed, left: Math.round(W / 2 - unW / 2), top: H - M - unH };
 
