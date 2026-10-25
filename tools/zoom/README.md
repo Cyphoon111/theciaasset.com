@@ -26,6 +26,11 @@ click On Air again.
   that can only take a picture. `overlay-preview*.{jpg,png}` are renders.
 - `zoom-virtual-background-1920x1080.jpg` — fallback for a machine without OBS
   (Zoom > Backgrounds > Add Image); branding top corners, replaces the room.
+- `cutout-unleashed.mjs` — cuts `unleashed-logo.png` (transparent) out of the
+  Unleashed.news logo, which only exists on a white background; the logo sits
+  bottom dead centre of the banner.
+- `refresh-banner.mjs` — after a rebuild, reloads the banner in a running OBS
+  without restarting it (`node refresh-banner.mjs`).
 - `on-air.mjs` — the launcher: enables OBS's websocket (port 4455, password
   kept in OBS's own config), opens OBS, waits for it, sends StartVirtualCam.
 - `make-launcher.sh` — rebuilds `/Applications/On Air.app` around `on-air.mjs`.
@@ -43,5 +48,5 @@ click On Air again.
 4. Click On Air; approve the OBS camera extension when macOS asks
    (System Settings > General > Login Items & Extensions > OBS).
 
-After changing `overlay.html`, OBS needs a restart or Banner > Properties >
-"Refresh cache of current page"; it does not watch the file.
+After changing `overlay.html`, run `node refresh-banner.mjs` (or in OBS: Banner >
+Properties > "Refresh cache of current page"); OBS does not watch the file.

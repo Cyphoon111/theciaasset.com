@@ -56,15 +56,21 @@ async function buildOverlay() {
   const cover = await sharp(coverSrc).resize(cvW, cvH, { fit: "cover" }).png().toBuffer();
   const base = sharp({ create: { width: W, height: H, channels: 4, background: { r: 0, g: 0, b: 0, alpha: 0 } } });
 
+  // Unleashed.news logo, bottom dead centre (unleashed-logo.png comes from cutout-unleashed.mjs).
+  const unW = 520;
+  const unleashed = await sharp(`${OUT}/unleashed-logo.png`).resize({ width: unW }).png().toBuffer();
+  const unH = (await sharp(unleashed).metadata()).height;
+  const unLayer = { input: unleashed, left: Math.round(W / 2 - unW / 2), top: H - M - unH };
+
   // Static banner (flat cover baked in): the fallback for anything that can only take a picture.
   await writeFile(`${OUT}/overlay-1920x1080.png`, await base.clone()
-    .composite([{ input: Buffer.from(svg) }, { input: cover, left: cvX, top: cvY }, { input: qr, left: qrX + pad, top: qrY + pad }])
+    .composite([{ input: Buffer.from(svg) }, { input: cover, left: cvX, top: cvY }, { input: qr, left: qrX + pad, top: qrY + pad }, unLayer])
     .png().toBuffer());
 
   // Base for the animated page: everything except the cover, which the page draws itself in 3D.
   const svgNoFrame = svg.replace(/<!-- cover frame -->[\s\S]*?<!-- lower third -->/, "<!-- lower third -->");
   await writeFile(`${OUT}/overlay-base.png`, await base.clone()
-    .composite([{ input: Buffer.from(svgNoFrame) }, { input: qr, left: qrX + pad, top: qrY + pad }])
+    .composite([{ input: Buffer.from(svgNoFrame) }, { input: qr, left: qrX + pad, top: qrY + pad }, unLayer])
     .png().toBuffer());
   await writeFile(`${OUT}/cover.jpg`, await sharp(coverSrc).resize(760).jpeg({ quality: 90 }).toBuffer());
 
