@@ -53,11 +53,12 @@ async function buildOverlay() {
   // within it. The book floats above it."). Left: the mark + THE CIA ASSET + URL. Centre:
   // the Unleashed.news logo (already on white). Right: the QR with its label. A red rule
   // along the top. The 3D book stands above the left block.
-  const SH = 170, SY = H - SH;                              // banner strip
-  const pad = 16;
-  const qrSize = SH - 2 * pad, qrX = W - 60 - qrSize, qrY = SY + pad;
-  const ltX = 60, ltY = SY;                                 // left block
-  const unW = 360;                                          // Unleashed.news width in the strip
+  const SH = 130, SY = H - SH;                              // banner strip (170 → 130, Jason: "slightly thinner. More professional")
+  const RULE = 4;                                           // red rule along the top (shimmers in the animated page)
+  const pad = 10;
+  const qrSize = SH - 2 * pad, qrX = W - 50 - qrSize, qrY = SY + pad;
+  const ltX = 50, ltY = SY;                                 // left block
+  const unW = 290;                                          // Unleashed.news width in the strip
 
   // Book cover, standing above the left block, centred over the wordmark.
   const cvW = 230, cvH = Math.round(cvW * 3 / 2), cvX = 150, cvY = SY - 22 - cvH;
@@ -67,14 +68,14 @@ async function buildOverlay() {
     <rect x="${cvX - 4}" y="${cvY - 4}" width="${cvW + 8}" height="${cvH + 8}" rx="4" fill="${GOLD}"/>
     <!-- lower third -->
     <rect x="0" y="${SY}" width="${W}" height="${SH}" fill="${PAPER}"/>
-    <rect x="0" y="${SY}" width="${W}" height="5" fill="${RED}"/>
-    <circle cx="${ltX + 40}" cy="${SY + SH / 2}" r="38" fill="none" stroke="${INK}" stroke-width="7"/>
-    <circle cx="${ltX + 40}" cy="${SY + SH / 2}" r="14" fill="${RED}"/>
-    <text x="${ltX + 104}" y="${SY + 84}" ${WORD} font-size="62" fill="${INK}">THE <tspan fill="${RED}">CIA</tspan> ASSET</text>
-    <text x="${ltX + 106}" y="${SY + 132}" ${SANS} font-weight="bold" font-size="36" fill="#9c7a2c">theciaasset.com</text>
+    <!-- red rule --><rect x="0" y="${SY}" width="${W}" height="${RULE}" fill="${RED}"/><!-- /red rule -->
+    <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="29" fill="none" stroke="${INK}" stroke-width="6"/>
+    <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="11" fill="${RED}"/>
+    <text x="${ltX + 84}" y="${SY + 66}" ${WORD} font-size="50" fill="${INK}">THE <tspan fill="${RED}">CIA</tspan> ASSET</text>
+    <text x="${ltX + 86}" y="${SY + 106}" ${SANS} font-weight="bold" font-size="30" fill="#9c7a2c">theciaasset.com</text>
     <!-- QR label -->
-    <text x="${qrX - 28}" y="${SY + SH / 2 - 6}" ${SANS} font-weight="bold" font-size="22" fill="${INK}" text-anchor="end" letter-spacing="2">SCAN FOR</text>
-    <text x="${qrX - 28}" y="${SY + SH / 2 + 24}" ${SANS} font-weight="bold" font-size="22" fill="${INK}" text-anchor="end" letter-spacing="2">THE BOOK</text>
+    <text x="${qrX - 24}" y="${SY + SH / 2 - 4}" ${SANS} font-weight="bold" font-size="19" fill="${INK}" text-anchor="end" letter-spacing="2">SCAN FOR</text>
+    <text x="${qrX - 24}" y="${SY + SH / 2 + 22}" ${SANS} font-weight="bold" font-size="19" fill="${INK}" text-anchor="end" letter-spacing="2">THE BOOK</text>
   </svg>`;
 
   const qr = await qrPng(qrSize);
@@ -95,7 +96,8 @@ async function buildOverlay() {
     .png().toBuffer());
 
   // Base for the animated page: everything except the cover, which the page draws itself in 3D.
-  const svgNoFrame = svg.replace(/<!-- cover frame -->[\s\S]*?<!-- lower third -->/, "<!-- lower third -->");
+  const svgNoFrame = svg.replace(/<!-- cover frame -->[\s\S]*?<!-- lower third -->/, "<!-- lower third -->")
+    .replace(/<!-- red rule -->[\s\S]*?<!-- \/red rule -->/, "");   // the page draws the rule itself, with the shimmer
   await writeFile(`${OUT}/overlay-base.png`, await base.clone()
     .composite([{ input: Buffer.from(svgNoFrame) }, qrLayer, unLayer])
     .png().toBuffer());
@@ -140,8 +142,15 @@ async function buildOverlay() {
   @keyframes sheen { 0% { background-position: 140% 0; } 22%, 100% { background-position: -40% 0; } }
   @keyframes bookFloat { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
   @keyframes floorPulse { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .75; } }
+  /* the red rule along the top of the banner, with a slow left-to-right shimmer */
+  .rule { position: absolute; left: 0; top: ${SY}px; width: ${W}px; height: ${RULE}px; background: ${RED}; overflow: hidden; }
+  .rule::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 28%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.85) 50%, transparent);
+    animation: shimmer 9s linear infinite; }
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(${Math.round(W / (W * 0.28))}00%); } }
 </style>
 <img class="banner" src="overlay-base.png" alt="">
+<div class="rule"></div>
 <div class="book__floor"></div>
 <div class="stage">
   <div class="book">
