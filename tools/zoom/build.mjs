@@ -81,7 +81,7 @@ async function buildOverlay() {
     <image x="${unX}" y="${unY}" width="${unW}" height="${unH}" opacity="${FROST}" href="data:image/png;base64,${unleashed.toString("base64")}"/>
     <text x="${W / 2}" y="${unY + unH + 22}" ${SANS} font-weight="bold" font-size="21" fill="${UNPINK}" text-anchor="middle" letter-spacing="1.5">unleashed.news</text>
     <!-- the QR keeps a solid white tile: a see-through quiet zone can break a scan -->
-    <rect x="${qrX - 6}" y="${qrY - 6}" width="${qrSize + 12}" height="${qrSize + 12}" rx="6" fill="${PAPER}"/>
+    <!-- qr tile --><rect x="${qrX - 6}" y="${qrY - 6}" width="${qrSize + 12}" height="${qrSize + 12}" rx="6" fill="${PAPER}"/><!-- /qr tile -->
     <!-- red rule --><rect x="0" y="${SY}" width="${W}" height="${RULE}" fill="${RED}"/><!-- /red rule -->
     <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="29" fill="none" stroke="${INK}" stroke-width="6"/>
     <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="11" fill="${RED}"/>
@@ -106,10 +106,12 @@ async function buildOverlay() {
 
   // Base for the animated page: everything except the cover, which the page draws itself in 3D.
   const svgNoFrame = svg.replace(/<!-- cover frame -->[\s\S]*?<!-- lower third -->/, "<!-- lower third -->")
-    .replace(/<!-- red rule -->[\s\S]*?<!-- \/red rule -->/, "");   // the page draws the rule itself, with the shimmer
+    .replace(/<!-- red rule -->[\s\S]*?<!-- \/red rule -->/, "")    // the page draws the rule itself, with the shimmer
+    .replace(/<!-- qr tile -->[\s\S]*?<!-- \/qr tile -->/, "");     // and the QR tile, which travels with the book
   await writeFile(`${OUT}/overlay-base.png`, await base.clone()
-    .composite([{ input: Buffer.from(svgNoFrame) }, qrLayer])
+    .composite([{ input: Buffer.from(svgNoFrame) }])
     .png().toBuffer());
+  await writeFile(`${OUT}/qr.png`, qr);
   await writeFile(`${OUT}/cover.jpg`, await sharp(coverSrc).resize(760).jpeg({ quality: 90 }).toBuffer());
 
   // Animated version for OBS's Browser Source: the site's 3D book (.book in assets/site.css),
@@ -136,6 +138,20 @@ async function buildOverlay() {
     20%, 100%  { transform: translate(0, 0) scale(1); }
   }
   @keyframes captionFade { 0%, 5% { opacity: 0; } 7%, 15.5% { opacity: 1; } 17%, 100% { opacity: 0; } }
+  /* The QR rides the same clock: at rest in its banner tile; during the hover it lifts to the
+     right of his face and doubles, with its label under it (Jason, 2026-10-25). */
+  .qrrig { position: absolute; left: ${qrX - 6}px; top: ${qrY - 6}px; width: ${qrSize + 12}px; height: ${qrSize + 12}px;
+    background: #fff; border-radius: 6px; transform-origin: 50% 50%; animation: qrTour 60s ease-in-out infinite; }
+  .qrrig img { position: absolute; left: 6px; top: 6px; width: ${qrSize}px; height: ${qrSize}px; image-rendering: pixelated; }
+  .qrcap { position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap;
+    padding: 0 9px; height: 17px; line-height: 17px; border-radius: 5px; background: rgba(11,11,13,.88); color: #fff;
+    font: 700 10px/17px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 1.2px;
+    opacity: 0; animation: captionFade 60s linear infinite; }
+  @keyframes qrTour {
+    0%, 1.5%   { transform: translate(0, 0) scale(1); }
+    5%, 16.5%  { transform: translate(${1440 - (qrX + qrSize / 2)}px, ${580 - (qrY + qrSize / 2)}px) scale(2); }
+    20%, 100%  { transform: translate(0, 0) scale(1); }
+  }
   .stage { position: absolute; left: ${cvX}px; top: ${cvY}px; width: ${cvW}px; height: ${cvH}px; perspective: 1000px; }
   .book { --t: ${t}px; --ry: 24deg; --rx: 3deg; position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
     transform: rotateY(var(--ry)) rotateX(var(--rx)); animation: bookFloat 7s ease-in-out infinite; }
@@ -187,6 +203,7 @@ async function buildOverlay() {
 <img class="banner" src="overlay-base.png" alt="">
 <div class="gloss"></div>
 <div class="rule"></div>
+<div class="qrrig"><img src="qr.png" alt=""><div class="qrcap">SCAN FOR THE BOOK</div></div>
 <div class="rig">
 <div class="book__floor"></div>
 <div class="caption">theciaasset.com</div>

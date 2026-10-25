@@ -19,6 +19,20 @@
     20%, 100%  { transform: translate(0, 0) scale(1); }
   }
   @keyframes captionFade { 0%, 5% { opacity: 0; } 7%, 15.5% { opacity: 1; } 17%, 100% { opacity: 0; } }
+  /* The QR rides the same clock: at rest in its banner tile; during the hover it lifts to the
+     right of his face and doubles, with its label under it (Jason, 2026-10-25). */
+  .qrrig { position: absolute; left: 1754px; top: 954px; width: 122px; height: 122px;
+    background: #fff; border-radius: 6px; transform-origin: 50% 50%; animation: qrTour 60s ease-in-out infinite; }
+  .qrrig img { position: absolute; left: 6px; top: 6px; width: 110px; height: 110px; image-rendering: pixelated; }
+  .qrcap { position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap;
+    padding: 0 9px; height: 17px; line-height: 17px; border-radius: 5px; background: rgba(11,11,13,.88); color: #fff;
+    font: 700 10px/17px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 1.2px;
+    opacity: 0; animation: captionFade 60s linear infinite; }
+  @keyframes qrTour {
+    0%, 1.5%   { transform: translate(0, 0) scale(1); }
+    5%, 16.5%  { transform: translate(-375px, -435px) scale(2); }
+    20%, 100%  { transform: translate(0, 0) scale(1); }
+  }
   .stage { position: absolute; left: 150px; top: 583px; width: 230px; height: 345px; perspective: 1000px; }
   .book { --t: 21px; --ry: 24deg; --rx: 3deg; position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
     transform: rotateY(var(--ry)) rotateX(var(--rx)); animation: bookFloat 7s ease-in-out infinite; }
@@ -70,6 +84,7 @@
 <img class="banner" src="overlay-base.png" alt="">
 <div class="gloss"></div>
 <div class="rule"></div>
+<div class="qrrig"><img src="qr.png" alt=""><div class="qrcap">SCAN FOR THE BOOK</div></div>
 <div class="rig">
 <div class="book__floor"></div>
 <div class="caption">theciaasset.com</div>
