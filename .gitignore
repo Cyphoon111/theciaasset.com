@@ -1,0 +1,8 @@
+# Private working material: never publish from this public repo
+tools/trailer/
+tools/journalist-send/
+tools/occrp-send/
+tools/*.csv
+tools/google-ads-campaign.md
+node_modules/
+.DS_Store
