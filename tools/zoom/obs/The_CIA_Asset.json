@@ -28,13 +28,56 @@
                 "libobs.monitor-on": [],
                 "libobs.monitor-off": [],
                 "libobs.push-to-mute": [],
-                "libobs.push-to-talk": []
+                "libobs.push-to-talk": [],
+                "face-tracker.pause": [],
+                "face-tracker.pause_resume": [],
+                "face-tracker.reset": []
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
             "monitoring_type": 0,
             "monitoring_enabled": false,
-            "private_settings": {}
+            "private_settings": {},
+            "filters": [
+                {
+                    "prev_ver": 553648128,
+                    "name": "Auto-framing",
+                    "uuid": "57deffd8-d3e9-47a6-8fcb-e1c7072f6302",
+                    "id": "face_tracker_filter",
+                    "versioned_id": "face_tracker_filter",
+                    "settings": {
+                        "upsize_l": 0.45,
+                        "upsize_r": 0.45,
+                        "upsize_t": 0.45,
+                        "upsize_b": 0.7,
+                        "track_z": 0.42,
+                        "track_y": 0,
+                        "scale_max": 1.45,
+                        "Kp": 0.6,
+                        "Ki": 0.12,
+                        "Td": 0.5,
+                        "Tdlpf": 3,
+                        "Tdlpf_z": 9
+                    },
+                    "mixers": 0,
+                    "sync": 0,
+                    "flags": 0,
+                    "volume": 1.0,
+                    "balance": 0.5,
+                    "enabled": true,
+                    "muted": false,
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "hotkeys": {},
+                    "deinterlace_mode": 0,
+                    "deinterlace_field_order": 0,
+                    "monitoring_type": 0,
+                    "monitoring_enabled": false,
+                    "private_settings": {}
+                }
+            ]
         },
         {
             "prev_ver": 553648128,
@@ -268,6 +311,9 @@
             "switch_if_not_matching": false,
             "active": false,
             "switches": []
+        },
+        "obs-face-tracker-dock": {
+            "docks": []
         }
     },
     "resolution": {

@@ -34,7 +34,14 @@ click On Air again.
 - `on-air.mjs` — the launcher: enables OBS's websocket (port 4455, password
   kept in OBS's own config), opens OBS, waits for it, sends StartVirtualCam.
 - `make-launcher.sh` — rebuilds `/Applications/On Air.app` around `on-air.mjs`.
-- `obs/` — backup of the OBS scene collection and profile.
+- `obs-request.mjs` — sends one obs-websocket request to the running OBS
+  (`node obs-request.mjs GetVersion`, or `... CreateSourceFilter @file.json`).
+- `obs/` — backup of the OBS scene collection and profile, plus
+  `auto-framing-filter.json`: the face-tracking filter on the Camera source
+  (obs-face-tracker plugin, installed in ~/Library/Application Support/obs-studio/plugins).
+  It keeps Jason centred and zooms gently as he moves, like Apple's Center Stage,
+  which the Nov 2023 M3 Max MacBook Pro's camera does not support. Re-create it with
+  `node obs-request.mjs CreateSourceFilter @obs/auto-framing-filter.json`.
 
 ## Rebuilding on another Mac
 

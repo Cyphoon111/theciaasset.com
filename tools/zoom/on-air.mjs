@@ -38,11 +38,12 @@ async function tryOnce() {
         ws.send(JSON.stringify({ op: 1, d: { rpcVersion: 1, authentication: auth } }));
       } else if (m.op === 2) {                            // Identified
         ws.send(JSON.stringify({ op: 6, d: { requestType: "StartVirtualCam", requestId: "on-air" } }));
-      } else if (m.op === 7) {                            // RequestResponse
-        const s = m.d.requestStatus;
+      } else if (m.op === 7 && m.d.requestId === "on-air") {   // StartVirtualCam answered: now verify
+        ws.send(JSON.stringify({ op: 6, d: { requestType: "GetVirtualCamStatus", requestId: "check" } }));
+      } else if (m.op === 7 && m.d.requestId === "check") {
         ws.close();
-        if (s.result || s.code === 500) resolve("virtual camera on");   // 500 = already running
-        else reject(new Error(`OBS said: ${s.comment || s.code}`));
+        if (m.d.responseData?.outputActive) resolve("virtual camera on");
+        else reject(new Error("virtual camera not active yet"));         // retried by the loop below
       }
     };
   });

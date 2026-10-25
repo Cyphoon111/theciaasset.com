@@ -1,0 +1,19 @@
+{
+  "sourceName": "Camera",
+  "filterName": "Auto-framing",
+  "filterKind": "face_tracker_filter",
+  "filterSettings": {
+    "track_z": 0.38,
+    "track_y": 0.0,
+    "scale_max": 1.45,
+    "upsize_l": 0.5,
+    "upsize_r": 0.5,
+    "upsize_t": 0.8,
+    "upsize_b": 0.75,
+    "Kp": 0.6,
+    "Ki": 0.12,
+    "Td": 0.5,
+    "Tdlpf": 3.0,
+    "Tdlpf_z": 9.0
+  }
+}
