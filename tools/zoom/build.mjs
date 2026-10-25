@@ -121,6 +121,21 @@ async function buildOverlay() {
 <style>
   html, body { margin: 0; width: ${W}px; height: ${H}px; background: transparent; overflow: hidden; }
   .banner { position: absolute; inset: 0; width: ${W}px; height: ${H}px; }
+  /* Every 60 s the book glides right to just left of centre, grows 30%, hovers 7 s with the URL
+     under it, then glides home (Jason, 2026-10-25). The rig carries book, shadow and caption;
+     it pivots on the book's base so the base lifts only a little and the book grows upward. */
+  .rig { position: absolute; left: 0; top: 0; width: ${W}px; height: ${H}px; pointer-events: none;
+    transform-origin: ${cvX + cvW / 2}px ${cvY + cvH}px; animation: tour 60s ease-in-out infinite; }
+  .caption { position: absolute; left: ${cvX + cvW / 2 - 120}px; top: ${cvY + cvH + 10}px; width: 240px; height: 30px; line-height: 30px;
+    text-align: center; border-radius: 8px; background: rgba(11,11,13,.88); color: ${GOLD};
+    font: 700 19px/30px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .5px;
+    opacity: 0; animation: captionFade 60s linear infinite; }
+  @keyframes tour {
+    0%, 1.5%   { transform: translate(0, 0) scale(1); }
+    5%, 16.5%  { transform: translate(${Math.round(W / 2 - 200 - (cvX + cvW / 2))}px, -34px) scale(1.3); }   /* 2.1 s glide, hover ~7 s */
+    20%, 100%  { transform: translate(0, 0) scale(1); }
+  }
+  @keyframes captionFade { 0%, 5% { opacity: 0; } 7%, 15.5% { opacity: 1; } 17%, 100% { opacity: 0; } }
   .stage { position: absolute; left: ${cvX}px; top: ${cvY}px; width: ${cvW}px; height: ${cvH}px; perspective: 1000px; }
   .book { --t: ${t}px; --ry: 24deg; --rx: 3deg; position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
     transform: rotateY(var(--ry)) rotateX(var(--rx)); animation: bookFloat 7s ease-in-out infinite; }
@@ -172,7 +187,9 @@ async function buildOverlay() {
 <img class="banner" src="overlay-base.png" alt="">
 <div class="gloss"></div>
 <div class="rule"></div>
+<div class="rig">
 <div class="book__floor"></div>
+<div class="caption">theciaasset.com</div>
 <div class="stage">
   <div class="book">
     <div class="book__spine"><span>JEFFREY EPSTEIN WAS A <b>CIA ASSET</b></span><em>SULLIVAN</em></div>
@@ -180,6 +197,7 @@ async function buildOverlay() {
     <div class="book__back"></div>
     <div class="book__cover"><img src="cover.jpg" alt=""><i class="book__sheen"></i></div>
   </div>
+</div>
 </div>
 `;
   await writeFile(`${OUT}/overlay.html`, html);
