@@ -132,12 +132,14 @@ async function buildOverlay() {
     text-align: center; border-radius: 8px; background: rgba(11,11,13,.88); color: ${GOLD};
     font: 700 19px/30px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .5px;
     opacity: 0; animation: captionFade 60s linear infinite; }
+  /* One trip per minute, at the END of the minute (47 s rest, 2 s out, 7 s hover, 2 s back),
+     so a page reload — which restarts the clock — never fires an extra one. */
   @keyframes tour {
-    0%, 1.5%   { transform: translate(0, 0) scale(1); }
-    5%, 16.5%  { transform: translate(${620 - (cvX + cvW / 2)}px, -120px) scale(1.3); }   /* hover: centre x≈620, level with his face, clear of it (Jason, 2026-10-25) */
-    20%, 100%  { transform: translate(0, 0) scale(1); }
+    0%, 78.5%  { transform: translate(0, 0) scale(1); }
+    82%, 93.5% { transform: translate(${620 - (cvX + cvW / 2)}px, -120px) scale(1.3); }   /* hover: centre x≈620, level with his face, clear of it (Jason, 2026-10-25) */
+    97%, 100%  { transform: translate(0, 0) scale(1); }
   }
-  @keyframes captionFade { 0%, 5% { opacity: 0; } 7%, 15.5% { opacity: 1; } 17%, 100% { opacity: 0; } }
+  @keyframes captionFade { 0%, 82% { opacity: 0; } 84%, 92.5% { opacity: 1; } 94%, 100% { opacity: 0; } }
   /* The QR rides the same clock: at rest in its banner tile; during the hover it lifts to the
      right of his face and doubles, with its label under it (Jason, 2026-10-25). */
   .qrrig { position: absolute; left: ${qrX - 6}px; top: ${qrY - 6}px; width: ${qrSize + 12}px; height: ${qrSize + 12}px;
@@ -148,9 +150,9 @@ async function buildOverlay() {
     font: 700 10px/17px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 1.2px;
     opacity: 0; animation: captionFade 60s linear infinite; }
   @keyframes qrTour {
-    0%, 1.5%   { transform: translate(0, 0) scale(1); }
-    5%, 16.5%  { transform: translate(${1440 - (qrX + qrSize / 2)}px, ${580 - (qrY + qrSize / 2)}px) scale(2); }
-    20%, 100%  { transform: translate(0, 0) scale(1); }
+    0%, 78.5%  { transform: translate(0, 0) scale(1); }
+    82%, 93.5% { transform: translate(${1440 - (qrX + qrSize / 2)}px, ${580 - (qrY + qrSize / 2)}px) scale(2); }
+    97%, 100%  { transform: translate(0, 0) scale(1); }
   }
   .stage { position: absolute; left: ${cvX}px; top: ${cvY}px; width: ${cvW}px; height: ${cvH}px; perspective: 1000px; }
   .book { --t: ${t}px; --ry: 24deg; --rx: 3deg; position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
