@@ -5,6 +5,13 @@ bottom-left, the site's 3D book (tilted, floating, with its light sweep) standin
 above it, and a QR to theciaasset.com bottom-right. It reaches Zoom (or Teams,
 Riverside, StreamYard, Meet) through OBS Studio's virtual camera. Set up 2026-10-25.
 
+## The requirements (law)
+
+[REQUIREMENTS.md](REQUIREMENTS.md) is the law for the camera operator: never a skip, always a
+multi-million-dollar-studio picture, head centred over the Unleashed logo, head and neck never
+cut, still when still, focus on every move, the pull-out with the pocket square, the neon sign
+in view. Every change is tested against it. Tag `cameraman-v2` is the state it was written for.
+
 ## Locked down 2026-10-26 (tag `cameraman-v1`)
 
 The camera operator, as approved: head centred over the Unleashed.news logo; never cut at

@@ -54,16 +54,20 @@ async function tryOnce() {
   });
 }
 
-let last;
-for (let i = 0; i < 60; i++) {                           // up to ~60 s for OBS to come up
+// Ask OBS to start the camera ONCE. Every StartVirtualCam that fails pops a dialog in OBS, so
+// a retry loop on failure buries the screen in them (2026-10-26). Retries here are only for
+// "OBS not answering yet"; a refusal after a connection ends the attempt.
+let last, asked = false;
+for (let i = 0; i < 60 && !asked; i++) {                 // up to ~60 s for OBS to come up
   try {
+    asked = true;
     console.log(await tryOnce());
     // the camera operator (cameraman.mjs, beside this file) rides along while OBS runs
     const { spawn } = await import("node:child_process");
     const here = new URL(".", import.meta.url).pathname;
     spawn(process.execPath, [`${here}cameraman.mjs`], { detached: true, stdio: "ignore" }).unref();
     process.exit(0);
-  } catch (e) { last = e; await sleep(1000); }
+  } catch (e) { last = e; if (e.message === "no answer") asked = false; await sleep(1000); }
 }
 console.error(`Could not start the virtual camera: ${last?.message}`);
 process.exit(1);
