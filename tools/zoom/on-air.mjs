@@ -91,8 +91,13 @@ for (let i = 0; i < 60; i++) {                            // up to ~60 s for OBS
     // publish every show twice.
     const running = (script) => { try { return execFileSync("pgrep", ["-f", script], { encoding: "utf8" }).trim() !== ""; } catch { return false; } };
     const helper = (script) => { if (existsSync(script) && !running(script)) spawn(process.execPath, [script], { detached: true, stdio: "ignore" }).unref(); };
-    // the camera operator (cameraman.mjs, beside this file)
-    helper(`${new URL(".", import.meta.url).pathname}cameraman.mjs`);
+    // The camera operator (cameraman.mjs) with its face detector (facepos) lives in the
+    // repository checkout; On Air.app only carries this script. The bundle path is the
+    // fallback (decoded: "On Air.app" has a space, which the URL spells %20). Until
+    // 2026-10-26 the launcher looked beside itself and so never started the operator.
+    const repo = "/Users/jasonsullivan/Developer/theciaasset.com/tools/zoom";
+    const here = decodeURIComponent(new URL(".", import.meta.url).pathname);
+    helper(existsSync(`${repo}/cameraman.mjs`) ? `${repo}/cameraman.mjs` : `${here}cameraman.mjs`);
     // and the record hook: when a recording stops, the show is published to unleashed.news/shows
     helper("/Users/jasonsullivan/Developer/unleashed.news/tools/shows/record-hook.mjs");
     process.exit(0);
