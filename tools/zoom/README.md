@@ -5,6 +5,15 @@ bottom-left, the site's 3D book (tilted, floating, with its light sweep) standin
 above it, and a QR to theciaasset.com bottom-right. It reaches Zoom (or Teams,
 Riverside, StreamYard, Meet) through OBS Studio's virtual camera. Set up 2026-10-25.
 
+## Locked down 2026-10-26 (tag `cameraman-v1`)
+
+The camera operator, as approved: head centred over the Unleashed.news logo; never cut at
+the top of the head or the neck; still when Jason sits still; a smooth focus pull when
+he moves; a slight zoom in or out every 45–100 s; a full pull-out (whole lens above the
+banner, dark side bars) every other change, which with the lid tilted slightly down
+shows the white pocket square. OBS runs at 60 fps. Keep the lid at that angle and sit
+roughly in front of the lens.
+
 ## Before a show
 
 Click **On Air** in the Dock (or /Applications). It opens OBS and starts the

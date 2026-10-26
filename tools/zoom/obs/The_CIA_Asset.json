@@ -9,7 +9,13 @@
             "versioned_id": "macos-avcapture",
             "settings": {
                 "device_name": "FaceTime HD Camera",
-                "device": "1F06D5FF-4C76-410E-9770-C04C467C1317"
+                "device": "1F06D5FF-4C76-410E-9770-C04C467C1317",
+                "use_preset": true,
+                "frame_rate": {
+                    "numerator": 30000000.0,
+                    "denominator": 1000000.0
+                },
+                "preset": "AVCaptureSessionPresetHigh"
             },
             "mixers": 63,
             "sync": 0,
@@ -46,18 +52,18 @@
                     "id": "face_tracker_filter",
                     "versioned_id": "face_tracker_filter",
                     "settings": {
-                        "upsize_l": 0.45,
-                        "upsize_r": 0.45,
-                        "upsize_t": 0.45,
-                        "upsize_b": 0.7,
-                        "track_z": 0.42,
-                        "track_y": 0,
+                        "upsize_l": 0.5,
+                        "upsize_r": 0.5,
+                        "upsize_t": 0.5,
+                        "upsize_b": 0.8,
+                        "track_z": 0.62,
+                        "track_y": -0.28,
                         "scale_max": 1.45,
-                        "Kp": 0.6,
-                        "Ki": 0.12,
-                        "Td": 0.5,
-                        "Tdlpf": 3,
-                        "Tdlpf_z": 9
+                        "Kp": 0.5,
+                        "Ki": 0.08,
+                        "Td": 0,
+                        "Tdlpf": 2.5,
+                        "Tdlpf_z": 4
                     },
                     "mixers": 0,
                     "sync": 0,
@@ -65,6 +71,61 @@
                     "volume": 1.0,
                     "balance": 0.5,
                     "enabled": true,
+                    "muted": false,
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "hotkeys": {},
+                    "deinterlace_mode": 0,
+                    "deinterlace_field_order": 0,
+                    "monitoring_type": 0,
+                    "monitoring_enabled": false,
+                    "private_settings": {}
+                },
+                {
+                    "prev_ver": 553648128,
+                    "name": "Sharpen",
+                    "uuid": "a63adf68-0638-4455-9906-4009795e4c5d",
+                    "id": "sharpness_filter",
+                    "versioned_id": "sharpness_filter",
+                    "settings": {
+                        "sharpness": 0.12
+                    },
+                    "mixers": 0,
+                    "sync": 0,
+                    "flags": 0,
+                    "volume": 1.0,
+                    "balance": 0.5,
+                    "enabled": true,
+                    "muted": false,
+                    "push-to-mute": false,
+                    "push-to-mute-delay": 0,
+                    "push-to-talk": false,
+                    "push-to-talk-delay": 0,
+                    "hotkeys": {},
+                    "deinterlace_mode": 0,
+                    "deinterlace_field_order": 0,
+                    "monitoring_type": 0,
+                    "monitoring_enabled": false,
+                    "private_settings": {}
+                },
+                {
+                    "prev_ver": 553648128,
+                    "name": "Focus",
+                    "uuid": "d4b5d1b2-a69b-4814-8fb6-e99fe1e8486b",
+                    "id": "scale_filter",
+                    "versioned_id": "scale_filter",
+                    "settings": {
+                        "sampling": "bilinear",
+                        "resolution": "1792x1008"
+                    },
+                    "mixers": 0,
+                    "sync": 0,
+                    "flags": 0,
+                    "volume": 1.0,
+                    "balance": 0.5,
+                    "enabled": false,
                     "muted": false,
                     "push-to-mute": false,
                     "push-to-mute-delay": 0,
@@ -124,14 +185,127 @@
         },
         {
             "prev_ver": 553648128,
+            "name": "Backdrop",
+            "uuid": "aa264dc9-673e-4db0-9e52-4c157cf5c20e",
+            "id": "color_source",
+            "versioned_id": "color_source_v3",
+            "settings": {
+                "color": 4294967295,
+                "width": 1920,
+                "height": 150
+            },
+            "mixers": 0,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {},
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "monitoring_enabled": false,
+            "private_settings": {}
+        },
+        {
+            "prev_ver": 553648128,
+            "name": "Dark",
+            "uuid": "a82ee65a-7433-4eec-8524-cbd3dac8f21d",
+            "id": "color_source",
+            "versioned_id": "color_source_v3",
+            "settings": {
+                "color": 4279374354,
+                "width": 1920,
+                "height": 1080
+            },
+            "mixers": 0,
+            "sync": 0,
+            "flags": 0,
+            "volume": 1.0,
+            "balance": 0.5,
+            "enabled": true,
+            "muted": false,
+            "push-to-mute": false,
+            "push-to-mute-delay": 0,
+            "push-to-talk": false,
+            "push-to-talk-delay": 0,
+            "hotkeys": {},
+            "deinterlace_mode": 0,
+            "deinterlace_field_order": 0,
+            "monitoring_type": 0,
+            "monitoring_enabled": false,
+            "private_settings": {}
+        },
+        {
+            "prev_ver": 553648128,
             "name": "On Air",
             "uuid": "2afdc0cc-e391-4a77-a062-ce6126e210ab",
             "id": "scene",
             "versioned_id": "scene",
             "settings": {
                 "custom_size": false,
-                "id_counter": 2,
+                "id_counter": 4,
                 "items": [
+                    {
+                        "name": "Dark",
+                        "source_uuid": "a82ee65a-7433-4eec-8524-cbd3dac8f21d",
+                        "visible": true,
+                        "locked": true,
+                        "rot": 0.0,
+                        "scale_ref": {
+                            "x": 1920.0,
+                            "y": 1080.0
+                        },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds_crop": false,
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 4,
+                        "group_item_backup": false,
+                        "pos": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "pos_rel": {
+                            "x": -1.7777777910232544,
+                            "y": -1.0
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "scale_rel": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "bounds_rel": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
+                    },
                     {
                         "name": "Camera",
                         "source_uuid": "436e0937-b49b-401d-bd06-a9c9cb4d13ce",
@@ -153,12 +327,12 @@
                         "id": 1,
                         "group_item_backup": false,
                         "pos": {
-                            "x": 0.0,
-                            "y": 0.0
+                            "x": -89.5,
+                            "y": -267.0
                         },
                         "pos_rel": {
-                            "x": -1.7777777910232544,
-                            "y": -1.0
+                            "x": -1.9438987970352173,
+                            "y": -1.4942317008972168
                         },
                         "scale": {
                             "x": 1.0,
@@ -169,12 +343,67 @@
                             "y": 1.0
                         },
                         "bounds": {
+                            "x": 2099.5,
+                            "y": 1181.0
+                        },
+                        "bounds_rel": {
+                            "x": 3.8877975940704346,
+                            "y": 2.1868860721588135
+                        },
+                        "scale_filter": "disable",
+                        "blend_method": "default",
+                        "blend_type": "normal",
+                        "show_transition": {
+                            "duration": 0
+                        },
+                        "hide_transition": {
+                            "duration": 0
+                        },
+                        "private_settings": {}
+                    },
+                    {
+                        "name": "Backdrop",
+                        "source_uuid": "aa264dc9-673e-4db0-9e52-4c157cf5c20e",
+                        "visible": true,
+                        "locked": true,
+                        "rot": 0.0,
+                        "scale_ref": {
                             "x": 1920.0,
                             "y": 1080.0
                         },
+                        "align": 5,
+                        "bounds_type": 0,
+                        "bounds_align": 0,
+                        "bounds_crop": false,
+                        "crop_left": 0,
+                        "crop_top": 0,
+                        "crop_right": 0,
+                        "crop_bottom": 0,
+                        "id": 3,
+                        "group_item_backup": false,
+                        "pos": {
+                            "x": 0.0,
+                            "y": 930.0
+                        },
+                        "pos_rel": {
+                            "x": -1.7777777910232544,
+                            "y": 0.7222222089767456
+                        },
+                        "scale": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "scale_rel": {
+                            "x": 1.0,
+                            "y": 1.0
+                        },
+                        "bounds": {
+                            "x": 0.0,
+                            "y": 0.0
+                        },
                         "bounds_rel": {
-                            "x": 3.555555582046509,
-                            "y": 2.0
+                            "x": 0.0,
+                            "y": 0.0
                         },
                         "scale_filter": "disable",
                         "blend_method": "default",
@@ -260,7 +489,11 @@
                 "libobs.show_scene_item.1": [],
                 "libobs.hide_scene_item.1": [],
                 "libobs.show_scene_item.2": [],
-                "libobs.hide_scene_item.2": []
+                "libobs.hide_scene_item.2": [],
+                "libobs.show_scene_item.3": [],
+                "libobs.hide_scene_item.3": [],
+                "libobs.show_scene_item.4": [],
+                "libobs.hide_scene_item.4": []
             },
             "deinterlace_mode": 0,
             "deinterlace_field_order": 0,
@@ -286,7 +519,7 @@
     "saved_projectors": [],
     "preview_locked": false,
     "scaling_enabled": false,
-    "scaling_level": 0,
+    "scaling_level": 6,
     "scaling_off_x": 0.0,
     "scaling_off_y": 0.0,
     "virtual-camera": {

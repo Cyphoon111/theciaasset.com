@@ -36,7 +36,12 @@ async function tryOnce() {
         const a = m.d.authentication;
         const auth = a ? sha(sha(password + a.salt) + a.challenge) : undefined;
         ws.send(JSON.stringify({ op: 1, d: { rpcVersion: 1, authentication: auth } }));
-      } else if (m.op === 2) {                            // Identified
+      } else if (m.op === 2) {                            // Identified: make sure the output is 60 fps, then start
+        ws.send(JSON.stringify({ op: 6, d: { requestType: "GetVideoSettings", requestId: "fps" } }));
+      } else if (m.op === 7 && m.d.requestId === "fps") {
+        const v = m.d.responseData || {};
+        if (v.fpsNumerator !== 60 || v.fpsDenominator !== 1)   // OBS does not keep this across restarts reliably
+          ws.send(JSON.stringify({ op: 6, d: { requestType: "SetVideoSettings", requestId: "setfps", requestData: { fpsNumerator: 60, fpsDenominator: 1 } } }));
         ws.send(JSON.stringify({ op: 6, d: { requestType: "StartVirtualCam", requestId: "on-air" } }));
       } else if (m.op === 7 && m.d.requestId === "on-air") {   // StartVirtualCam answered: now verify
         ws.send(JSON.stringify({ op: 6, d: { requestType: "GetVirtualCamStatus", requestId: "check" } }));
