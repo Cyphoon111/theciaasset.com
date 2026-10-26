@@ -206,7 +206,10 @@ const TRACKER_BASE  = { track_z: 0.52, track_y: -0.04, upsize_t: 0.5, upsize_b: 
 // Chest shot: a box that reaches far below the face pushes the crop window down until it is
 // pinned to the bottom of the lens, so the lowest thing the lens sees (the breast pocket)
 // is in the shot, while the window still centres him and keeps ~1.1x in hand.
-const TRACKER_CHEST = { track_z: 0.5, track_y: 0, upsize_t: 0.3, upsize_b: 2.5 };   // the box outgrows the frame: zoom 1.0, the whole lens, nothing held back
+// The pull-out must ALSO keep his head on the centre line (Jason, 2026-10-26: "HERE IS MY HEAD!!!!!!
+// FAR OFF THE LEFT"): track_z .64 with the tall box ⇒ ≈1.15x pinned to the lens bottom, so it
+// still pans him to centre while the lowest rows (the pocket square) stay in.
+const TRACKER_CHEST = { track_z: 0.64, track_y: 0, upsize_t: 0.3, upsize_b: 2.5 };
 let chest = false, sinceChest = 2;               // starts at 2: the first shot change after start IS the chest shot
 function setTracker(s, name) {
   send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
