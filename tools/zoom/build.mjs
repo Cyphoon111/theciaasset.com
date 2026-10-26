@@ -70,8 +70,8 @@ async function buildOverlay() {
   const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 0);
   await writeFile(`${OUT}/unleashed-sticker.png`, unleashed);
   const unH = (await sharp(unleashed).metadata()).height;
-  const unX = Math.round(W / 2 - unW / 2), unY = SY + 7;
-  const unUrlY = unY + unH + 4, unUrlH = 26;            // the URL line, just under the logo (raised, Jason 2026-10-26)
+  const unX = Math.round(W / 2 - unW / 2), unY = SY + 3;
+  const unUrlY = unY + unH - 4, unUrlH = 26;            // the URL line, tucked right under the logo (raised again, Jason 2026-10-26)
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     <!-- cover frame -->
