@@ -83,7 +83,7 @@ async function buildOverlay() {
     <!-- unleashed url --><text x="${W / 2}" y="${unUrlY + 21}" ${SANS} font-weight="bold" font-size="24" fill="${UNPINK}" text-anchor="middle" letter-spacing="2">unleashed.news</text><!-- /unleashed url -->
     <!-- the QR keeps a solid white tile: a see-through quiet zone can break a scan -->
     <!-- qr tile --><rect x="${qrX - 6}" y="${qrY - 6}" width="${qrSize + 12}" height="${qrSize + 12}" rx="6" fill="${PAPER}"/><!-- /qr tile -->
-    <!-- red rule --><rect x="0" y="${SY - 2}" width="${W}" height="2" fill="${INK}"/><rect x="0" y="${SY}" width="${W}" height="${RULE}" fill="${RED}"/><!-- /red rule -->
+    <!-- red rule --><rect x="0" y="${SY - 4}" width="${W}" height="4" fill="${INK}"/><rect x="0" y="${SY}" width="${W}" height="${RULE}" fill="${RED}"/><!-- /red rule -->
     <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="29" fill="none" stroke="${INK}" stroke-width="6"/>
     <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="11" fill="${RED}"/>
     <text x="${ltX + 84}" y="${SY + 76}" ${WORD} font-size="50" fill="${INK}">THE <tspan fill="${RED}">CIA</tspan> ASSET</text>
@@ -188,7 +188,7 @@ async function buildOverlay() {
   @keyframes floorPulse { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .75; } }
   /* the red rule along the top of the banner, with a slow left-to-right shimmer */
   .rule { position: absolute; left: 0; top: ${SY}px; width: ${W}px; height: ${RULE}px; background: ${RED}; overflow: hidden; }
-  .ruleline { position: absolute; left: 0; top: ${SY - 2}px; width: ${W}px; height: 2px; background: ${INK}; }   /* a thin black line just above the red (Jason, 2026-10-26) */
+  .ruleline { position: absolute; left: 0; top: ${SY - 4}px; width: ${W}px; height: 4px; background: ${INK}; }   /* a black line just above the red, 4 px (Jason, 2026-10-26: "a little thicker") */
   .rule::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 28%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,.95) 50%, transparent);
     animation: shimmer 12s linear infinite; }
