@@ -34,10 +34,12 @@ click On Air again.
 - `on-air.mjs` — the launcher: enables OBS's websocket (port 4455, password
   kept in OBS's own config), opens OBS, waits for it, sends StartVirtualCam.
 - `make-launcher.sh` — rebuilds `/Applications/On Air.app` around `on-air.mjs`.
-- `cameraman.mjs` — the camera operator: while OBS runs, every 18–45 s it eases the
-  Auto-framing tracker into a random new framing (push in, pull back, reframe
-  left/right, more/less headroom). Started by On Air; one instance at a time
-  (pid file in the OBS config folder); log at ~/Library/Logs/on-air-cameraman.log.
+- `cameraman.mjs` — the camera operator: while OBS runs, it holds a shot 8–20 s then
+  makes a crisp 1–2 s eased move of the Camera scene item itself (zoom up to 1.32x
+  plus a pan): wide, medium, push in, reframe left/right, low angle, at random.
+  The tracker only keeps Jason centred (steady track_z, scale_max 1.35). Started by
+  On Air; one instance at a time (pid file in the OBS config folder); log at
+  ~/Library/Logs/on-air-cameraman.log.
 - `obs-request.mjs` — sends one obs-websocket request to the running OBS
   (`node obs-request.mjs GetVersion`, or `... CreateSourceFilter @file.json`).
 - `obs/` — backup of the OBS scene collection and profile, plus
