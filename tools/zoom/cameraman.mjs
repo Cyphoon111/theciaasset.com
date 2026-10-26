@@ -102,9 +102,11 @@ function onFrame(data) {
 // The focus rack: a glide from soft to sharp through nine resolutions, 55 ms apart.
 // Starts from a real defocus so it reads even on a small preview, then glides to sharp in
 // sixteen fine steps, 32 ms apart: one continuous pull, never a skip.
-const RACK = ["416x234", "448x252", "496x279", "544x306", "608x342", "672x378", "752x423", "832x468",
-              "928x522", "1024x576", "1120x630", "1232x693", "1344x756", "1456x819", "1600x900", "1760x990"];
-const RACK_MS = 32;
+const RACK = ["416x234", "432x243", "448x252", "472x266", "496x279", "520x293", "544x306", "576x324", "608x342",
+              "640x360", "672x378", "712x401", "752x423", "792x446", "832x468", "880x495", "928x522", "976x549",
+              "1024x576", "1072x603", "1120x630", "1176x662", "1232x693", "1288x725", "1344x756", "1400x788",
+              "1456x819", "1528x860", "1600x900", "1680x945", "1760x990", "1840x1035"];
+const RACK_MS = 16;                                 // one step per frame at 60 fps: ~0.5 s, no visible steps
 function focusPull(d, full) {
   pulling = true; lastPull = Date.now();
   const focus = (on, res) => {
@@ -141,9 +143,10 @@ function focusPull(d, full) {
   }
 }
 
-// glide from the current framing to the target over `secs`, 30 steps a second
+// glide from the current framing to the target over `secs`, 60 steps a second (OBS renders at 60)
+const FPS = 60;
 function moveTo(target, secs, name) {
-  const from = { ...cur }, steps = Math.round(secs * 30);
+  const from = { ...cur }, steps = Math.round(secs * FPS);
   let i = 0;
   if (activeTick) clearInterval(activeTick);          // a new move takes over from one in progress
   const tick = activeTick = setInterval(() => {
@@ -152,7 +155,7 @@ function moveTo(target, secs, name) {
     cur = { z: from.z + (target.z - from.z) * t, px: from.px + (target.px - from.px) * t, py: from.py + (target.py - from.py) * t };
     setFrame(cur);
     if (i >= steps) { clearInterval(tick); if (activeTick === tick) activeTick = null; }
-  }, 1000 / 30);
+  }, 1000 / FPS);
   log(`${name}: zoom ${target.z.toFixed(2)} pan ${target.px.toFixed(0)},${target.py.toFixed(0)} over ${secs.toFixed(1)} s`);
 }
 function schedule() {
