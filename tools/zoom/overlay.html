@@ -69,7 +69,7 @@
   .rule { position: absolute; left: 0; top: 930px; width: 1920px; height: 4px; background: #e0121c; overflow: hidden; }
   .rule::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 28%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,.95) 50%, transparent);
-    animation: shimmer 9s linear infinite; }
+    animation: shimmer 12s linear infinite; }
   /* a gloss sweeping the banner itself, same width, same clock as the rule, so they move as one;
      it stops short of the QR tile so the code never loses contrast */
   .gloss { position: absolute; left: 0; top: 934px; width: 1920px; height: 146px; overflow: hidden;
@@ -80,18 +80,26 @@
       rgba(255,255,255,.95) 46%, rgba(255,246,214,1) 50%, /* the flash, warming to gold */
       rgba(201,162,75,.45) 56%, rgba(11,11,13,.07) 68%,  /* gold tail, soft shade trailing */
       transparent 84%);
-    animation: shimmer 9s linear infinite; }
-  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+    animation: shimmer 12s linear infinite; }
+  /* One 12 s clock (Jason, 2026-10-26): the banner gloss and rule shimmer cross in the first 8 s,
+     then, in the gap before the next trip, the Unleashed logo and its URL glint together. */
+  @keyframes shimmer { 0% { transform: translateX(-100%); } 66%, 100% { transform: translateX(400%); } }
+  .ungloss { position: absolute; left: 815px; top: 937px; width: 290px; height: 112px; overflow: hidden; pointer-events: none; }
+  .ungloss::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 34%;
+    background: linear-gradient(100deg, transparent 20%, rgba(255,255,255,.85) 50%, transparent 80%);
+    transform: translateX(-100%); animation: logoGlint 12s linear infinite; }
+  @keyframes logoGlint { 0%, 70% { transform: translateX(-100%); } 95%, 100% { transform: translateX(294%); } }
   /* unleashed.news under its logo: bold pink, with its own glint every 20 s (Jason, 2026-10-26) */
   .unurl, .unurl-glint { position: absolute; left: 760px; width: 400px; top: 1053px; height: 26px; line-height: 26px; text-align: center;
     font: 800 24px/26px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 2px; pointer-events: none; }
   .unurl { color: #d6077c; }
   /* a white copy of the URL, revealed through a narrow window that sweeps across it: 2 s sweep, 18 s rest */
-  .unurl-glint { color: #fff; clip-path: inset(0 100% 0 -12%); animation: urlGlint 20s linear infinite; }
-  @keyframes urlGlint { 0%, 90% { clip-path: inset(0 100% 0 -12%); } 100% { clip-path: inset(0 -12% 0 100%); } }   /* a 48 px window crossing 400 px in 2 s */
+  .unurl-glint { color: #fff; clip-path: inset(0 100% 0 -12%); animation: urlGlint 12s linear infinite; }
+  @keyframes urlGlint { 0%, 70% { clip-path: inset(0 100% 0 -12%); } 95%, 100% { clip-path: inset(0 -12% 0 100%); } }   /* in step with the logo glint */
 </style>
 <img class="banner" src="overlay-base.png" alt="">
 <div class="unurl">unleashed.news</div><div class="unurl-glint">unleashed.news</div>
+<div class="ungloss"></div>
 <div class="gloss"></div>
 <div class="rule"></div>
 <div class="qrrig"><img src="qr.png" alt=""><div class="qrcap">SCAN FOR THE BOOK</div></div>
