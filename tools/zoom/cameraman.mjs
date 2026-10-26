@@ -177,11 +177,16 @@ function setTracker(s, name) {
   send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
   log(`${name}: tracker ${JSON.stringify(s)}`);
 }
+// Measured from Jason's own screenshot (2026-10-26): with the lens at its natural position the
+// head top sits near lens row 50 and the pocket square near row 870, x≈1420 — both fit in the
+// 930 visible rows. So the chest shot shows the lens UNLIFTED (py = BANNER puts the picture
+// back at its natural top), and only the tight shots use the banner anchor.
+const CHEST_FRAME = { z: 1.0, px: 0, py: BANNER };
 function chestShot() {
   chest = true; sinceChest = 0;
-  if (cur.z !== 1) moveTo(SHOTS.wide(), 4, "wide for the chest");   // the frame itself at rest
+  moveTo(CHEST_FRAME, 4, "wide for the chest, lens at rest");
   setTracker(TRACKER_CHEST, "chest shot");
-  setTimeout(() => { setTracker(TRACKER_BASE, "back to head and shoulders"); chest = false; }, rnd(20, 30) * 1000);
+  setTimeout(() => { setTracker(TRACKER_BASE, "back to head and shoulders"); moveTo(SHOTS.wide(), 4, "re-anchored"); chest = false; }, rnd(20, 30) * 1000);
 }
 function schedule() {
   // hold a shot for 45–100 s, then a slow 3–5 s drift to a different shot;
