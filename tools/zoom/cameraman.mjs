@@ -164,7 +164,7 @@ function moveTo(target, secs, name) {
 // shot. I often wear a pocket square"): the tracker itself widens (its zoom target drops and
 // the face rides a little higher), glides there over its own ~4 s, holds 20–30 s, eases back.
 const TRACKER_BASE = { track_z: 0.62, track_y: -0.14 };
-const TRACKER_CHEST = { track_z: 0.50, track_y: -0.04 };
+const TRACKER_CHEST = { track_z: 0.40, track_y: 0.10 };   // as wide as the lens allows, face high, so the breast pocket is in when the lens sees it
 let chest = false, sinceChest = 0;
 function setTracker(s, name) {
   send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
