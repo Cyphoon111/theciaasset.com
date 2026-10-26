@@ -66,6 +66,9 @@ for (let i = 0; i < 60 && !asked; i++) {                 // up to ~60 s for OBS 
     const { spawn } = await import("node:child_process");
     const here = new URL(".", import.meta.url).pathname;
     spawn(process.execPath, [`${here}cameraman.mjs`], { detached: true, stdio: "ignore" }).unref();
+    // and the record hook: when a recording stops, the show is published to unleashed.news/shows
+    const hook = "/Users/jasonsullivan/Developer/unleashed.news/tools/shows/record-hook.mjs";
+    if (existsSync(hook)) spawn(process.execPath, [hook], { detached: true, stdio: "ignore" }).unref();
     process.exit(0);
   } catch (e) { last = e; if (e.message === "no answer") asked = false; await sleep(1000); }
 }
