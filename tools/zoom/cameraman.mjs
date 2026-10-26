@@ -30,17 +30,18 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 // The framings. track_z: how big the face is (bigger = tighter). upsize l/r: how much room
 // either side of the face (unequal = he sits off-centre = a reframe). upsize_t: headroom.
-const BASE = { track_z: 0.38, upsize_l: 0.5, upsize_r: 0.5, upsize_t: 0.8, upsize_b: 0.75, track_y: 0 };
+const BASE = { track_z: 0.34, upsize_l: 0.5, upsize_r: 0.5, upsize_t: 0.8, upsize_b: 0.75, track_y: 0,
+  scale_max: 1.6, Tdlpf_z: 4 };   // zoom range and zoom speed the moves need to be seen
 const MOVES = {
-  "push in":        () => ({ track_z: rnd(0.44, 0.50) }),
-  "push in a touch":() => ({ track_z: rnd(0.40, 0.43) }),
-  "pull back":      () => ({ track_z: rnd(0.30, 0.34) }),
-  "settle":         () => ({ track_z: rnd(0.36, 0.39) }),
-  "reframe left":   () => ({ upsize_l: rnd(0.56, 0.66), upsize_r: rnd(0.36, 0.44) }),
-  "reframe right":  () => ({ upsize_l: rnd(0.36, 0.44), upsize_r: rnd(0.56, 0.66) }),
+  "push in":        () => ({ track_z: rnd(0.50, 0.58) }),
+  "push in a touch":() => ({ track_z: rnd(0.42, 0.47) }),
+  "pull back":      () => ({ track_z: rnd(0.24, 0.29) }),
+  "settle":         () => ({ track_z: rnd(0.33, 0.37) }),
+  "reframe left":   () => ({ upsize_l: rnd(0.66, 0.8), upsize_r: rnd(0.26, 0.36) }),
+  "reframe right":  () => ({ upsize_l: rnd(0.26, 0.36), upsize_r: rnd(0.66, 0.8) }),
   "recentre":       () => ({ upsize_l: 0.5, upsize_r: 0.5 }),
-  "more headroom":  () => ({ upsize_t: rnd(0.9, 1.0) }),
-  "less headroom":  () => ({ upsize_t: rnd(0.65, 0.75) }),
+  "more headroom":  () => ({ upsize_t: rnd(1.0, 1.2) }),
+  "less headroom":  () => ({ upsize_t: rnd(0.55, 0.65) }),
 };
 const WEIGHTS = ["push in", "push in a touch", "push in a touch", "pull back", "settle", "settle",
   "reframe left", "reframe right", "recentre", "recentre", "more headroom", "less headroom"];
@@ -65,12 +66,12 @@ function apply(change, name) {
   log(`${name}: ${JSON.stringify(change)}`);
 }
 function schedule() {
-  // hold a framing for 18–45 s, then make the next move (never the same move twice running)
+  // hold a framing for 10–25 s, then make the next move (never the same move twice running)
   setTimeout(() => {
     let name; do { name = pick(WEIGHTS); } while (name === lastMove);
     lastMove = name;
     apply(MOVES[name](), name);
     schedule();
-  }, rnd(18, 45) * 1000);
+  }, rnd(10, 25) * 1000);
 }
 connect();
