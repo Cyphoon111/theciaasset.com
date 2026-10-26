@@ -134,10 +134,7 @@ function focusPull(d, full) {
     setTimeout(() => { focus(false); sharpen(0.10); }, T);
     [0.16, 0.22, 0.26].forEach((v, i) => setTimeout(() => sharpen(v), T + 60 + i * 50));   // the lens bites, eased
     [0.20, 0.15, 0.12].forEach((v, i) => setTimeout(() => sharpen(v), T + 400 + i * 120));
-    if (!activeTick) {                                         // never grab the frame mid-move
-      moveTo({ ...cur, z: cur.z + 0.02 }, 0.5, "lean in");
-      setTimeout(() => moveTo(back, 1.2, "settle"), 700);
-    }
+    // the focus rack is the whole effect: the frame itself never moves on a pull (Jason, 2026-10-26)
     setTimeout(() => { pulling = false; }, 1500);
   } else {
     // he is still moving: no re-blur, just the bite of focus and a breath of a lean
