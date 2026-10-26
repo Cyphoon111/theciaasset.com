@@ -96,7 +96,8 @@ function onFrame(data) {
   }
 }
 // The focus rack: a glide from soft to sharp through nine resolutions, 55 ms apart.
-const RACK = ["800x450", "896x504", "992x558", "1088x612", "1184x666", "1280x720", "1408x792", "1536x864", "1664x936"];
+// Starts from a real defocus so it reads even on a small preview, then glides to sharp.
+const RACK = ["384x216", "480x270", "576x324", "704x396", "832x468", "960x540", "1152x648", "1344x756", "1600x900"];
 function focusPull(d, full) {
   pulling = true; lastPull = Date.now();
   const focus = (on, res) => {
@@ -109,19 +110,19 @@ function focusPull(d, full) {
     lastFull = lastPull;
     log(`focus pull (motion ${d.toFixed(1)})`);
     sharpen(0);
-    RACK.forEach((res, i) => setTimeout(() => focus(true, res), i * 55));
-    setTimeout(() => { focus(false); sharpen(0.08); }, RACK.length * 55);
-    setTimeout(() => sharpen(0.16), RACK.length * 55 + 160);
-    setTimeout(() => sharpen(0.10), RACK.length * 55 + 600);
+    RACK.forEach((res, i) => setTimeout(() => focus(true, res), i * 50));
+    setTimeout(() => { focus(false); sharpen(0.10); }, RACK.length * 50);
+    setTimeout(() => sharpen(0.26), RACK.length * 50 + 140);     // the lens bites
+    setTimeout(() => sharpen(0.12), RACK.length * 50 + 650);
     moveTo({ ...cur, z: cur.z + 0.04 }, 0.45, "lean in");
     setTimeout(() => moveTo(back, 1.0, "settle"), 650);
     setTimeout(() => { pulling = false; }, 1500);
   } else {
     // he is still moving: no re-blur, just the bite of focus and a breath of a lean
     log(`focus touch (motion ${d.toFixed(1)})`);
-    sharpen(0.04);
-    setTimeout(() => sharpen(0.15), 120);
-    setTimeout(() => sharpen(0.10), 500);
+    sharpen(0.02);
+    setTimeout(() => sharpen(0.24), 120);
+    setTimeout(() => sharpen(0.12), 500);
     moveTo({ ...cur, z: cur.z + 0.015 }, 0.35, "lean");
     setTimeout(() => moveTo(back, 0.8, "settle"), 450);
     setTimeout(() => { pulling = false; }, 900);
