@@ -17,14 +17,15 @@ The operator is `cameraman.mjs` in this folder, started by the On Air app, worki
 In priority order. When two rules conflict, the higher one wins and the operator finds another way to satisfy the lower one.
 
 1. The picture is always smooth. No skip, jump, tick or stutter, in any shot or transition.
-2. Jason's head is always dead centre of the screen, directly above the UNLEASHED logo in the banner. He is never featured left or right of it.
-3. The top of his head is never cut off.
-4. His neck and chin are never cut off and never hidden behind the banner.
-5. When he sits still, the frame does not move. The only motion while he is still is the occasional slight zoom in or out.
-6. When he moves, the operator refocuses on him the instant he moves, smoothly, like a focus pull on a film set.
-7. From time to time the operator pulls out to a wide shot that includes his chest and his white pocket square, then returns.
-8. The UNLEASHED neon sign on the wall behind him is in view at least 70% of the time he is on air.
-9. The book cover, QR code and banner graphics run their choreography without ever covering his face.
+2. The picture is always the full width of the banner, edge to edge, in every shot including the pull-out. It is never narrower than the banner and never has side bars; it never shrinks and grows back. (Jason, 26 October 2026: "It MUST ALWAYS be the same width of the white banner at the bottom.")
+3. Jason's head is always dead centre of the screen, directly above the UNLEASHED logo in the banner. He is never featured left or right of it.
+4. The top of his head is never cut off.
+5. His neck and chin are never cut off and never hidden behind the banner.
+6. When he sits still, the frame does not move. The only motion while he is still is the occasional slight zoom in or out.
+7. When he moves, the operator refocuses on him the instant he moves, smoothly, like a focus pull on a film set.
+8. From time to time the operator pulls out to a wide shot that includes his chest and his white pocket square, then returns.
+9. The UNLEASHED neon sign on the wall behind him is in view at least 70% of the time he is on air.
+10. The book cover, QR code and banner graphics run their choreography without ever covering his face.
 
 ## Framing specification
 
@@ -32,14 +33,15 @@ The lens is the MacBook's fixed 1080p camera. The operator cannot move it; it cr
 
 | Requirement | Specification | How it is met |
 | --- | --- | --- |
-| Head centred | Face centre within 50 px of the 1920-wide picture's centre line when settled; returns there within 2 s of a move | The face tracker keeps a crop of about 1.1x (track_z .50), leaving about 90 px of pan either side of the lens axis |
+| Full width | The picture's width is 1920 px, the banner's, at every moment; zoom is never below 1.0 | The operator's zoom ranges 1.0 to 1.07 only; what varies vertically is a lift of 0 to 150 px (the rows the banner would cover), glided, never jumped |
+| Head centred | Face centre within 50 px of the 1920-wide picture's centre line when settled; returns there within 2 s of a move | The face tracker keeps a crop of about 1.1x (track_z .50), about 90 px of pan either side of the lens axis; when he sits further off-axis, the guard's centring lever tightens the crop a step at a time (up to 150% of base zoom) until the crop has the room to centre him, and relaxes once he is centred |
 | Head never cut | Top of hair at least 5% (54 px) below the top edge; 10 to 20% preferred | The head-room guard, checked every 1.5 s |
 | Neck never cut | Chin plus neck at least 2% above the banner line (row 930); 12% preferred | The head-room guard lifts the picture or slides the face before it widens |
 | Neon sign in view | In frame in every normal shot and in the pull-out | Normal shots sit at the lens's natural position (py = 150); the face is placed a little low in the crop (track_y -.10) |
 | Pan room | The crop never widens past 90% of its base zoom | A hard floor in the guard: centring is never traded for head room |
 | Vertical steadiness | Face wobble under 2 px standard deviation while still | Tracker PID: Kp .7, Ki .25, no derivative, 1.8 s low-pass |
 
-His seat matters: the crop can pan about 90 px either side of the lens axis. Sitting squarely in front of the lens keeps every rule satisfied; sitting further off-axis than that is beyond what any crop can correct.
+His seat matters: at the base crop the tracker can pan about 90 px either side of the lens axis, and for anything further the centring lever has to tighten the crop, which costs head room. Sitting squarely in front of the lens at arm's length keeps every rule satisfied at the base crop. Sitting off-axis and close to the lens at the same time is beyond any crop: the neck rule then holds the zoom and the centring waits.
 
 ## Reaction to movement
 
@@ -64,9 +66,9 @@ A shot holds for 45 to 100 s, chosen at random, then the operator drifts to the 
 | Wide | The base framing, head and shoulders, neon sign in view | about a quarter |
 | A touch in | 2 to 4% tighter than wide | about a quarter |
 | In | 4 to 7% tighter than wide | about an eighth |
-| The pull-out | The tracker opens to about 1.15x (track_z .64, upsize_b 2.5) pinned to the bottom of the lens, and the whole picture shrinks to 930 rows above the banner with dark side bars, so the lowest rows the lens sees (the pocket square) are on screen with his head still centred. Holds 20 to 30 s, then eases back | every other change, and the first change after start |
+| The pull-out | The tracker opens to about 1.15x (track_z .64, upsize_b 2.5) pinned to the bottom of the lens, the picture glides to zoom 1.0 at full width, and the pull-out guard lifts the whole picture as far as the head room allows (head top aimed at 7% from the top edge, up to the full 150 px), so the lowest rows the lens sees (the pocket square) rise above the banner with his head still centred. Holds 20 to 30 s, then eases back. Until 26 October 2026 this shot shrank the lens inside dark side bars; that is now forbidden by rule 2 | every other change, and the first change after start |
 
-No shot ever lowers the picture; zooms keep the bottom row on the banner line. No shot ever has zero pan room. The pull-out shows the pocket square only when the lens sees it (lid angle, below).
+No shot ever lowers the picture; zooms keep the bottom row on the banner line. No shot ever has zero pan room. No shot is ever narrower than the banner. The pull-out shows the pocket square only when the lens sees it (lid angle, below).
 
 ## Graphics choreography
 
@@ -80,7 +82,8 @@ All of this is drawn by `overlay.html` in OBS, built by `build.mjs`, and runs at
 
 ## Self-checks the operator runs
 
-- Head-room guard, every 1.5 s: `facepos` (macOS Vision, built from `facepos.swift`) finds the face in the program picture. If the top of the head is within 5% of the top edge, or the chin within 2% of the banner, the guard acts in order: (1) raise or lower the whole picture by up to the 150 px otherwise under the banner, (2) slide the face up or down inside the crop (track_y), (3) only if both edges are tight at once, widen the crop, never past 90% of base zoom. With room to spare everything drifts back so the neon sign shows. A frame with no face changes nothing.
+- Head-room guard, every 1.5 s: `facepos` (macOS Vision, built from `facepos.swift`) finds the largest face in the program picture; a face under 16% of the frame tall is ignored (that is Epstein's face on the book cover, found when Jason looks down for a moment, never Jason). The guard acts in order: (1) if head and chin are both near their edges at once, the crop is too tight for his distance and widens first, never past 90% of base zoom (two levers pulling against each other would bounce the picture, which is illegal); (2) raise or lower the whole picture by up to the 150 px otherwise under the banner, as a glide; (3) slide the face up or down inside the crop (track_y); (4) the centring lever: with head and chin clear, if his face is more than 7% of the width off the centre line, tighten the crop a step (up to 150% of base zoom) so the tracker has the pan room to centre him; if that tightening cramps the frame, the lever rests for 45 s. With room to spare everything drifts back so the neon sign shows. A frame with no face changes nothing.
+- Pull-out guard, every 1.5 s during the pull-out: lifts the full-width picture toward the head top sitting 7% from the top edge, up to 150 px, and brings it down at once if the head top comes within 3.5%. A 20 px dead band keeps it from hunting.
 - Motion sensing, ten times a second: the trigger for the focus pull.
 - The operator re-applies the tracker's base settings on every start; the launcher checks OBS's frame rate on every start and sets 60 fps.
 

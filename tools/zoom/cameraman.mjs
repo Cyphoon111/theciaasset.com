@@ -61,15 +61,16 @@ const SHOTS = {
 };
 const WEIGHTS = ["wide", "a touch in", "a touch in", "in"];
 
-let ws, cur = { z: 1, px: 0, py: 0 }, last = "", activeTick = null;
-// The picture is anchored to the top of the banner: its bottom row lands on FLOOR, so nothing
-// the lens sees at the bottom (neck, collar, breast pocket) is ever hidden behind the banner
-// (Jason, 2026-10-26). What gets cropped instead is the top of the lens view: ceiling and
-// whiteboard. py ≤ 0 lifts it further still.
-let lift = 0;                                     // 0..BANNER: the guard raises the whole picture when his chin nears the banner
-function transform({ z, px, py }) {
+let ws, cur = { z: 1, px: 0, py: BANNER, lift: 0 }, last = "", activeTick = null;
+// The picture is ALWAYS the full width of the canvas, edge to edge with the banner: z is never
+// below 1 (Jason, 2026-10-26: "It MUST ALWAYS be the same width of the white banner at the
+// bottom" — the old pull-out shrank the lens inside dark side bars, and the picture was seen
+// narrowing, then growing back). What varies vertically is `lift` (0..BANNER px): the whole
+// picture rises so that rows the banner would cover (neck, collar, breast pocket) come up above
+// it, at the cost of the top rows of the lens view (ceiling). The guard glides it; never a jump.
+function transform({ z, px, py, lift = 0 }) {
   const bw = W * z, bh = H * z;
-  return { boundsWidth: bw, boundsHeight: bh, positionX: (W - bw) / 2 + px, positionY: FLOOR - bh + py - (chest ? 0 : lift) };
+  return { boundsWidth: bw, boundsHeight: bh, positionX: (W - bw) / 2 + px, positionY: FLOOR - bh + py - lift };
 }
 function send(type, data, id = "op") { ws.send(JSON.stringify({ op: 6, d: { requestType: type, requestId: id, requestData: data } })); }
 function setFrame(f) { send("SetSceneItemTransform", { sceneName: SCENE, sceneItemId: ITEM, sceneItemTransform: transform(f) }); }
@@ -88,32 +89,8 @@ function connect() {
       if (process.env.CHEST_NOW) setTimeout(chestShot, 1000);   // test mode: the chest shot right away
     }
     else if (m.op === 7 && m.d.requestId === "frame" && m.d.responseData) onFrame(m.d.responseData);
-    else if (m.op === 7 && m.d.requestId === "chestframe" && m.d.responseData) onChestFrame(m.d.responseData);
     else if (m.op === 7 && m.d.requestId === "guardframe" && m.d.responseData) onGuardFrame(m.d.responseData);
   };
-}
-
-// Where is the top of his head in the lens? Skin-toned pixels in the middle half of the
-// frame, scanned from the top; the first row with a run of them is the forehead/hair line.
-function onChestFrame(data) {
-  if (!chest) return;
-  const b = Buffer.from(data.imageData.split(",")[1], "base64");
-  const off = b.readUInt32LE(10), w = b.readInt32LE(18), h = Math.abs(b.readInt32LE(22)), bpp = b.readUInt16LE(28) / 8;
-  const row = Math.ceil((w * bpp) / 4) * 4;
-  let top = -1;
-  for (let y = 0; y < h && top < 0; y++) {
-    let skin = 0;
-    for (let x = Math.floor(w * 0.25); x < w * 0.75; x++) {
-      const p = off + y * row + x * bpp, bl = b[p], g = b[p + 1], r = b[p + 2];
-      if (r > 90 && r > g + 15 && g > bl && r - bl > 30 && r < 235) skin++;
-    }
-    if (skin > w * 0.06) top = y;
-  }
-  if (top < 0) { log("chest shot: no face found, keeping the lens at rest"); return; }
-  const headTop = Math.round(top * (H / h)) - 28;                 // hair room above the skin line
-  const lift = Math.max(0, Math.min(BANNER, headTop - 12));       // lift until the head sits just under the top: every row counts at the bottom
-  log(`chest shot: head top near lens row ${headTop + 40}, lifting the picture ${lift} px`);
-  moveTo({ z: 1.0, px: 0, py: BANNER - lift }, 2.5, "head up");
 }
 
 // ---- head-room guard (Jason, 2026-10-26: "DO NOT EVER ALLOW THE TOP OF MY HEAD TO BE CUT OFF") ----
@@ -125,10 +102,10 @@ import { execFile } from "node:child_process";
 import { writeFileSync as writeTmp } from "node:fs";
 const FACEPOS = decodeURIComponent(new URL("./facepos", import.meta.url).pathname);   // the app lives at "/Applications/On Air.app", with a space
 const TMP = `${HOME}/Library/Application Support/obs-studio/guard-frame.png`;
-let zoomAdj = 1.0;                                  // multiplier on TRACKER_BASE.track_z (≤ 1 = wider, never below ZOOM_FLOOR)
+let zoomAdj = 1.0;                                  // multiplier on TRACKER_BASE.track_z (< 1 wider, never below ZOOM_FLOOR; > 1 tighter for centring, never above ZOOM_CEIL)
 let yAdj = 0;                                       // offset on TRACKER_BASE.track_y (negative = face lower in the crop)
+let lastTighten = 0, centreHold = 0;                // when the centring lever last tightened, and until when it rests
 function guardTick() {
-  if (chest) return;
   send("GetSourceScreenshot", { sourceName: SCENE, imageFormat: "png", imageWidth: 480, imageHeight: 270 }, "guardframe");
 }
 function onGuardFrame(data) {
@@ -137,34 +114,70 @@ function onGuardFrame(data) {
     if (err) { if (err.code !== 2) log(`guard: facepos failed: ${err.message.split("\n")[0]}`); return; }   // exit 2 = no face in this frame (he turned away): leave things alone
     if (!/cx=/.test(out)) return;                                          // no face: leave things alone
     const g = Object.fromEntries([...out.matchAll(/(\w+)=([\d.]+)/g)].map((m) => [m[1], Number(m[2])]));
+    // Not him: the Epstein face on the book cover (box ≈10–14% of the frame tall, bottom left) is
+    // what the detector finds when he looks down for a moment; on 2026-10-26 the guard followed it
+    // and dropped the picture 80 px. His own face is never under 16% tall at a show distance.
+    if (g.h < 0.16) return;
     const headTop = g.cy - g.h / 2 - g.h * 0.45;                          // hair sits ~45% of a face-height above the box
     const chin = g.cy + g.h / 2 + g.h * 0.35;                              // and the neck ~35% below it
+    if (chest) { chestGuard(headTop); return; }
     const visibleBottom = FLOOR / H;
     const headTight = headTop < 0.05, chinTight = chin > visibleBottom - 0.02;
+    const off = g.cx - 0.5, offCentre = Math.abs(off) > 0.07;             // his head off the centre line by more than 7% of the width
     // Centring comes first (Jason, 2026-10-26: "KEEP MY HEAD CENTERED"): the crop never widens
     // past ZOOM_FLOOR, where it still has pan room. Head and chin are protected by sliding the
     // face up or down inside the crop (track_y); widening is the last resort, and only to the floor.
     // Levers, in order: (1) raise or lower the whole picture (lift 0..150 px: the rows that
-    // otherwise sit under the banner), (2) slide the face in the crop (track_y), (3) widen,
-    // only to ZOOM_FLOOR. With room to spare, everything drifts back so the neon sign shows.
-    const ZOOM_FLOOR = 0.9, STEP = 40;
+    // otherwise sit under the banner), (2) slide the face in the crop (track_y), (3) widen the
+    // tracker's crop, only to ZOOM_FLOOR (the crop, never the picture: the picture stays full
+    // width). With room to spare, everything drifts back so the neon sign shows.
+    // Centring lever (rule 2, non-negotiable): when he sits off the lens's axis, the tracker's
+    // crop at its normal zoom has only ±4–5% of pan room and cannot bring him to the centre line
+    // (2026-10-26: he sat at 70% of the lens, the picture showed him at 67%). The crop tightens a
+    // step at a time — more zoom is more pan room — until he is centred, never past ZOOM_CEIL and
+    // never while his head or chin is tight; with him centred and room to spare it relaxes.
+    const ZOOM_FLOOR = 0.9, ZOOM_CEIL = 1.5, STEP = 40, lift = cur.lift, now = Date.now();
+    // Cramped: head and chin both near their edges — no lift can hold both, the crop is simply
+    // too tight for his distance, so it widens first. (Before this, 2026-10-26, the guard bounced
+    // the picture up 40 px for the chin and down 40 px for the head every 1.5 s — a bounce, illegal.)
+    const cramped = headTop < 0.09 && chin > visibleBottom - 0.06;
     let nz = zoomAdj, ny = yAdj, nl = lift;
-    if (chinTight && lift < BANNER) nl = Math.min(BANNER, lift + STEP);
+    if (cramped && zoomAdj > ZOOM_FLOOR) {
+      nz = Math.max(ZOOM_FLOOR, +(zoomAdj - 0.06).toFixed(2));
+      if (now - lastTighten < 15000) centreHold = now + 45000;                                   // the centring lever caused it: it rests
+    }
+    else if (chinTight && lift < BANNER) nl = Math.min(BANNER, lift + STEP);
     else if (headTight && lift > 0) nl = Math.max(0, lift - STEP);
-    else if (headTight && chinTight) nz = Math.max(ZOOM_FLOOR, zoomAdj - 0.05);
     else if (headTight) ny = Math.max(-0.30, yAdj - 0.04);                                         // face lower in the crop
     else if (chinTight) ny = Math.min(0.10, yAdj + 0.04);                                          // face higher in the crop
+    else if (offCentre && zoomAdj < ZOOM_CEIL && now > centreHold && headTop > 0.07 && chin < visibleBottom - 0.04) {
+      nz = Math.min(ZOOM_CEIL, +(zoomAdj + 0.06).toFixed(2)); lastTighten = now;                  // tighten for pan room, only with room to spare
+    }
     else if (headTop > 0.20 && chin < visibleBottom - 0.12) {                                      // room to spare: drift back
       if (lift > 0) nl = Math.max(0, lift - STEP / 2);
       else if (zoomAdj < 1) nz = Math.min(1, zoomAdj + 0.03);
+      else if (zoomAdj > 1 && Math.abs(off) < 0.03) nz = Math.max(1, +(zoomAdj - 0.03).toFixed(2));  // centred with room: relax
     }
-    const why = `head-room guard (head top at ${(headTop * 100).toFixed(0)}%, chin at ${(chin * 100).toFixed(0)}%)`;
-    if (nl !== lift) { lift = nl; if (!activeTick) moveTo({ ...cur }, 1.2, `${why}: picture lifted ${lift} px`); else log(`${why}: lift ${lift} px (applies with the next move)`); }
+    const why = `head-room guard (head top at ${(headTop * 100).toFixed(0)}%, chin at ${(chin * 100).toFixed(0)}%, centre ${(g.cx * 100).toFixed(0)}%)`;
+    // the lift is part of the glide (never a jump); while a shot move is in progress it waits for the next tick
+    if (nl !== lift) { if (!activeTick) moveTo({ ...cur, lift: nl }, 1.2, `${why}: picture lifted ${nl} px`); else log(`${why}: lift ${nl} px waits for the move to finish`); }
     if (nz !== zoomAdj || ny !== yAdj) {
       zoomAdj = nz; yAdj = ny;
       setTracker({ track_z: +(TRACKER_BASE.track_z * zoomAdj).toFixed(3), track_y: +(TRACKER_BASE.track_y + yAdj).toFixed(3) }, why);
     }
   });
+}
+// The pull-out's guard: the picture stays full width, so the only way to bring the lens's lowest
+// rows (the breast pocket) up from under the banner is to lift the whole picture — exactly as far
+// as the head allows. Aim the top of the head at 7% from the top edge; any closer than 3.5% and
+// the picture comes back down at once (rule 4 outranks rule 8: the head is never cut for the
+// pocket square). A 20 px dead band keeps it from hunting against the tracker's own glide.
+function chestGuard(headTop) {
+  if (activeTick) return;
+  const want = Math.max(0, Math.min(BANNER, Math.round(cur.lift + (headTop - 0.07) * H)));
+  const why = `pull-out guard (head top at ${(headTop * 100).toFixed(0)}%)`;
+  if (headTop < 0.035 && want < cur.lift) moveTo({ ...cur, lift: want }, 0.8, `${why}: head room first, picture down to ${want} px`);
+  else if (Math.abs(want - cur.lift) >= 20) moveTo({ ...cur, lift: want }, 2.0, `${why}: picture lifted ${want} px`);
 }
 
 // ---- motion → focus pull (Jason, 2026-10-26: "whenever I move... there must be a visual LIVE
@@ -245,14 +258,15 @@ function moveTo(target, secs, name) {
   const from = { ...cur }, steps = Math.round(secs * FPS);
   let i = 0;
   if (activeTick) clearInterval(activeTick);          // a new move takes over from one in progress
+  const tl = target.lift ?? from.lift;                // a shot that says nothing about the lift keeps it
   const tick = activeTick = setInterval(() => {
     i++;
     const t = ease(i / steps);
-    cur = { z: from.z + (target.z - from.z) * t, px: from.px + (target.px - from.px) * t, py: from.py + (target.py - from.py) * t };
+    cur = { z: from.z + (target.z - from.z) * t, px: from.px + (target.px - from.px) * t, py: from.py + (target.py - from.py) * t, lift: from.lift + (tl - from.lift) * t };
     setFrame(cur);
     if (i >= steps) { clearInterval(tick); if (activeTick === tick) activeTick = null; }
   }, 1000 / FPS);
-  log(`${name}: zoom ${target.z.toFixed(2)} pan ${target.px.toFixed(0)},${target.py.toFixed(0)} over ${secs.toFixed(1)} s`);
+  log(`${name}: zoom ${target.z.toFixed(2)} pan ${target.px.toFixed(0)},${target.py.toFixed(0)} lift ${tl.toFixed(0)} over ${secs.toFixed(1)} s`);
 }
 // The chest shot (Jason, 2026-10-26: "Sometimes the cameraman must include my chest in the
 // shot. I often wear a pocket square"): the tracker itself widens (its zoom target drops and
@@ -278,18 +292,16 @@ function setTracker(s, name) {
   send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
   log(`${name}: tracker ${JSON.stringify(s)}`);
 }
-// Measured from Jason's own screenshot (2026-10-26): with the lens at its natural position the
-// head top sits near lens row 50 and the pocket square near row 870, x≈1420 — both fit in the
-// 930 visible rows. So the chest shot shows the lens UNLIFTED (py = BANNER puts the picture
-// back at its natural top), and only the tight shots use the banner anchor.
-// The full pull-out: the whole lens frame, shrunk just enough that ALL of it sits above the
-// banner (1080 rows into the 930 visible), with narrow dark side bars. Nothing the lens sees is
-// off screen — top of the head to the last row at the bottom (Jason, 2026-10-26).
-const CHEST_FRAME = { z: FLOOR / H, px: 0, py: 0 };
+// The pull-out, full width (Jason, 2026-10-26: the picture "MUST ALWAYS be the same width of the
+// white banner"): the tracker widens to its chest crop pinned to the bottom of the lens, the
+// picture glides to zoom 1 at its natural position, and the pull-out guard (chestGuard) lifts the
+// whole picture as far as the head room allows, so the lens's lowest rows — the breast pocket —
+// rise above the banner. Until 2026-10-26 this shot shrank the whole lens into the 930 visible
+// rows with dark side bars; the picture was seen narrowing for 20–30 s and growing back.
 function chestShot() {
   chest = true; sinceChest = 0;
-  moveTo(CHEST_FRAME, 4, "full pull-out: the whole lens above the banner");
   setTracker(TRACKER_CHEST, "chest shot");
+  moveTo({ z: 1.0, px: 0, py: BANNER }, 4, "pull-out: full width, the guard lifts it as the head allows");
   setTimeout(() => { setTracker({ ...TRACKER_BASE, track_z: +(TRACKER_BASE.track_z * zoomAdj).toFixed(3), track_y: +(TRACKER_BASE.track_y + yAdj).toFixed(3) }, "back to head and shoulders"); moveTo(SHOTS.wide(), 4, "re-anchored"); chest = false; }, rnd(20, 30) * 1000);
 }
 function schedule() {
