@@ -51,7 +51,14 @@ async function tryOnce() {
 
 let last;
 for (let i = 0; i < 60; i++) {                           // up to ~60 s for OBS to come up
-  try { console.log(await tryOnce()); process.exit(0); } catch (e) { last = e; await sleep(1000); }
+  try {
+    console.log(await tryOnce());
+    // the camera operator (cameraman.mjs, beside this file) rides along while OBS runs
+    const { spawn } = await import("node:child_process");
+    const here = new URL(".", import.meta.url).pathname;
+    spawn(process.execPath, [`${here}cameraman.mjs`], { detached: true, stdio: "ignore" }).unref();
+    process.exit(0);
+  } catch (e) { last = e; await sleep(1000); }
 }
 console.error(`Could not start the virtual camera: ${last?.message}`);
 process.exit(1);
