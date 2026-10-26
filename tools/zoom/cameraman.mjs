@@ -199,7 +199,10 @@ function moveTo(target, secs, name) {
 // Face centred vertically in the tracker's crop (track_y 0): neck and shoulders are always
 // below it whatever his distance from the lens. (track_y −.28 put the chin on the crop's
 // bottom edge when he sat close — Jason, 2026-10-26: "NEVER cut my neck off".)
-const TRACKER_BASE  = { track_z: 0.48, track_y: -0.06, upsize_t: 0.5, upsize_b: 0.8 };   // wide enough that hair, neck and shoulders all fit above the banner when he sits close
+// The one zoom that does both: ≈1.15x keeps hair, neck and shoulders above the banner when
+// he sits close AND leaves ≈±125 px of pan so the tracker can hold his head on the centre
+// line (Jason, 2026-10-26: "ALWAYS (NON-NEGOTIABLE) KEEP MY HEAD CENTERED OVER THE UNLEASHED LOGO").
+const TRACKER_BASE  = { track_z: 0.52, track_y: -0.04, upsize_t: 0.5, upsize_b: 0.8 };
 // Chest shot: a box that reaches far below the face pushes the crop window down until it is
 // pinned to the bottom of the lens, so the lowest thing the lens sees (the breast pocket)
 // is in the shot, while the window still centres him and keeps ~1.1x in hand.
