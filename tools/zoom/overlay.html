@@ -67,6 +67,7 @@
   @keyframes floorPulse { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .75; } }
   /* the red rule along the top of the banner, with a slow left-to-right shimmer */
   .rule { position: absolute; left: 0; top: 930px; width: 1920px; height: 4px; background: #e0121c; overflow: hidden; }
+  .ruleline { position: absolute; left: 0; top: 928px; width: 1920px; height: 2px; background: #0b0b0d; }   /* a thin black line just above the red (Jason, 2026-10-26) */
   .rule::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 28%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,.95) 50%, transparent);
     animation: shimmer 12s linear infinite; }
@@ -101,6 +102,7 @@
 <div class="unurl">unleashed.news</div><div class="unurl-glint">unleashed.news</div>
 <div class="ungloss"></div>
 <div class="gloss"></div>
+<div class="ruleline"></div>
 <div class="rule"></div>
 <div class="qrrig"><img src="qr.png" alt=""><div class="qrcap">SCAN FOR THE BOOK</div></div>
 <div class="rig">
