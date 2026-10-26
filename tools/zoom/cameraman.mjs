@@ -98,8 +98,11 @@ function onFrame(data) {
   }
 }
 // The focus rack: a glide from soft to sharp through nine resolutions, 55 ms apart.
-// Starts from a real defocus so it reads even on a small preview, then glides to sharp.
-const RACK = ["384x216", "480x270", "576x324", "704x396", "832x468", "960x540", "1152x648", "1344x756", "1600x900"];
+// Starts from a real defocus so it reads even on a small preview, then glides to sharp in
+// sixteen fine steps, 32 ms apart: one continuous pull, never a skip.
+const RACK = ["416x234", "448x252", "496x279", "544x306", "608x342", "672x378", "752x423", "832x468",
+              "928x522", "1024x576", "1120x630", "1232x693", "1344x756", "1456x819", "1600x900", "1760x990"];
+const RACK_MS = 32;
 function focusPull(d, full) {
   pulling = true; lastPull = Date.now();
   const focus = (on, res) => {
@@ -112,21 +115,26 @@ function focusPull(d, full) {
     lastFull = lastPull;
     log(`focus pull (motion ${d.toFixed(1)})`);
     sharpen(0);
-    RACK.forEach((res, i) => setTimeout(() => focus(true, res), i * 50));
-    setTimeout(() => { focus(false); sharpen(0.10); }, RACK.length * 50);
-    setTimeout(() => sharpen(0.26), RACK.length * 50 + 140);     // the lens bites
-    setTimeout(() => sharpen(0.12), RACK.length * 50 + 650);
-    moveTo({ ...cur, z: cur.z + 0.04 }, 0.45, "lean in");
-    setTimeout(() => moveTo(back, 1.0, "settle"), 650);
+    RACK.forEach((res, i) => setTimeout(() => focus(true, res), i * RACK_MS));
+    const T = RACK.length * RACK_MS;
+    setTimeout(() => { focus(false); sharpen(0.10); }, T);
+    [0.16, 0.22, 0.26].forEach((v, i) => setTimeout(() => sharpen(v), T + 60 + i * 50));   // the lens bites, eased
+    [0.20, 0.15, 0.12].forEach((v, i) => setTimeout(() => sharpen(v), T + 400 + i * 120));
+    if (!activeTick) {                                         // never grab the frame mid-move
+      moveTo({ ...cur, z: cur.z + 0.04 }, 0.45, "lean in");
+      setTimeout(() => moveTo(back, 1.0, "settle"), 650);
+    }
     setTimeout(() => { pulling = false; }, 1500);
   } else {
     // he is still moving: no re-blur, just the bite of focus and a breath of a lean
     log(`focus touch (motion ${d.toFixed(1)})`);
-    sharpen(0.02);
-    setTimeout(() => sharpen(0.24), 120);
-    setTimeout(() => sharpen(0.12), 500);
-    moveTo({ ...cur, z: cur.z + 0.015 }, 0.35, "lean");
-    setTimeout(() => moveTo(back, 0.8, "settle"), 450);
+    [0.06, 0.02].forEach((v, i) => setTimeout(() => sharpen(v), i * 40));
+    [0.12, 0.20, 0.24].forEach((v, i) => setTimeout(() => sharpen(v), 110 + i * 45));
+    [0.18, 0.14, 0.12].forEach((v, i) => setTimeout(() => sharpen(v), 400 + i * 100));
+    if (!activeTick) {
+      moveTo({ ...cur, z: cur.z + 0.015 }, 0.35, "lean");
+      setTimeout(() => moveTo(back, 0.8, "settle"), 450);
+    }
     setTimeout(() => { pulling = false; }, 900);
   }
 }
