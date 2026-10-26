@@ -173,7 +173,7 @@ function moveTo(target, secs, name) {
 // output so the hair keeps its headroom at the top of the canvas.
 const TRACKER_BASE = { track_z: 0.62, track_y: -0.28 };
 const TRACKER_CHEST = { track_z: 0.40, track_y: -0.06 };   // full lens, face high enough for the breast pocket to be in
-let chest = false, sinceChest = 0;
+let chest = false, sinceChest = 1;               // starts at 1 so the first chest shot comes early
 function setTracker(s, name) {
   send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
   log(`${name}: tracker ${JSON.stringify(s)}`);
@@ -190,7 +190,7 @@ function schedule() {
   setTimeout(() => {
     if (pulling) { setTimeout(schedule, 0); return; }   // never step on a focus pull; try again after the hold
     sinceChest++;
-    if (!chest && (sinceChest >= 3 || Math.random() < 0.25)) { chestShot(); schedule(); return; }
+    if (!chest && (sinceChest >= 2 || Math.random() < 0.35)) { chestShot(); schedule(); return; }   // every other change or so
     let name; do { name = pick(WEIGHTS); } while (name === last);
     last = name;
     moveTo(SHOTS[name](), rnd(3, 5), name);
