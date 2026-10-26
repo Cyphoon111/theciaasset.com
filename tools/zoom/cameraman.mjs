@@ -37,11 +37,13 @@ const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;  
 // (Jason, 2026-10-26): no sideways pans, ever. Only zoom and a little headroom vary.
 // The banner covers the bottom 130 px, so a shot may only ever lift the picture (py ≤ 0),
 // never lower it: chin and neck stay clear (Jason, 2026-10-26: "NEVER CUT OFF MY CHIN OR NECK").
+// The tracker now holds a real crop of its own (≈1.5x, so it can always pan him onto the
+// centre line), so the operator's zooms stay modest to keep the total under ≈1.8x.
 const SHOTS = {
   "wide":          () => ({ z: 1.0, px: 0, py: 0 }),
-  "medium":        () => ({ z: rnd(1.10, 1.16), px: 0, py: rnd(-35, -15) }),
-  "push in":       () => ({ z: rnd(1.24, 1.32), px: 0, py: rnd(-80, -50) }),
-  "lift":          () => ({ z: rnd(1.06, 1.12), px: 0, py: rnd(-45, -25) }),
+  "medium":        () => ({ z: rnd(1.06, 1.10), px: 0, py: rnd(-25, -10) }),
+  "push in":       () => ({ z: rnd(1.14, 1.20), px: 0, py: rnd(-55, -35) }),
+  "lift":          () => ({ z: rnd(1.03, 1.07), px: 0, py: rnd(-35, -20) }),
 };
 const WEIGHTS = ["wide", "wide", "medium", "medium", "push in", "push in", "lift"];
 
