@@ -46,8 +46,8 @@ const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;  
 // DOES IT ZOOM IN SLIGHTLY OR PAN OUT SLIGHTLY").
 const SHOTS = {
   "wide":          () => ({ z: 1.0, px: 0, py: 0 }),
-  "a touch in":    () => ({ z: rnd(1.04, 1.07), px: 0, py: rnd(-14, -8) }),
-  "in":            () => ({ z: rnd(1.07, 1.10), px: 0, py: rnd(-22, -14) }),
+  "a touch in":    () => ({ z: rnd(1.02, 1.04), px: 0, py: 0 }),   // py stays 0: the picture's bottom row sits exactly on the banner
+  "in":            () => ({ z: rnd(1.04, 1.07), px: 0, py: 0 }),
 };
 const WEIGHTS = ["wide", "a touch in", "a touch in", "in"];
 
@@ -196,7 +196,10 @@ function moveTo(target, secs, name) {
 // the face rides a little higher), glides there over its own ~4 s, holds 20–30 s, eases back.
 // With the picture lifted by the banner height, the face is placed lower in the tracker's
 // output so the hair keeps its headroom at the top of the canvas.
-const TRACKER_BASE  = { track_z: 0.62, track_y: -0.28, upsize_t: 0.5, upsize_b: 0.8 };
+// Face centred vertically in the tracker's crop (track_y 0): neck and shoulders are always
+// below it whatever his distance from the lens. (track_y −.28 put the chin on the crop's
+// bottom edge when he sat close — Jason, 2026-10-26: "NEVER cut my neck off".)
+const TRACKER_BASE  = { track_z: 0.48, track_y: -0.06, upsize_t: 0.5, upsize_b: 0.8 };   // wide enough that hair, neck and shoulders all fit above the banner when he sits close
 // Chest shot: a box that reaches far below the face pushes the crop window down until it is
 // pinned to the bottom of the lens, so the lowest thing the lens sees (the breast pocket)
 // is in the shot, while the window still centres him and keeps ~1.1x in hand.

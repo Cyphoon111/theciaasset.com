@@ -3,8 +3,8 @@
   "filterName": "Auto-framing",
   "filterKind": "face_tracker_filter",
   "filterSettings": {
-    "track_z": 0.62,
-    "track_y": -0.28,
+    "track_z": 0.48,
+    "track_y": -0.06,
     "scale_max": 1.45,
     "upsize_l": 0.5,
     "upsize_r": 0.5,
