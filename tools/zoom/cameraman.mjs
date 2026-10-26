@@ -125,7 +125,7 @@ function guardTick() {
 function onGuardFrame(data) {
   try { writeTmp(TMP, Buffer.from(data.imageData.split(",")[1], "base64")); } catch { return; }
   execFile(FACEPOS, [TMP], (err, out) => {
-    if (err) { log(`guard: facepos failed: ${err.message.split("\n")[0]}`); return; }
+    if (err) { if (err.code !== 2) log(`guard: facepos failed: ${err.message.split("\n")[0]}`); return; }   // exit 2 = no face in this frame (he turned away): leave things alone
     if (!/cx=/.test(out)) return;                                          // no face: leave things alone
     const g = Object.fromEntries([...out.matchAll(/(\w+)=([\d.]+)/g)].map((m) => [m[1], Number(m[2])]));
     const headTop = g.cy - g.h / 2 - g.h * 0.45;                          // hair sits ~45% of a face-height above the box
