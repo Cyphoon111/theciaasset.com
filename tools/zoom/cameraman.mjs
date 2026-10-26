@@ -32,11 +32,12 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 // either side of the face (unequal = he sits off-centre = a reframe). upsize_t: headroom.
 // Measured 2026-10-26: track_z 0.15 = the whole frame, 0.8 = a tight close-up (≈2.2x).
 // scale_max 1.8 keeps the tightest shot on the sharp side of a 1080p feed.
+// Jason saw the 0.8 test shot: "too close of a zoom". Tightest move now 0.54, range 1.6x.
 const BASE = { track_z: 0.32, upsize_l: 0.5, upsize_r: 0.5, upsize_t: 0.8, upsize_b: 0.75, track_y: 0,
-  scale_max: 1.8, Tdlpf_z: 4 };
+  scale_max: 1.6, Tdlpf_z: 4 };
 const MOVES = {
-  "push in":        () => ({ track_z: rnd(0.58, 0.66) }),
-  "push in a touch":() => ({ track_z: rnd(0.44, 0.50) }),
+  "push in":        () => ({ track_z: rnd(0.48, 0.54) }),
+  "push in a touch":() => ({ track_z: rnd(0.40, 0.45) }),
   "pull back":      () => ({ track_z: rnd(0.18, 0.24) }),
   "settle":         () => ({ track_z: rnd(0.30, 0.36) }),
   "reframe left":   () => ({ upsize_l: rnd(0.66, 0.8), upsize_r: rnd(0.26, 0.36) }),

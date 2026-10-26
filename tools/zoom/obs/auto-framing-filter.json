@@ -5,7 +5,7 @@
   "filterSettings": {
     "track_z": 0.32,
     "track_y": 0,
-    "scale_max": 1.8,
+    "scale_max": 1.6,
     "upsize_l": 0.5,
     "upsize_r": 0.5,
     "upsize_t": 0.8,
