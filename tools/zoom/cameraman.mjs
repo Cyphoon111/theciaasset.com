@@ -171,8 +171,11 @@ function moveTo(target, secs, name) {
 // the face rides a little higher), glides there over its own ~4 s, holds 20–30 s, eases back.
 // With the picture lifted by the banner height, the face is placed lower in the tracker's
 // output so the hair keeps its headroom at the top of the canvas.
-const TRACKER_BASE = { track_z: 0.62, track_y: -0.28 };
-const TRACKER_CHEST = { track_z: 0.52, track_y: -0.06 };   // wide, but with enough zoom in hand (~1.2x) to keep him centred; face high for the breast pocket
+const TRACKER_BASE  = { track_z: 0.62, track_y: -0.28, upsize_t: 0.5, upsize_b: 0.8 };
+// Chest shot: a box that reaches far below the face pushes the crop window down until it is
+// pinned to the bottom of the lens, so the lowest thing the lens sees (the breast pocket)
+// is in the shot, while the window still centres him and keeps ~1.1x in hand.
+const TRACKER_CHEST = { track_z: 0.8, track_y: 0, upsize_t: 0.3, upsize_b: 2.5 };
 let chest = false, sinceChest = 1;               // starts at 1 so the first chest shot comes early
 function setTracker(s, name) {
   send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
