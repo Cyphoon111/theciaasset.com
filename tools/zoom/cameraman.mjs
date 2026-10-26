@@ -45,9 +45,12 @@ const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;  
 // "IT SHOULD ALWAYS ADJUST WHEN I MOVE... AND THEN PERIODICALLY ONLY FROM TIME TO TIME
 // DOES IT ZOOM IN SLIGHTLY OR PAN OUT SLIGHTLY").
 const SHOTS = {
-  "wide":          () => ({ z: 1.0, px: 0, py: 0 }),
-  "a touch in":    () => ({ z: rnd(1.02, 1.04), px: 0, py: 0 }),   // py stays 0: the picture's bottom row sits exactly on the banner
-  "in":            () => ({ z: rnd(1.04, 1.07), px: 0, py: 0 }),
+  // The picture sits at the lens's natural position (py = BANNER): the top of the lens, where the
+  // UNLEASHED neon sign hangs, stays in view in every normal shot (Jason, 2026-10-26: the sign
+  // "within view 70% of the time"). The head-room guard keeps his chin above the banner.
+  "wide":          () => ({ z: 1.0, px: 0, py: BANNER }),
+  "a touch in":    () => ({ z: rnd(1.02, 1.04), px: 0, py: BANNER }),
+  "in":            () => ({ z: rnd(1.04, 1.07), px: 0, py: BANNER }),
 };
 const WEIGHTS = ["wide", "a touch in", "a touch in", "in"];
 
@@ -73,11 +76,12 @@ function connect() {
       const a = m.d.authentication;
       ws.send(JSON.stringify({ op: 1, d: { rpcVersion: 1, authentication: a ? sha(sha(cfg.server_password + a.salt) + a.challenge) : undefined } }));
     } else if (m.op === 2) {
-      log("cameraman on"); setFrame(cur); setTracker(TRACKER_BASE, "base framing"); schedule(); setInterval(requestFrame, 100);
+      log("cameraman on"); setFrame(cur); setTracker(TRACKER_BASE, "base framing"); schedule(); setInterval(requestFrame, 100); setInterval(guardTick, 1500);
       if (process.env.CHEST_NOW) setTimeout(chestShot, 1000);   // test mode: the chest shot right away
     }
     else if (m.op === 7 && m.d.requestId === "frame" && m.d.responseData) onFrame(m.d.responseData);
     else if (m.op === 7 && m.d.requestId === "chestframe" && m.d.responseData) onChestFrame(m.d.responseData);
+    else if (m.op === 7 && m.d.requestId === "guardframe" && m.d.responseData) onGuardFrame(m.d.responseData);
   };
 }
 
@@ -102,6 +106,39 @@ function onChestFrame(data) {
   const lift = Math.max(0, Math.min(BANNER, headTop - 12));       // lift until the head sits just under the top: every row counts at the bottom
   log(`chest shot: head top near lens row ${headTop + 40}, lifting the picture ${lift} px`);
   moveTo({ z: 1.0, px: 0, py: BANNER - lift }, 2.5, "head up");
+}
+
+// ---- head-room guard (Jason, 2026-10-26: "DO NOT EVER ALLOW THE TOP OF MY HEAD TO BE CUT OFF") ----
+// Every 1.5 s the program picture is checked with macOS's own face detector (facepos, built
+// from facepos.swift). If the top of the head is within 5% of the top edge, the tracker's crop
+// widens a step (its own 4 s zoom smoothing keeps it a glide); once there is ample room it
+// tightens back toward the base shot. Skipped during the pull-out, which is already wide.
+import { execFile } from "node:child_process";
+import { writeFileSync as writeTmp } from "node:fs";
+const FACEPOS = decodeURIComponent(new URL("./facepos", import.meta.url).pathname);   // the app lives at "/Applications/On Air.app", with a space
+const TMP = `${HOME}/Library/Application Support/obs-studio/guard-frame.png`;
+let zoomAdj = 1.0;                                  // multiplier on TRACKER_BASE.track_z (≤ 1 = wider)
+function guardTick() {
+  if (chest) return;
+  send("GetSourceScreenshot", { sourceName: SCENE, imageFormat: "png", imageWidth: 480, imageHeight: 270 }, "guardframe");
+}
+function onGuardFrame(data) {
+  try { writeTmp(TMP, Buffer.from(data.imageData.split(",")[1], "base64")); } catch { return; }
+  execFile(FACEPOS, [TMP], (err, out) => {
+    if (err) { log(`guard: facepos failed: ${err.message.split("\n")[0]}`); return; }
+    if (!/cx=/.test(out)) return;                                          // no face: leave things alone
+    const g = Object.fromEntries([...out.matchAll(/(\w+)=([\d.]+)/g)].map((m) => [m[1], Number(m[2])]));
+    const headTop = g.cy - g.h / 2 - g.h * 0.45;                          // hair sits ~45% of a face-height above the box
+    const chin = g.cy + g.h / 2 + g.h * 0.35;                              // and the neck ~35% below it
+    const visibleBottom = FLOOR / H;
+    let next = zoomAdj;
+    if (headTop < 0.05 || chin > visibleBottom - 0.02) next = Math.max(0.6, zoomAdj - 0.06);      // widen
+    else if (headTop > 0.20 && chin < visibleBottom - 0.12 && zoomAdj < 1) next = Math.min(1, zoomAdj + 0.03);   // room to spare: tighten back
+    if (next !== zoomAdj) {
+      zoomAdj = next;
+      setTracker({ track_z: +(TRACKER_BASE.track_z * zoomAdj).toFixed(3) }, `head-room guard (head top at ${(headTop * 100).toFixed(0)}%, chin at ${(chin * 100).toFixed(0)}%)`);
+    }
+  });
 }
 
 // ---- motion → focus pull (Jason, 2026-10-26: "whenever I move... there must be a visual LIVE
@@ -202,7 +239,7 @@ function moveTo(target, secs, name) {
 // The one zoom that does both: ≈1.15x keeps hair, neck and shoulders above the banner when
 // he sits close AND leaves ≈±125 px of pan so the tracker can hold his head on the centre
 // line (Jason, 2026-10-26: "ALWAYS (NON-NEGOTIABLE) KEEP MY HEAD CENTERED OVER THE UNLEASHED LOGO").
-const TRACKER_BASE  = { track_z: 0.52, track_y: -0.04, upsize_t: 0.5, upsize_b: 0.8 };
+const TRACKER_BASE  = { track_z: 0.50, track_y: -0.04, upsize_t: 0.5, upsize_b: 0.8 };   // ≈1.1x: wide enough for the neon sign, ±90 px of pan to centre him
 // Chest shot: a box that reaches far below the face pushes the crop window down until it is
 // pinned to the bottom of the lens, so the lowest thing the lens sees (the breast pocket)
 // is in the shot, while the window still centres him and keeps ~1.1x in hand.
@@ -227,7 +264,7 @@ function chestShot() {
   chest = true; sinceChest = 0;
   moveTo(CHEST_FRAME, 4, "full pull-out: the whole lens above the banner");
   setTracker(TRACKER_CHEST, "chest shot");
-  setTimeout(() => { setTracker(TRACKER_BASE, "back to head and shoulders"); moveTo(SHOTS.wide(), 4, "re-anchored"); chest = false; }, rnd(20, 30) * 1000);
+  setTimeout(() => { setTracker({ ...TRACKER_BASE, track_z: +(TRACKER_BASE.track_z * zoomAdj).toFixed(3) }, "back to head and shoulders"); moveTo(SHOTS.wide(), 4, "re-anchored"); chest = false; }, rnd(20, 30) * 1000);
 }
 function schedule() {
   // hold a shot for 45–100 s, then a slow 3–5 s drift to a different shot;
