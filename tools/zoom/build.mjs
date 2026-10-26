@@ -136,7 +136,7 @@ async function buildOverlay() {
      so a page reload — which restarts the clock — never fires an extra one. */
   @keyframes tour {
     0%, 78.5%  { transform: translate(0, 0) scale(1); }
-    82%, 93.5% { transform: translate(${580 - (cvX + cvW / 2)}px, -120px) scale(1.3); }   /* hover: centre x≈580 (a touch shy of centre), level with his face (Jason, 2026-10-26) */
+    82%, 93.5% { transform: translate(${545 - (cvX + cvW / 2)}px, -120px) scale(1.3); }   /* hover: centre x≈545, level with his face (Jason, 2026-10-26: "a little further") */
     97%, 100%  { transform: translate(0, 0) scale(1); }
   }
   @keyframes captionFade { 0%, 82% { opacity: 0; } 84%, 92.5% { opacity: 1; } 94%, 100% { opacity: 0; } }
@@ -151,7 +151,7 @@ async function buildOverlay() {
     opacity: 0; animation: captionFade 60s linear infinite; }
   @keyframes qrTour {
     0%, 78.5%  { transform: translate(0, 0) scale(1); }
-    82%, 93.5% { transform: translate(${1380 - (qrX + qrSize / 2)}px, ${580 - (qrY + qrSize / 2)}px) scale(2); }   /* QR centre x≈1380, a little closer to the middle (Jason, 2026-10-26) */
+    82%, 93.5% { transform: translate(${1330 - (qrX + qrSize / 2)}px, ${580 - (qrY + qrSize / 2)}px) scale(2); }   /* QR centre x≈1330 (Jason, 2026-10-26: "a little further") */
     97%, 100%  { transform: translate(0, 0) scale(1); }
   }
   .stage { position: absolute; left: ${cvX}px; top: ${cvY}px; width: ${cvW}px; height: ${cvH}px; perspective: 1000px; }
