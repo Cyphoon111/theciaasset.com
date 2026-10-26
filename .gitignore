@@ -6,3 +6,4 @@ tools/*.csv
 tools/google-ads-campaign.md
 node_modules/
 .DS_Store
+.wrangler/

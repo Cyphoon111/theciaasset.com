@@ -725,6 +725,7 @@ html:has(.zoom[open]) { overflow: hidden; }
 .foot__policy a, .freq__note a, .preorder__fine a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 .foot__policy a:hover, .freq__note a:hover, .preorder__fine a:hover { color: var(--red); }
 .brand--foot { color: var(--ink); }
+.foot__site { color: var(--ink); font-weight: 700; }   /* the address in words, for one-word searches (Bing matches page text) */
 
 /* toast */
 .toast { position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px); opacity: 0; background: var(--ink); color: #fff; padding: 14px 20px; border-radius: 12px; font-size: 15px; box-shadow: 0 20px 40px -20px rgba(0,0,0,.6); transition: opacity .3s, transform .3s var(--ease); z-index: 80; pointer-events: none; max-width: calc(100% - 32px); }
