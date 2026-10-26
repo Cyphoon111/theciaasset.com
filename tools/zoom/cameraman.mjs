@@ -85,8 +85,10 @@ function connect() {
 // Calibrated 2026-10-26 at 96x54 over 300 ms: sitting still reads 2–4, a real move 6–24.
 // Frames come every 100 ms; each is compared with the one from 300 ms ago, so the score
 // keeps that calibration while the reaction comes within a tenth of a second.
-const MOTION_THRESH = Number(process.env.MOTION_THRESH || 5);
-const COOLDOWN_MS = 1500;                         // "immediate upon me moving"
+// Re-calibrated in his second room (neon wall, 2026-10-26): sitting still reads 5–8 there,
+// so the bar is 11 — a real move, never the room's own flicker.
+const MOTION_THRESH = Number(process.env.MOTION_THRESH || 13);
+const COOLDOWN_MS = 4000;
 const FULL_PULL_GAP_MS = 6000;                    // a full rack at most this often; in between, light touches
 let frames = [], lastPull = 0, lastFull = 0, pulling = false, peak = 0, lastPeakLog = 0;
 function requestFrame() { send("GetSourceScreenshot", { sourceName: "Camera", imageFormat: "bmp", imageWidth: 96, imageHeight: 54 }, "frame"); }
@@ -143,10 +145,7 @@ function focusPull(d, full) {
     [0.06, 0.02].forEach((v, i) => setTimeout(() => sharpen(v), i * 40));
     [0.12, 0.20, 0.24].forEach((v, i) => setTimeout(() => sharpen(v), 110 + i * 45));
     [0.18, 0.14, 0.12].forEach((v, i) => setTimeout(() => sharpen(v), 400 + i * 100));
-    if (!activeTick) {
-      moveTo({ ...cur, z: cur.z + 0.008 }, 0.4, "lean");
-      setTimeout(() => moveTo(back, 0.9, "settle"), 500);
-    }
+    // no lean on a touch: while he sits still the frame does not move (Jason, 2026-10-26)
     setTimeout(() => { pulling = false; }, 900);
   }
 }
