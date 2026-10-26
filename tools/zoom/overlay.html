@@ -8,8 +8,8 @@
      under it, then glides home (Jason, 2026-10-25). The rig carries book, shadow and caption;
      it pivots on the book's base so the base lifts only a little and the book grows upward. */
   .rig { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none;
-    transform-origin: 265px 928px; animation: tour 60s ease-in-out infinite; }
-  .caption { position: absolute; left: 145px; top: 938px; width: 240px; height: 30px; line-height: 30px;
+    transform-origin: 265px 908px; animation: tour 60s ease-in-out infinite; }
+  .caption { position: absolute; left: 145px; top: 918px; width: 240px; height: 30px; line-height: 30px;
     text-align: center; border-radius: 8px; background: rgba(11,11,13,.88); color: #c9a24b;
     font: 700 19px/30px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: .5px;
     opacity: 0; animation: captionFade 60s linear infinite; }
@@ -23,19 +23,19 @@
   @keyframes captionFade { 0%, 82% { opacity: 0; } 84%, 92.5% { opacity: 1; } 94%, 100% { opacity: 0; } }
   /* The QR rides the same clock: at rest in its banner tile; during the hover it lifts to the
      right of his face and doubles, with its label under it (Jason, 2026-10-25). */
-  .qrrig { position: absolute; left: 1754px; top: 954px; width: 122px; height: 122px;
+  .qrrig { position: absolute; left: 1734px; top: 934px; width: 142px; height: 142px;
     background: #fff; border-radius: 6px; transform-origin: 50% 50%; animation: qrTour 60s ease-in-out infinite; }
-  .qrrig img { position: absolute; left: 6px; top: 6px; width: 110px; height: 110px; image-rendering: pixelated; }
+  .qrrig img { position: absolute; left: 6px; top: 6px; width: 130px; height: 130px; image-rendering: pixelated; }
   .qrcap { position: absolute; left: 50%; top: calc(100% + 6px); transform: translateX(-50%); white-space: nowrap;
     padding: 0 9px; height: 17px; line-height: 17px; border-radius: 5px; background: rgba(11,11,13,.88); color: #fff;
     font: 700 10px/17px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 1.2px;
     opacity: 0; animation: captionFade 60s linear infinite; }
   @keyframes qrTour {
     0%, 78.5%  { transform: translate(0, 0) scale(1); }
-    82%, 93.5% { transform: translate(-445px, -435px) scale(2); }   /* QR centre x≈1370 (Jason, 2026-10-26: "stop slightly short") */
+    82%, 93.5% { transform: translate(-435px, -425px) scale(2); }   /* QR centre x≈1370 (Jason, 2026-10-26: "stop slightly short") */
     97%, 100%  { transform: translate(0, 0) scale(1); }
   }
-  .stage { position: absolute; left: 150px; top: 583px; width: 230px; height: 345px; perspective: 1000px; }
+  .stage { position: absolute; left: 150px; top: 563px; width: 230px; height: 345px; perspective: 1000px; }
   .book { --t: 21px; --ry: 24deg; --rx: 3deg; position: relative; width: 100%; height: 100%; transform-style: preserve-3d;
     transform: rotateY(var(--ry)) rotateX(var(--rx)); animation: bookFloat 7s ease-in-out infinite; }
   .book__cover, .book__back, .book__spine, .book__pages { position: absolute; }
@@ -60,20 +60,20 @@
   .book__spine em { color: #c9a24b; font-size: 7px; }
   .book__pages { top: 3px; bottom: 3px; right: calc(var(--t) / -2 + 1px); width: calc(var(--t) - 2px); transform: rotateY(90deg);
     background: repeating-linear-gradient(90deg, #f3f1ea 0 2px, #dcd8cd 2px 3px); box-shadow: inset 0 0 6px rgba(0,0,0,.18); }
-  .book__floor { position: absolute; left: 150px; top: 932px; width: 230px; height: 18px;
+  .book__floor { position: absolute; left: 150px; top: 912px; width: 230px; height: 18px;
     background: radial-gradient(closest-side, rgba(0,0,0,.45), transparent); filter: blur(5px); animation: floorPulse 7s ease-in-out infinite; }
   @keyframes sheen { 0% { background-position: 140% 0; } 22%, 100% { background-position: -40% 0; } }
   @keyframes bookFloat { 0%, 100% { translate: 0 0; } 50% { translate: 0 -10px; } }
   @keyframes floorPulse { 0%, 100% { transform: scaleX(1); opacity: 1; } 50% { transform: scaleX(.9); opacity: .75; } }
   /* the red rule along the top of the banner, with a slow left-to-right shimmer */
-  .rule { position: absolute; left: 0; top: 950px; width: 1920px; height: 4px; background: #e0121c; overflow: hidden; }
+  .rule { position: absolute; left: 0; top: 930px; width: 1920px; height: 4px; background: #e0121c; overflow: hidden; }
   .rule::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 28%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,.95) 50%, transparent);
     animation: shimmer 9s linear infinite; }
   /* a gloss sweeping the banner itself, same width, same clock as the rule, so they move as one;
      it stops short of the QR tile so the code never loses contrast */
-  .gloss { position: absolute; left: 0; top: 954px; width: 1920px; height: 126px; overflow: hidden;
-    clip-path: inset(0 184px 0 0); pointer-events: none; }
+  .gloss { position: absolute; left: 0; top: 934px; width: 1920px; height: 146px; overflow: hidden;
+    clip-path: inset(0 204px 0 0); pointer-events: none; }
   .gloss::after { content: ''; position: absolute; top: -20%; bottom: -20%; left: 0; width: 28%;
     background: linear-gradient(100deg,
       transparent 14%, rgba(11,11,13,.07) 30%,           /* soft shade leading the flash */
@@ -83,12 +83,12 @@
     animation: shimmer 9s linear infinite; }
   @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
   /* unleashed.news under its logo: bold pink, with its own glint every 20 s (Jason, 2026-10-26) */
-  .unurl, .unurl-glint { position: absolute; left: 0; width: 1920px; top: 1052px; height: 26px; line-height: 26px; text-align: center;
+  .unurl, .unurl-glint { position: absolute; left: 760px; width: 400px; top: 1053px; height: 26px; line-height: 26px; text-align: center;
     font: 800 24px/26px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 2px; pointer-events: none; }
   .unurl { color: #d6077c; }
   /* a white copy of the URL, revealed through a narrow window that sweeps across it: 2 s sweep, 18 s rest */
-  .unurl-glint { color: #fff; clip-path: inset(0 100% 0 -15%); animation: urlGlint 20s linear infinite; }
-  @keyframes urlGlint { 0%, 90% { clip-path: inset(0 100% 0 -15%); } 100% { clip-path: inset(0 -15% 0 100%); } }
+  .unurl-glint { color: #fff; clip-path: inset(0 100% 0 -12%); animation: urlGlint 20s linear infinite; }
+  @keyframes urlGlint { 0%, 90% { clip-path: inset(0 100% 0 -12%); } 100% { clip-path: inset(0 -12% 0 100%); } }   /* a 48 px window crossing 400 px in 2 s */
 </style>
 <img class="banner" src="overlay-base.png" alt="">
 <div class="unurl">unleashed.news</div><div class="unurl-glint">unleashed.news</div>

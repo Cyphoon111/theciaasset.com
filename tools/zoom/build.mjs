@@ -53,12 +53,12 @@ async function buildOverlay() {
   // within it. The book floats above it."). Left: the mark + THE CIA ASSET + URL. Centre:
   // the Unleashed.news logo (already on white). Right: the QR with its label. A red rule
   // along the top. The 3D book stands above the left block.
-  const SH = 130, SY = H - SH;                              // banner strip (170 → 130, Jason: "slightly thinner. More professional")
+  const SH = 150, SY = H - SH;                              // banner strip (130 → 150 so the Unleashed logo can grow, Jason 2026-10-26)
   const RULE = 4;                                           // red rule along the top (shimmers in the animated page)
   const pad = 10;
   const qrSize = SH - 2 * pad, qrX = W - 50 - qrSize, qrY = SY + pad;
   const ltX = 50, ltY = SY;                                 // left block
-  const unW = 236;                                          // Unleashed.news width in the strip (URL sits under it)
+  const unW = 290;                                          // Unleashed.news width in the strip (URL sits under it)
   const UNPINK = "#d6077c";                                 // the logo's badge pink
 
   const FROST = 0.86;                                       // strip opacity (Jason: "slightly translucent")
@@ -86,8 +86,8 @@ async function buildOverlay() {
     <!-- red rule --><rect x="0" y="${SY}" width="${W}" height="${RULE}" fill="${RED}"/><!-- /red rule -->
     <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="29" fill="none" stroke="${INK}" stroke-width="6"/>
     <circle cx="${ltX + 32}" cy="${SY + SH / 2 + 2}" r="11" fill="${RED}"/>
-    <text x="${ltX + 84}" y="${SY + 66}" ${WORD} font-size="50" fill="${INK}">THE <tspan fill="${RED}">CIA</tspan> ASSET</text>
-    <text x="${ltX + 86}" y="${SY + 106}" ${SANS} font-weight="bold" font-size="30" fill="#9c7a2c">theciaasset.com</text>
+    <text x="${ltX + 84}" y="${SY + 76}" ${WORD} font-size="50" fill="${INK}">THE <tspan fill="${RED}">CIA</tspan> ASSET</text>
+    <text x="${ltX + 86}" y="${SY + 116}" ${SANS} font-weight="bold" font-size="30" fill="#9c7a2c">theciaasset.com</text>
     <!-- QR label -->
     <text x="${qrX - 24}" y="${SY + SH / 2 - 4}" ${SANS} font-weight="bold" font-size="19" fill="${INK}" text-anchor="end" letter-spacing="2">SCAN FOR</text>
     <text x="${qrX - 24}" y="${SY + SH / 2 + 22}" ${SANS} font-weight="bold" font-size="19" fill="${INK}" text-anchor="end" letter-spacing="2">THE BOOK</text>
@@ -204,12 +204,12 @@ async function buildOverlay() {
     animation: shimmer 9s linear infinite; }
   @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
   /* unleashed.news under its logo: bold pink, with its own glint every 20 s (Jason, 2026-10-26) */
-  .unurl, .unurl-glint { position: absolute; left: 0; width: ${W}px; top: ${unUrlY}px; height: ${unUrlH}px; line-height: ${unUrlH}px; text-align: center;
+  .unurl, .unurl-glint { position: absolute; left: ${W / 2 - 200}px; width: 400px; top: ${unUrlY}px; height: ${unUrlH}px; line-height: ${unUrlH}px; text-align: center;
     font: 800 24px/${unUrlH}px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 2px; pointer-events: none; }
   .unurl { color: ${UNPINK}; }
   /* a white copy of the URL, revealed through a narrow window that sweeps across it: 2 s sweep, 18 s rest */
-  .unurl-glint { color: #fff; clip-path: inset(0 100% 0 -15%); animation: urlGlint 20s linear infinite; }
-  @keyframes urlGlint { 0%, 90% { clip-path: inset(0 100% 0 -15%); } 100% { clip-path: inset(0 -15% 0 100%); } }
+  .unurl-glint { color: #fff; clip-path: inset(0 100% 0 -12%); animation: urlGlint 20s linear infinite; }
+  @keyframes urlGlint { 0%, 90% { clip-path: inset(0 100% 0 -12%); } 100% { clip-path: inset(0 -12% 0 100%); } }   /* a 48 px window crossing 400 px in 2 s */
 </style>
 <img class="banner" src="overlay-base.png" alt="">
 <div class="unurl">unleashed.news</div><div class="unurl-glint">unleashed.news</div>
