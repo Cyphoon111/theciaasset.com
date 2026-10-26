@@ -151,7 +151,7 @@ async function buildOverlay() {
     opacity: 0; animation: captionFade 60s linear infinite; }
   @keyframes qrTour {
     0%, 78.5%  { transform: translate(0, 0) scale(1); }
-    82%, 93.5% { transform: translate(${1330 - (qrX + qrSize / 2)}px, ${580 - (qrY + qrSize / 2)}px) scale(2); }   /* QR centre x≈1330 (Jason, 2026-10-26: "a little further") */
+    82%, 93.5% { transform: translate(${1370 - (qrX + qrSize / 2)}px, ${580 - (qrY + qrSize / 2)}px) scale(2); }   /* QR centre x≈1370 (Jason, 2026-10-26: "stop slightly short") */
     97%, 100%  { transform: translate(0, 0) scale(1); }
   }
   .stage { position: absolute; left: ${cvX}px; top: ${cvY}px; width: ${cvW}px; height: ${cvH}px; perspective: 1000px; }
