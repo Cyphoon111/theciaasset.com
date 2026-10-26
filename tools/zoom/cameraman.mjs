@@ -208,14 +208,13 @@ function setTracker(s, name) {
 // head top sits near lens row 50 and the pocket square near row 870, x≈1420 — both fit in the
 // 930 visible rows. So the chest shot shows the lens UNLIFTED (py = BANNER puts the picture
 // back at its natural top), and only the tight shots use the banner anchor.
-const CHEST_FRAME = { z: 1.0, px: 0, py: BANNER };
+// The full pull-out: the whole lens frame, shrunk just enough that ALL of it sits above the
+// banner (1080 rows into the 930 visible), with narrow dark side bars. Nothing the lens sees is
+// off screen — top of the head to the last row at the bottom (Jason, 2026-10-26).
+const CHEST_FRAME = { z: FLOOR / H, px: 0, py: 0 };
 function chestShot() {
   chest = true; sinceChest = 0;
-  moveTo(CHEST_FRAME, 4, "wide for the chest, lens at rest");
-  // once the lens is wide, find his head and lift the picture so the top of his head rides
-  // just under the top of the frame — the most chest the lens has (Jason, 2026-10-26:
-  // "SHOW MY HEAD HIGHER ON THE SCREEN AND THE POCKET SQUARE WOULD COME INTO VIEW")
-  setTimeout(() => send("GetSourceScreenshot", { sourceName: "Camera", imageFormat: "bmp", imageWidth: 192, imageHeight: 108 }, "chestframe"), 4600);
+  moveTo(CHEST_FRAME, 4, "full pull-out: the whole lens above the banner");
   setTracker(TRACKER_CHEST, "chest shot");
   setTimeout(() => { setTracker(TRACKER_BASE, "back to head and shoulders"); moveTo(SHOTS.wide(), 4, "re-anchored"); chest = false; }, rnd(20, 30) * 1000);
 }
