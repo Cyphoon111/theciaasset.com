@@ -33,15 +33,15 @@ const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;  
 
 // A framing = zoom (1 = the whole tracked picture) and a pan in canvas pixels.
 // The tracker keeps his face at the centre, so zooming on the centre zooms on him.
+// His head stays on the centre line, in line with the Unleashed.news logo in the banner
+// (Jason, 2026-10-26): no sideways pans, ever. Only zoom and a little headroom vary.
 const SHOTS = {
   "wide":          () => ({ z: 1.0, px: 0, py: 0 }),
-  "medium":        () => ({ z: rnd(1.10, 1.16), px: rnd(-30, 30), py: rnd(-10, 10) }),
-  "push in":       () => ({ z: rnd(1.24, 1.32), px: rnd(-40, 40), py: rnd(-20, 10) }),
-  "reframe left":  () => ({ z: rnd(1.16, 1.26), px: rnd(90, 130), py: rnd(-10, 10) }),    // he sits right of centre
-  "reframe right": () => ({ z: rnd(1.16, 1.26), px: rnd(-130, -90), py: rnd(-10, 10) }),  // he sits left of centre
-  "low angle":     () => ({ z: rnd(1.14, 1.22), px: rnd(-30, 30), py: rnd(40, 70) }),      // more headroom
+  "medium":        () => ({ z: rnd(1.10, 1.16), px: 0, py: rnd(-10, 10) }),
+  "push in":       () => ({ z: rnd(1.24, 1.32), px: 0, py: rnd(-20, 10) }),
+  "low angle":     () => ({ z: rnd(1.14, 1.22), px: 0, py: rnd(40, 70) }),      // more headroom
 };
-const WEIGHTS = ["wide", "wide", "medium", "medium", "push in", "push in", "reframe left", "reframe right", "low angle"];
+const WEIGHTS = ["wide", "wide", "medium", "medium", "push in", "push in", "low angle"];
 
 let ws, cur = { z: 1, px: 0, py: 0 }, last = "", activeTick = null;
 function transform({ z, px, py }) {
@@ -145,10 +145,11 @@ function moveTo(target, secs, name) {
 function schedule() {
   // hold a shot for 8–20 s, then a 1.2–2.2 s move to a different shot
   setTimeout(() => {
+    if (pulling) { setTimeout(schedule, 0); return; }   // never step on a focus pull; try again after the hold
     let name; do { name = pick(WEIGHTS); } while (name === last);
     last = name;
     moveTo(SHOTS[name](), rnd(1.2, 2.2), name);
     schedule();
-  }, rnd(8, 20) * 1000);
+  }, pulling ? 1500 : rnd(8, 20) * 1000);
 }
 connect();
