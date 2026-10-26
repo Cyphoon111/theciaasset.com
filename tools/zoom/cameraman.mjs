@@ -114,8 +114,8 @@ function onChestFrame(data) {
 // keeps that calibration while the reaction comes within a tenth of a second.
 // Re-calibrated in his second room (neon wall, 2026-10-26): sitting still reads 5–8 there,
 // so the bar is 11 — a real move, never the room's own flicker.
-const MOTION_THRESH = Number(process.env.MOTION_THRESH || 13);
-const COOLDOWN_MS = 4000;
+const MOTION_THRESH = Number(process.env.MOTION_THRESH || 16);   // a real move only
+const COOLDOWN_MS = 6000;                                          // and not again for six seconds
 const FULL_PULL_GAP_MS = 6000;                    // a full rack at most this often; in between, light touches
 let frames = [], lastPull = 0, lastFull = 0, pulling = false, peak = 0, lastPeakLog = 0;
 function requestFrame() { send("GetSourceScreenshot", { sourceName: "Camera", imageFormat: "bmp", imageWidth: 96, imageHeight: 54 }, "frame"); }
@@ -139,11 +139,14 @@ function onFrame(data) {
 // The focus rack: a glide from soft to sharp through nine resolutions, 55 ms apart.
 // Starts from a real defocus so it reads even on a small preview, then glides to sharp in
 // sixteen fine steps, 32 ms apart: one continuous pull, never a skip.
-const RACK = ["416x234", "432x243", "448x252", "472x266", "496x279", "520x293", "544x306", "576x324", "608x342",
-              "640x360", "672x378", "712x401", "752x423", "792x446", "832x468", "880x495", "928x522", "976x549",
-              "1024x576", "1072x603", "1120x630", "1176x662", "1232x693", "1288x725", "1344x756", "1400x788",
-              "1456x819", "1528x860", "1600x900", "1680x945", "1760x990", "1840x1035"];
-const RACK_MS = 16;                                 // one step per frame at 60 fps: ~0.5 s, no visible steps
+// Gentle rack (Jason, 2026-10-26: "it must ALWAYS BE SMOOTH"): from a mild softness, six
+// steps 70 ms apart — each step too small to read as a jump.
+const RACK = ["1152x648", "1280x720", "1408x792", "1536x864", "1664x936", "1792x1008"];
+const RACK_MS = 70;
+// smooth sharpen ramps: many tiny steps instead of snaps
+function rampSharpen(from, to, ms, steps = 12, delay = 0) {
+  for (let i = 1; i <= steps; i++) setTimeout(() => send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Sharpen", filterSettings: { sharpness: from + (to - from) * (i / steps) } }), delay + (ms * i) / steps);
+}
 function focusPull(d, full) {
   pulling = true; lastPull = Date.now();
   const focus = (on, res) => {
@@ -155,21 +158,20 @@ function focusPull(d, full) {
   if (full) {
     lastFull = lastPull;
     log(`focus pull (motion ${d.toFixed(1)})`);
-    sharpen(0);
-    RACK.forEach((res, i) => setTimeout(() => focus(true, res), i * RACK_MS));
-    const T = RACK.length * RACK_MS;
-    setTimeout(() => { focus(false); sharpen(0.10); }, T);
-    [0.16, 0.22, 0.26].forEach((v, i) => setTimeout(() => sharpen(v), T + 60 + i * 50));   // the lens bites, eased
-    [0.20, 0.15, 0.12].forEach((v, i) => setTimeout(() => sharpen(v), T + 400 + i * 120));
+    rampSharpen(0.12, 0.0, 120);
+    RACK.forEach((res, i) => setTimeout(() => focus(true, res), 120 + i * RACK_MS));
+    const T = 120 + RACK.length * RACK_MS;
+    setTimeout(() => focus(false), T);
+    rampSharpen(0.0, 0.24, 300, 12, T);                      // the lens bites, as a glide
+    rampSharpen(0.24, 0.12, 500, 12, T + 320);               // and settles
     // the focus rack is the whole effect: the frame itself never moves on a pull (Jason, 2026-10-26)
-    setTimeout(() => { pulling = false; }, 1500);
+    setTimeout(() => { pulling = false; }, T + 900);
   } else {
-    // he is still moving: no re-blur, just the bite of focus and a breath of a lean
+    // he is still moving: no re-blur, just a glide of focus
     log(`focus touch (motion ${d.toFixed(1)})`);
-    [0.06, 0.02].forEach((v, i) => setTimeout(() => sharpen(v), i * 40));
-    [0.12, 0.20, 0.24].forEach((v, i) => setTimeout(() => sharpen(v), 110 + i * 45));
-    [0.18, 0.14, 0.12].forEach((v, i) => setTimeout(() => sharpen(v), 400 + i * 100));
-    // no lean on a touch: while he sits still the frame does not move (Jason, 2026-10-26)
+    rampSharpen(0.12, 0.05, 150);
+    rampSharpen(0.05, 0.20, 250, 12, 150);
+    rampSharpen(0.20, 0.12, 400, 12, 400);
     setTimeout(() => { pulling = false; }, 900);
   }
 }
