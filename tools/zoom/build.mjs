@@ -204,15 +204,15 @@ async function buildOverlay() {
     animation: shimmer 9s linear infinite; }
   @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
   /* unleashed.news under its logo: bold pink, with its own glint every 20 s (Jason, 2026-10-26) */
-  .unurl { position: absolute; left: 0; width: ${W}px; top: ${unUrlY}px; height: ${unUrlH}px; line-height: ${unUrlH}px; text-align: center;
-    font: 800 24px/${unUrlH}px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 2px;
-    color: ${UNPINK}; background: linear-gradient(100deg, ${UNPINK} 0%, ${UNPINK} 42%, #fff 50%, ${UNPINK} 58%, ${UNPINK} 100%);
-    background-size: 300% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; color: transparent;
-    animation: urlGlint 20s linear infinite; }
-  @keyframes urlGlint { 0%, 90% { background-position: 100% 0; } 100% { background-position: -100% 0; } }   /* 2 s sweep, 18 s rest */
+  .unurl, .unurl-glint { position: absolute; left: 0; width: ${W}px; top: ${unUrlY}px; height: ${unUrlH}px; line-height: ${unUrlH}px; text-align: center;
+    font: 800 24px/${unUrlH}px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 2px; pointer-events: none; }
+  .unurl { color: ${UNPINK}; }
+  /* a white copy of the URL, revealed through a narrow window that sweeps across it: 2 s sweep, 18 s rest */
+  .unurl-glint { color: #fff; clip-path: inset(0 100% 0 -15%); animation: urlGlint 20s linear infinite; }
+  @keyframes urlGlint { 0%, 90% { clip-path: inset(0 100% 0 -15%); } 100% { clip-path: inset(0 -15% 0 100%); } }
 </style>
 <img class="banner" src="overlay-base.png" alt="">
-<div class="unurl">unleashed.news</div>
+<div class="unurl">unleashed.news</div><div class="unurl-glint">unleashed.news</div>
 <div class="gloss"></div>
 <div class="rule"></div>
 <div class="qrrig"><img src="qr.png" alt=""><div class="qrcap">SCAN FOR THE BOOK</div></div>
