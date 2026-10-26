@@ -35,13 +35,15 @@ const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;  
 // The tracker keeps his face at the centre, so zooming on the centre zooms on him.
 // His head stays on the centre line, in line with the Unleashed.news logo in the banner
 // (Jason, 2026-10-26): no sideways pans, ever. Only zoom and a little headroom vary.
+// The banner covers the bottom 130 px, so a shot may only ever lift the picture (py ≤ 0),
+// never lower it: chin and neck stay clear (Jason, 2026-10-26: "NEVER CUT OFF MY CHIN OR NECK").
 const SHOTS = {
   "wide":          () => ({ z: 1.0, px: 0, py: 0 }),
-  "medium":        () => ({ z: rnd(1.10, 1.16), px: 0, py: rnd(-10, 10) }),
-  "push in":       () => ({ z: rnd(1.24, 1.32), px: 0, py: rnd(-20, 10) }),
-  "low angle":     () => ({ z: rnd(1.14, 1.22), px: 0, py: rnd(40, 70) }),      // more headroom
+  "medium":        () => ({ z: rnd(1.10, 1.16), px: 0, py: rnd(-35, -15) }),
+  "push in":       () => ({ z: rnd(1.24, 1.32), px: 0, py: rnd(-80, -50) }),
+  "lift":          () => ({ z: rnd(1.06, 1.12), px: 0, py: rnd(-45, -25) }),
 };
-const WEIGHTS = ["wide", "wide", "medium", "medium", "push in", "push in", "low angle"];
+const WEIGHTS = ["wide", "wide", "medium", "medium", "push in", "push in", "lift"];
 
 let ws, cur = { z: 1, px: 0, py: 0 }, last = "", activeTick = null;
 function transform({ z, px, py }) {
