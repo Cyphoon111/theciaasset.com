@@ -30,13 +30,15 @@ const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
 // The framings. track_z: how big the face is (bigger = tighter). upsize l/r: how much room
 // either side of the face (unequal = he sits off-centre = a reframe). upsize_t: headroom.
-const BASE = { track_z: 0.34, upsize_l: 0.5, upsize_r: 0.5, upsize_t: 0.8, upsize_b: 0.75, track_y: 0,
-  scale_max: 1.6, Tdlpf_z: 4 };   // zoom range and zoom speed the moves need to be seen
+// Measured 2026-10-26: track_z 0.15 = the whole frame, 0.8 = a tight close-up (≈2.2x).
+// scale_max 1.8 keeps the tightest shot on the sharp side of a 1080p feed.
+const BASE = { track_z: 0.32, upsize_l: 0.5, upsize_r: 0.5, upsize_t: 0.8, upsize_b: 0.75, track_y: 0,
+  scale_max: 1.8, Tdlpf_z: 4 };
 const MOVES = {
-  "push in":        () => ({ track_z: rnd(0.50, 0.58) }),
-  "push in a touch":() => ({ track_z: rnd(0.42, 0.47) }),
-  "pull back":      () => ({ track_z: rnd(0.24, 0.29) }),
-  "settle":         () => ({ track_z: rnd(0.33, 0.37) }),
+  "push in":        () => ({ track_z: rnd(0.58, 0.66) }),
+  "push in a touch":() => ({ track_z: rnd(0.44, 0.50) }),
+  "pull back":      () => ({ track_z: rnd(0.18, 0.24) }),
+  "settle":         () => ({ track_z: rnd(0.30, 0.36) }),
   "reframe left":   () => ({ upsize_l: rnd(0.66, 0.8), upsize_r: rnd(0.26, 0.36) }),
   "reframe right":  () => ({ upsize_l: rnd(0.26, 0.36), upsize_r: rnd(0.66, 0.8) }),
   "recentre":       () => ({ upsize_l: 0.5, upsize_r: 0.5 }),
