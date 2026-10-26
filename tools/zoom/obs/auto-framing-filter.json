@@ -10,10 +10,10 @@
     "upsize_r": 0.5,
     "upsize_t": 0.5,
     "upsize_b": 0.8,
-    "Kp": 1,
-    "Ki": 0.25,
-    "Td": 0.35,
-    "Tdlpf": 1.5,
+    "Kp": 0.5,
+    "Ki": 0.08,
+    "Td": 0,
+    "Tdlpf": 2.5,
     "Tdlpf_z": 4
   }
 }
