@@ -171,8 +171,8 @@ const TRACKER_BASE  = { track_z: 0.62, track_y: -0.28, upsize_t: 0.5, upsize_b: 
 // Chest shot: a box that reaches far below the face pushes the crop window down until it is
 // pinned to the bottom of the lens, so the lowest thing the lens sees (the breast pocket)
 // is in the shot, while the window still centres him and keeps ~1.1x in hand.
-const TRACKER_CHEST = { track_z: 0.8, track_y: 0, upsize_t: 0.3, upsize_b: 2.5 };
-let chest = false, sinceChest = 1;               // starts at 1 so the first chest shot comes early
+const TRACKER_CHEST = { track_z: 0.5, track_y: 0, upsize_t: 0.3, upsize_b: 2.5 };   // the box outgrows the frame: zoom 1.0, the whole lens, nothing held back
+let chest = false, sinceChest = 2;               // starts at 2: the first shot change after start IS the chest shot
 function setTracker(s, name) {
   send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
   log(`${name}: tracker ${JSON.stringify(s)}`);
