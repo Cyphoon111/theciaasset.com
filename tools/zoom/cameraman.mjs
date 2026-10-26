@@ -72,9 +72,36 @@ function connect() {
     if (m.op === 0) {
       const a = m.d.authentication;
       ws.send(JSON.stringify({ op: 1, d: { rpcVersion: 1, authentication: a ? sha(sha(cfg.server_password + a.salt) + a.challenge) : undefined } }));
-    } else if (m.op === 2) { log("cameraman on"); setFrame(cur); setTracker(TRACKER_BASE, "base framing"); schedule(); setInterval(requestFrame, 100); }
+    } else if (m.op === 2) {
+      log("cameraman on"); setFrame(cur); setTracker(TRACKER_BASE, "base framing"); schedule(); setInterval(requestFrame, 100);
+      if (process.env.CHEST_NOW) setTimeout(chestShot, 1000);   // test mode: the chest shot right away
+    }
     else if (m.op === 7 && m.d.requestId === "frame" && m.d.responseData) onFrame(m.d.responseData);
+    else if (m.op === 7 && m.d.requestId === "chestframe" && m.d.responseData) onChestFrame(m.d.responseData);
   };
+}
+
+// Where is the top of his head in the lens? Skin-toned pixels in the middle half of the
+// frame, scanned from the top; the first row with a run of them is the forehead/hair line.
+function onChestFrame(data) {
+  if (!chest) return;
+  const b = Buffer.from(data.imageData.split(",")[1], "base64");
+  const off = b.readUInt32LE(10), w = b.readInt32LE(18), h = Math.abs(b.readInt32LE(22)), bpp = b.readUInt16LE(28) / 8;
+  const row = Math.ceil((w * bpp) / 4) * 4;
+  let top = -1;
+  for (let y = 0; y < h && top < 0; y++) {
+    let skin = 0;
+    for (let x = Math.floor(w * 0.25); x < w * 0.75; x++) {
+      const p = off + y * row + x * bpp, bl = b[p], g = b[p + 1], r = b[p + 2];
+      if (r > 90 && r > g + 15 && g > bl && r - bl > 30 && r < 235) skin++;
+    }
+    if (skin > w * 0.06) top = y;
+  }
+  if (top < 0) { log("chest shot: no face found, keeping the lens at rest"); return; }
+  const headTop = Math.round(top * (H / h)) - 28;                 // hair room above the skin line
+  const lift = Math.max(0, Math.min(BANNER, headTop - 12));       // lift until the head sits just under the top: every row counts at the bottom
+  log(`chest shot: head top near lens row ${headTop + 40}, lifting the picture ${lift} px`);
+  moveTo({ z: 1.0, px: 0, py: BANNER - lift }, 2.5, "head up");
 }
 
 // ---- motion → focus pull (Jason, 2026-10-26: "whenever I move... there must be a visual LIVE
@@ -185,6 +212,10 @@ const CHEST_FRAME = { z: 1.0, px: 0, py: BANNER };
 function chestShot() {
   chest = true; sinceChest = 0;
   moveTo(CHEST_FRAME, 4, "wide for the chest, lens at rest");
+  // once the lens is wide, find his head and lift the picture so the top of his head rides
+  // just under the top of the frame — the most chest the lens has (Jason, 2026-10-26:
+  // "SHOW MY HEAD HIGHER ON THE SCREEN AND THE POCKET SQUARE WOULD COME INTO VIEW")
+  setTimeout(() => send("GetSourceScreenshot", { sourceName: "Camera", imageFormat: "bmp", imageWidth: 192, imageHeight: 108 }, "chestframe"), 4600);
   setTracker(TRACKER_CHEST, "chest shot");
   setTimeout(() => { setTracker(TRACKER_BASE, "back to head and shoulders"); moveTo(SHOTS.wide(), 4, "re-anchored"); chest = false; }, rnd(20, 30) * 1000);
 }
