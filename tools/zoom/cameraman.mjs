@@ -59,9 +59,10 @@ let ws, cur = { z: 1, px: 0, py: 0 }, last = "", activeTick = null;
 // the lens sees at the bottom (neck, collar, breast pocket) is ever hidden behind the banner
 // (Jason, 2026-10-26). What gets cropped instead is the top of the lens view: ceiling and
 // whiteboard. py ≤ 0 lifts it further still.
+let lift = 0;                                     // 0..BANNER: the guard raises the whole picture when his chin nears the banner
 function transform({ z, px, py }) {
   const bw = W * z, bh = H * z;
-  return { boundsWidth: bw, boundsHeight: bh, positionX: (W - bw) / 2 + px, positionY: FLOOR - bh + py };
+  return { boundsWidth: bw, boundsHeight: bh, positionX: (W - bw) / 2 + px, positionY: FLOOR - bh + py - (chest ? 0 : lift) };
 }
 function send(type, data, id = "op") { ws.send(JSON.stringify({ op: 6, d: { requestType: type, requestId: id, requestData: data } })); }
 function setFrame(f) { send("SetSceneItemTransform", { sceneName: SCENE, sceneItemId: ITEM, sceneItemTransform: transform(f) }); }
@@ -136,16 +137,25 @@ function onGuardFrame(data) {
     // Centring comes first (Jason, 2026-10-26: "KEEP MY HEAD CENTERED"): the crop never widens
     // past ZOOM_FLOOR, where it still has pan room. Head and chin are protected by sliding the
     // face up or down inside the crop (track_y); widening is the last resort, and only to the floor.
-    const ZOOM_FLOOR = 0.9;
-    let nz = zoomAdj, ny = yAdj;
-    if (headTight && chinTight) nz = Math.max(ZOOM_FLOOR, zoomAdj - 0.05);                        // both edges tight: widen a little
+    // Levers, in order: (1) raise or lower the whole picture (lift 0..150 px: the rows that
+    // otherwise sit under the banner), (2) slide the face in the crop (track_y), (3) widen,
+    // only to ZOOM_FLOOR. With room to spare, everything drifts back so the neon sign shows.
+    const ZOOM_FLOOR = 0.9, STEP = 40;
+    let nz = zoomAdj, ny = yAdj, nl = lift;
+    if (chinTight && lift < BANNER) nl = Math.min(BANNER, lift + STEP);
+    else if (headTight && lift > 0) nl = Math.max(0, lift - STEP);
+    else if (headTight && chinTight) nz = Math.max(ZOOM_FLOOR, zoomAdj - 0.05);
     else if (headTight) ny = Math.max(-0.30, yAdj - 0.04);                                         // face lower in the crop
     else if (chinTight) ny = Math.min(0.10, yAdj + 0.04);                                          // face higher in the crop
-    else if (headTop > 0.20 && chin < visibleBottom - 0.12 && zoomAdj < 1) nz = Math.min(1, zoomAdj + 0.03);   // room to spare: tighten back
+    else if (headTop > 0.20 && chin < visibleBottom - 0.12) {                                      // room to spare: drift back
+      if (lift > 0) nl = Math.max(0, lift - STEP / 2);
+      else if (zoomAdj < 1) nz = Math.min(1, zoomAdj + 0.03);
+    }
+    const why = `head-room guard (head top at ${(headTop * 100).toFixed(0)}%, chin at ${(chin * 100).toFixed(0)}%)`;
+    if (nl !== lift) { lift = nl; if (!activeTick) moveTo({ ...cur }, 1.2, `${why}: picture lifted ${lift} px`); else log(`${why}: lift ${lift} px (applies with the next move)`); }
     if (nz !== zoomAdj || ny !== yAdj) {
       zoomAdj = nz; yAdj = ny;
-      setTracker({ track_z: +(TRACKER_BASE.track_z * zoomAdj).toFixed(3), track_y: +(TRACKER_BASE.track_y + yAdj).toFixed(3) },
-        `head-room guard (head top at ${(headTop * 100).toFixed(0)}%, chin at ${(chin * 100).toFixed(0)}%)`);
+      setTracker({ track_z: +(TRACKER_BASE.track_z * zoomAdj).toFixed(3), track_y: +(TRACKER_BASE.track_y + yAdj).toFixed(3) }, why);
     }
   });
 }
