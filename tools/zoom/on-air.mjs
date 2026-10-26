@@ -6,7 +6,7 @@
 // password kept in OBS's own config), opens OBS, waits until it answers, and asks
 // it to start the virtual camera. Safe to run when OBS is already open.
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { homedir } from "node:os";
 
@@ -25,30 +25,32 @@ execFileSync("open", ["-a", "OBS"]);
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const sha = (s) => createHash("sha256").update(s).digest("base64");
 
-async function tryOnce() {
+// One identified obs-websocket connection, with request() awaiting each reply.
+function connect() {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(`ws://127.0.0.1:${port}`);
-    const fail = (e) => { try { ws.close(); } catch {} reject(e); };
-    ws.onerror = () => fail(new Error("no answer"));
+    const pending = new Map();
+    let n = 0;
+    ws.onerror = () => reject(new Error("no answer"));
+    ws.onclose = () => { for (const p of pending.values()) p.reject(new Error("OBS closed the connection")); };
     ws.onmessage = (ev) => {
       const m = JSON.parse(ev.data);
       if (m.op === 0) {                                   // Hello
         const a = m.d.authentication;
         const auth = a ? sha(sha(password + a.salt) + a.challenge) : undefined;
         ws.send(JSON.stringify({ op: 1, d: { rpcVersion: 1, authentication: auth } }));
-      } else if (m.op === 2) {                            // Identified: make sure the output is 60 fps, then start
-        ws.send(JSON.stringify({ op: 6, d: { requestType: "GetVideoSettings", requestId: "fps" } }));
-      } else if (m.op === 7 && m.d.requestId === "fps") {
-        const v = m.d.responseData || {};
-        if (v.fpsNumerator !== 60 || v.fpsDenominator !== 1)   // OBS does not keep this across restarts reliably
-          ws.send(JSON.stringify({ op: 6, d: { requestType: "SetVideoSettings", requestId: "setfps", requestData: { fpsNumerator: 60, fpsDenominator: 1 } } }));
-        ws.send(JSON.stringify({ op: 6, d: { requestType: "StartVirtualCam", requestId: "on-air" } }));
-      } else if (m.op === 7 && m.d.requestId === "on-air") {   // StartVirtualCam answered: now verify
-        ws.send(JSON.stringify({ op: 6, d: { requestType: "GetVirtualCamStatus", requestId: "check" } }));
-      } else if (m.op === 7 && m.d.requestId === "check") {
-        ws.close();
-        if (m.d.responseData?.outputActive) resolve("virtual camera on");
-        else reject(new Error("virtual camera not active yet"));         // retried by the loop below
+      } else if (m.op === 2) {                            // Identified
+        resolve({
+          request: (requestType, requestData) => new Promise((res, rej) => {
+            const requestId = String(++n);
+            pending.set(requestId, { resolve: res, reject: rej });
+            ws.send(JSON.stringify({ op: 6, d: { requestType, requestId, requestData } }));
+          }),
+          close: () => { try { ws.close(); } catch {} },
+        });
+      } else if (m.op === 7 && pending.has(m.d.requestId)) {
+        const p = pending.get(m.d.requestId); pending.delete(m.d.requestId);
+        p.resolve({ ok: m.d.requestStatus.result, code: m.d.requestStatus.code, comment: m.d.requestStatus.comment, data: m.d.responseData || {} });
       }
     };
   });
@@ -56,21 +58,49 @@ async function tryOnce() {
 
 // Ask OBS to start the camera ONCE. Every StartVirtualCam that fails pops a dialog in OBS, so
 // a retry loop on failure buries the screen in them (2026-10-26). Retries here are only for
-// "OBS not answering yet"; a refusal after a connection ends the attempt.
-let last, asked = false;
-for (let i = 0; i < 60 && !asked; i++) {                 // up to ~60 s for OBS to come up
+// "OBS not answering yet"; after a connection the one attempt decides.
+//
+// OBS answers StartVirtualCam before the output is actually running: on 2026-10-26 the status
+// check 5 ms later still said "not active", On Air quit with a dialog, and OBS switched the
+// camera on 14 ms after that — with the cameraman and record hook never started. So after the
+// request, the status is polled for up to 15 s before the camera is called off.
+async function startCamera() {
+  const obs = await connect();                            // throws "no answer" while OBS is still coming up
   try {
-    asked = true;
-    console.log(await tryOnce());
-    // the camera operator (cameraman.mjs, beside this file) rides along while OBS runs
-    const { spawn } = await import("node:child_process");
-    const here = new URL(".", import.meta.url).pathname;
-    spawn(process.execPath, [`${here}cameraman.mjs`], { detached: true, stdio: "ignore" }).unref();
+    const v = (await obs.request("GetVideoSettings")).data;
+    if (v.fpsNumerator !== 60 || v.fpsDenominator !== 1)   // OBS does not keep this across restarts reliably
+      await obs.request("SetVideoSettings", { fpsNumerator: 60, fpsDenominator: 1 });
+    if (!(await obs.request("GetVirtualCamStatus")).data.outputActive) {
+      const r = await obs.request("StartVirtualCam");
+      if (!r.ok && r.code !== 500) throw new Error(`OBS refused StartVirtualCam: ${r.code} ${r.comment || ""}`);  // 500 = already running
+    }
+    for (let i = 0; i < 30; i++) {
+      if ((await obs.request("GetVirtualCamStatus")).data.outputActive) return "virtual camera on";
+      await sleep(500);
+    }
+    throw new Error("the virtual camera did not come on within 15 s");
+  } finally { obs.close(); }
+}
+
+let last;
+for (let i = 0; i < 60; i++) {                            // up to ~60 s for OBS to come up
+  try {
+    console.log(await startCamera());
+    // Helpers ride along while OBS runs, one of each: a second On Air click (or a second
+    // helper after a false failure) must not start a second copy — two record hooks would
+    // publish every show twice.
+    const running = (script) => { try { return execFileSync("pgrep", ["-f", script], { encoding: "utf8" }).trim() !== ""; } catch { return false; } };
+    const helper = (script) => { if (existsSync(script) && !running(script)) spawn(process.execPath, [script], { detached: true, stdio: "ignore" }).unref(); };
+    // the camera operator (cameraman.mjs, beside this file)
+    helper(`${new URL(".", import.meta.url).pathname}cameraman.mjs`);
     // and the record hook: when a recording stops, the show is published to unleashed.news/shows
-    const hook = "/Users/jasonsullivan/Developer/unleashed.news/tools/shows/record-hook.mjs";
-    if (existsSync(hook)) spawn(process.execPath, [hook], { detached: true, stdio: "ignore" }).unref();
+    helper("/Users/jasonsullivan/Developer/unleashed.news/tools/shows/record-hook.mjs");
     process.exit(0);
-  } catch (e) { last = e; if (e.message === "no answer") asked = false; await sleep(1000); }
+  } catch (e) {
+    last = e;
+    if (e.message !== "no answer") break;                 // OBS answered and the one attempt failed: say so once
+    await sleep(1000);
+  }
 }
 console.error(`Could not start the virtual camera: ${last?.message}`);
 process.exit(1);

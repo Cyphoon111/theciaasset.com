@@ -7,7 +7,7 @@
 //
 //   node cameraman.mjs          runs until OBS goes away
 //   started automatically by on-air.mjs
-import { readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, appendFileSync, existsSync, unlinkSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { homedir } from "node:os";
 
@@ -20,12 +20,19 @@ const BANNER = 150;                               // the banner covers the botto
 const FLOOR = H - BANNER;                         // the picture's bottom edge always sits here, never under the banner
 const log = (s) => { try { appendFileSync(LOG, `${new Date().toISOString()} ${s}\n`); } catch {} };
 
-// one operator at a time
+// one operator at a time. The pid must be a real one: an empty or stale file read as pid 0,
+// and kill(0, 0) "succeeds" (it signals the whole process group), so from 2026-10-26 04:52
+// to 12:08 every launch believed an operator was already running and quit at once.
 if (existsSync(PIDFILE)) {
-  const pid = Number(readFileSync(PIDFILE, "utf8"));
-  try { process.kill(pid, 0); console.log(`cameraman already running (pid ${pid})`); process.exit(0); } catch {}
+  const pid = Number(readFileSync(PIDFILE, "utf8").trim());
+  if (Number.isInteger(pid) && pid > 0 && pid !== process.pid) {
+    try { process.kill(pid, 0); console.log(`cameraman already running (pid ${pid})`); process.exit(0); } catch {}
+  }
 }
 writeFileSync(PIDFILE, String(process.pid));
+const dropPid = () => { try { if (readFileSync(PIDFILE, "utf8").trim() === String(process.pid)) unlinkSync(PIDFILE); } catch {} };
+process.on("exit", dropPid);
+for (const sig of ["SIGINT", "SIGTERM", "SIGHUP"]) process.on(sig, () => process.exit(0));
 
 const cfg = JSON.parse(readFileSync(`${HOME}/Library/Application Support/obs-studio/plugin_config/obs-websocket/config.json`, "utf8"));
 const sha = (s) => createHash("sha256").update(s).digest("base64");
@@ -70,7 +77,7 @@ function setFrame(f) { send("SetSceneItemTransform", { sceneName: SCENE, sceneIt
 function connect() {
   ws = new WebSocket(`ws://127.0.0.1:${cfg.server_port}`);
   ws.onerror = () => {};
-  ws.onclose = () => { log("OBS gone, cameraman off"); try { writeFileSync(PIDFILE, ""); } catch {} process.exit(0); };
+  ws.onclose = () => { log("OBS gone, cameraman off"); process.exit(0); };   // the exit handler removes the pid file
   ws.onmessage = (ev) => {
     const m = JSON.parse(ev.data);
     if (m.op === 0) {
