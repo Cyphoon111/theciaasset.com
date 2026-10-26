@@ -60,7 +60,7 @@ function connect() {
     if (m.op === 0) {
       const a = m.d.authentication;
       ws.send(JSON.stringify({ op: 1, d: { rpcVersion: 1, authentication: a ? sha(sha(cfg.server_password + a.salt) + a.challenge) : undefined } }));
-    } else if (m.op === 2) { log("cameraman on"); setFrame(cur); schedule(); setInterval(requestFrame, 200); }
+    } else if (m.op === 2) { log("cameraman on"); setFrame(cur); schedule(); setInterval(requestFrame, 100); }
     else if (m.op === 7 && m.d.requestId === "frame" && m.d.responseData) onFrame(m.d.responseData);
   };
 }
@@ -70,10 +70,13 @@ function connect() {
 // A 96x54 frame of the camera every 300 ms; the mean change in brightness between frames is
 // the motion score. Past the threshold: drop focus (the Focus filter renders the camera at
 // low resolution), rack back to sharp over half a second, sharpen a touch, and lean in.
-// Calibrated 2026-10-26 at 96x54 / 200 ms: sitting still reads 2–4, a real move 6–20.
+// Calibrated 2026-10-26 at 96x54 over 300 ms: sitting still reads 2–4, a real move 6–24.
+// Frames come every 100 ms; each is compared with the one from 300 ms ago, so the score
+// keeps that calibration while the reaction comes within a tenth of a second.
 const MOTION_THRESH = Number(process.env.MOTION_THRESH || 5);
-const COOLDOWN_MS = 3000;                         // "fairly immediate each time I move"
-let prevLuma = null, lastPull = 0, pulling = false, peak = 0, lastPeakLog = 0;
+const COOLDOWN_MS = 1500;                         // "immediate upon me moving"
+const FULL_PULL_GAP_MS = 6000;                    // a full rack at most this often; in between, light touches
+let frames = [], lastPull = 0, lastFull = 0, pulling = false, peak = 0, lastPeakLog = 0;
 function requestFrame() { send("GetSourceScreenshot", { sourceName: "Camera", imageFormat: "bmp", imageWidth: 96, imageHeight: 54 }, "frame"); }
 function onFrame(data) {
   const b = Buffer.from(data.imageData.split(",")[1], "base64");
@@ -81,35 +84,48 @@ function onFrame(data) {
   const row = Math.ceil((w * bpp) / 4) * 4;
   const luma = new Float32Array(w * h);
   for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) { const p = off + y * row + x * bpp; luma[y * w + x] = 0.114 * b[p] + 0.587 * b[p + 1] + 0.299 * b[p + 2]; }
-  if (pulling) { prevLuma = null; return; }         // the pull's own blur is not motion
-  if (prevLuma) {
-    let s = 0; for (let i = 0; i < luma.length; i++) s += Math.abs(luma[i] - prevLuma[i]);
+  if (pulling) { frames = []; return; }             // the pull's own blur is not motion
+  frames.push(luma); if (frames.length > 4) frames.shift();
+  if (frames.length === 4) {
+    const ref = frames[0];
+    let s = 0; for (let i = 0; i < luma.length; i++) s += Math.abs(luma[i] - ref[i]);
     const d = s / luma.length, now = Date.now();
     if (d > peak) peak = d;
     if (now - lastPeakLog > 5000) { log(`motion peak ${peak.toFixed(1)}`); peak = 0; lastPeakLog = now; }
-    if (d > MOTION_THRESH && now - lastPull > COOLDOWN_MS) focusPull(d);
+    if (d > MOTION_THRESH && now - lastPull > COOLDOWN_MS) focusPull(d, now - lastFull > FULL_PULL_GAP_MS);
   }
-  prevLuma = luma;
 }
-function focusPull(d) {
+// The focus rack: a glide from soft to sharp through nine resolutions, 55 ms apart.
+const RACK = ["800x450", "896x504", "992x558", "1088x612", "1184x666", "1280x720", "1408x792", "1536x864", "1664x936"];
+function focusPull(d, full) {
   pulling = true; lastPull = Date.now();
-  log(`focus pull (motion ${d.toFixed(1)})`);
   const focus = (on, res) => {
     if (res) send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Focus", filterSettings: { resolution: res } });
     send("SetSourceFilterEnabled", { sourceName: "Camera", filterName: "Focus", filterEnabled: on });
   };
   const sharpen = (v) => send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Sharpen", filterSettings: { sharpness: v } });
-  focus(true, "640x360"); sharpen(0);
-  setTimeout(() => focus(true, "960x540"), 150);
-  setTimeout(() => focus(true, "1280x720"), 290);
-  setTimeout(() => { focus(false); sharpen(0.08); }, 420);
-  setTimeout(() => sharpen(0.16), 580);
-  setTimeout(() => sharpen(0.10), 1000);
-  // lean in a touch, then settle back to the shot
   const back = { ...cur };
-  moveTo({ ...cur, z: cur.z + 0.04 }, 0.4, "lean in");
-  setTimeout(() => moveTo(back, 0.9, "settle"), 600);
-  setTimeout(() => { pulling = false; }, 1600);
+  if (full) {
+    lastFull = lastPull;
+    log(`focus pull (motion ${d.toFixed(1)})`);
+    sharpen(0);
+    RACK.forEach((res, i) => setTimeout(() => focus(true, res), i * 55));
+    setTimeout(() => { focus(false); sharpen(0.08); }, RACK.length * 55);
+    setTimeout(() => sharpen(0.16), RACK.length * 55 + 160);
+    setTimeout(() => sharpen(0.10), RACK.length * 55 + 600);
+    moveTo({ ...cur, z: cur.z + 0.04 }, 0.45, "lean in");
+    setTimeout(() => moveTo(back, 1.0, "settle"), 650);
+    setTimeout(() => { pulling = false; }, 1500);
+  } else {
+    // he is still moving: no re-blur, just the bite of focus and a breath of a lean
+    log(`focus touch (motion ${d.toFixed(1)})`);
+    sharpen(0.04);
+    setTimeout(() => sharpen(0.15), 120);
+    setTimeout(() => sharpen(0.10), 500);
+    moveTo({ ...cur, z: cur.z + 0.015 }, 0.35, "lean");
+    setTimeout(() => moveTo(back, 0.8, "settle"), 450);
+    setTimeout(() => { pulling = false; }, 900);
+  }
 }
 
 // glide from the current framing to the target over `secs`, 30 steps a second
