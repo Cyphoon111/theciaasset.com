@@ -39,13 +39,15 @@ const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;  
 // never lower it: chin and neck stay clear (Jason, 2026-10-26: "NEVER CUT OFF MY CHIN OR NECK").
 // The tracker now holds a real crop of its own (≈1.5x, so it can always pan him onto the
 // centre line), so the operator's zooms stay modest to keep the total under ≈1.8x.
+// Only from time to time, and only slightly: a touch in, or back out (Jason, 2026-10-26:
+// "IT SHOULD ALWAYS ADJUST WHEN I MOVE... AND THEN PERIODICALLY ONLY FROM TIME TO TIME
+// DOES IT ZOOM IN SLIGHTLY OR PAN OUT SLIGHTLY").
 const SHOTS = {
   "wide":          () => ({ z: 1.0, px: 0, py: 0 }),
-  "medium":        () => ({ z: rnd(1.04, 1.07), px: 0, py: rnd(-14, -6) }),
-  "push in":       () => ({ z: rnd(1.09, 1.13), px: 0, py: rnd(-28, -16) }),
-  "lift":          () => ({ z: rnd(1.02, 1.05), px: 0, py: rnd(-16, -8) }),
+  "a touch in":    () => ({ z: rnd(1.04, 1.07), px: 0, py: rnd(-14, -8) }),
+  "in":            () => ({ z: rnd(1.07, 1.10), px: 0, py: rnd(-22, -14) }),
 };
-const WEIGHTS = ["wide", "wide", "medium", "medium", "push in", "push in", "lift"];
+const WEIGHTS = ["wide", "a touch in", "a touch in", "in"];
 
 let ws, cur = { z: 1, px: 0, py: 0 }, last = "", activeTick = null;
 function transform({ z, px, py }) {
@@ -125,8 +127,8 @@ function focusPull(d, full) {
     [0.16, 0.22, 0.26].forEach((v, i) => setTimeout(() => sharpen(v), T + 60 + i * 50));   // the lens bites, eased
     [0.20, 0.15, 0.12].forEach((v, i) => setTimeout(() => sharpen(v), T + 400 + i * 120));
     if (!activeTick) {                                         // never grab the frame mid-move
-      moveTo({ ...cur, z: cur.z + 0.04 }, 0.45, "lean in");
-      setTimeout(() => moveTo(back, 1.0, "settle"), 650);
+      moveTo({ ...cur, z: cur.z + 0.02 }, 0.5, "lean in");
+      setTimeout(() => moveTo(back, 1.2, "settle"), 700);
     }
     setTimeout(() => { pulling = false; }, 1500);
   } else {
@@ -136,8 +138,8 @@ function focusPull(d, full) {
     [0.12, 0.20, 0.24].forEach((v, i) => setTimeout(() => sharpen(v), 110 + i * 45));
     [0.18, 0.14, 0.12].forEach((v, i) => setTimeout(() => sharpen(v), 400 + i * 100));
     if (!activeTick) {
-      moveTo({ ...cur, z: cur.z + 0.015 }, 0.35, "lean");
-      setTimeout(() => moveTo(back, 0.8, "settle"), 450);
+      moveTo({ ...cur, z: cur.z + 0.008 }, 0.4, "lean");
+      setTimeout(() => moveTo(back, 0.9, "settle"), 500);
     }
     setTimeout(() => { pulling = false; }, 900);
   }
@@ -159,13 +161,13 @@ function moveTo(target, secs, name) {
   log(`${name}: zoom ${target.z.toFixed(2)} pan ${target.px.toFixed(0)},${target.py.toFixed(0)} over ${secs.toFixed(1)} s`);
 }
 function schedule() {
-  // hold a shot for 8–20 s, then a 1.2–2.2 s move to a different shot
+  // hold a shot for 45–100 s, then a slow 3–5 s drift to a different shot
   setTimeout(() => {
     if (pulling) { setTimeout(schedule, 0); return; }   // never step on a focus pull; try again after the hold
     let name; do { name = pick(WEIGHTS); } while (name === last);
     last = name;
-    moveTo(SHOTS[name](), rnd(1.2, 2.2), name);
+    moveTo(SHOTS[name](), rnd(3, 5), name);
     schedule();
-  }, pulling ? 1500 : rnd(8, 20) * 1000);
+  }, pulling ? 1500 : rnd(45, 100) * 1000);
 }
 connect();
