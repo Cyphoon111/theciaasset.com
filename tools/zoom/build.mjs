@@ -70,7 +70,8 @@ async function buildOverlay() {
   const unleashed = await stickerPng("/Users/jasonsullivan/Developer/unleashed.news/assets/logo.png", unW, 0);
   await writeFile(`${OUT}/unleashed-sticker.png`, unleashed);
   const unH = (await sharp(unleashed).metadata()).height;
-  const unX = Math.round(W / 2 - unW / 2), unY = SY + 10;
+  const unX = Math.round(W / 2 - unW / 2), unY = SY + 7;
+  const unUrlY = unY + unH + 4, unUrlH = 26;            // the URL line, just under the logo (raised, Jason 2026-10-26)
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}">
     <!-- cover frame -->
@@ -79,7 +80,7 @@ async function buildOverlay() {
     <mask id="strip"><rect x="0" y="${SY}" width="${W}" height="${SH}" fill="#fff"/><rect x="${unX}" y="${unY}" width="${unW}" height="${unH}" fill="#000"/></mask>
     <rect x="0" y="${SY}" width="${W}" height="${SH}" fill="${PAPER}" fill-opacity="${FROST}" mask="url(#strip)"/>
     <image x="${unX}" y="${unY}" width="${unW}" height="${unH}" opacity="${FROST}" href="data:image/png;base64,${unleashed.toString("base64")}"/>
-    <text x="${W / 2}" y="${unY + unH + 22}" ${SANS} font-weight="bold" font-size="21" fill="${UNPINK}" text-anchor="middle" letter-spacing="1.5">unleashed.news</text>
+    <!-- unleashed url --><text x="${W / 2}" y="${unUrlY + 21}" ${SANS} font-weight="bold" font-size="24" fill="${UNPINK}" text-anchor="middle" letter-spacing="2">unleashed.news</text><!-- /unleashed url -->
     <!-- the QR keeps a solid white tile: a see-through quiet zone can break a scan -->
     <!-- qr tile --><rect x="${qrX - 6}" y="${qrY - 6}" width="${qrSize + 12}" height="${qrSize + 12}" rx="6" fill="${PAPER}"/><!-- /qr tile -->
     <!-- red rule --><rect x="0" y="${SY}" width="${W}" height="${RULE}" fill="${RED}"/><!-- /red rule -->
@@ -107,7 +108,8 @@ async function buildOverlay() {
   // Base for the animated page: everything except the cover, which the page draws itself in 3D.
   const svgNoFrame = svg.replace(/<!-- cover frame -->[\s\S]*?<!-- lower third -->/, "<!-- lower third -->")
     .replace(/<!-- red rule -->[\s\S]*?<!-- \/red rule -->/, "")    // the page draws the rule itself, with the shimmer
-    .replace(/<!-- qr tile -->[\s\S]*?<!-- \/qr tile -->/, "");     // and the QR tile, which travels with the book
+    .replace(/<!-- qr tile -->[\s\S]*?<!-- \/qr tile -->/, "")      // and the QR tile, which travels with the book
+    .replace(/<!-- unleashed url -->[\s\S]*?<!-- \/unleashed url -->/, "");   // and the URL, which glints
   await writeFile(`${OUT}/overlay-base.png`, await base.clone()
     .composite([{ input: Buffer.from(svgNoFrame) }])
     .png().toBuffer());
@@ -201,8 +203,16 @@ async function buildOverlay() {
       transparent 84%);
     animation: shimmer 9s linear infinite; }
   @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
+  /* unleashed.news under its logo: bold pink, with its own glint every 20 s (Jason, 2026-10-26) */
+  .unurl { position: absolute; left: 0; width: ${W}px; top: ${unUrlY}px; height: ${unUrlH}px; line-height: ${unUrlH}px; text-align: center;
+    font: 800 24px/${unUrlH}px 'Helvetica Neue', Helvetica, Arial, sans-serif; letter-spacing: 2px;
+    color: ${UNPINK}; background: linear-gradient(100deg, ${UNPINK} 0%, ${UNPINK} 42%, #fff 50%, ${UNPINK} 58%, ${UNPINK} 100%);
+    background-size: 300% 100%; background-position: 100% 0; -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: urlGlint 20s linear infinite; }
+  @keyframes urlGlint { 0%, 90% { background-position: 100% 0; } 100% { background-position: -100% 0; } }   /* 2 s sweep, 18 s rest */
 </style>
 <img class="banner" src="overlay-base.png" alt="">
+<div class="unurl">unleashed.news</div>
 <div class="gloss"></div>
 <div class="rule"></div>
 <div class="qrrig"><img src="qr.png" alt=""><div class="qrcap">SCAN FOR THE BOOK</div></div>
