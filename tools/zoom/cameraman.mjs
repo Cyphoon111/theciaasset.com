@@ -239,7 +239,7 @@ function moveTo(target, secs, name) {
 // The one zoom that does both: ≈1.15x keeps hair, neck and shoulders above the banner when
 // he sits close AND leaves ≈±125 px of pan so the tracker can hold his head on the centre
 // line (Jason, 2026-10-26: "ALWAYS (NON-NEGOTIABLE) KEEP MY HEAD CENTERED OVER THE UNLEASHED LOGO").
-const TRACKER_BASE  = { track_z: 0.50, track_y: -0.04, upsize_t: 0.5, upsize_b: 0.8 };   // ≈1.1x: wide enough for the neon sign, ±90 px of pan to centre him
+const TRACKER_BASE  = { track_z: 0.50, track_y: -0.16, upsize_t: 0.5, upsize_b: 0.8 };   // ≈1.1x; face sits lower in the crop so the neon sign above him stays in; the guard keeps the chin above the banner
 // Chest shot: a box that reaches far below the face pushes the crop window down until it is
 // pinned to the bottom of the lens, so the lowest thing the lens sees (the breast pocket)
 // is in the shot, while the window still centres him and keeps ~1.1x in hand.
