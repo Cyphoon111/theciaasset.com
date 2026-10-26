@@ -66,7 +66,7 @@ function connect() {
     if (m.op === 0) {
       const a = m.d.authentication;
       ws.send(JSON.stringify({ op: 1, d: { rpcVersion: 1, authentication: a ? sha(sha(cfg.server_password + a.salt) + a.challenge) : undefined } }));
-    } else if (m.op === 2) { log("cameraman on"); setFrame(cur); schedule(); setInterval(requestFrame, 100); }
+    } else if (m.op === 2) { log("cameraman on"); setFrame(cur); setTracker(TRACKER_BASE, "base framing"); schedule(); setInterval(requestFrame, 100); }
     else if (m.op === 7 && m.d.requestId === "frame" && m.d.responseData) onFrame(m.d.responseData);
   };
 }
@@ -160,10 +160,29 @@ function moveTo(target, secs, name) {
   }, 1000 / FPS);
   log(`${name}: zoom ${target.z.toFixed(2)} pan ${target.px.toFixed(0)},${target.py.toFixed(0)} over ${secs.toFixed(1)} s`);
 }
+// The chest shot (Jason, 2026-10-26: "Sometimes the cameraman must include my chest in the
+// shot. I often wear a pocket square"): the tracker itself widens (its zoom target drops and
+// the face rides a little higher), glides there over its own ~4 s, holds 20–30 s, eases back.
+const TRACKER_BASE = { track_z: 0.62, track_y: -0.14 };
+const TRACKER_CHEST = { track_z: 0.50, track_y: -0.04 };
+let chest = false, sinceChest = 0;
+function setTracker(s, name) {
+  send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
+  log(`${name}: tracker ${JSON.stringify(s)}`);
+}
+function chestShot() {
+  chest = true; sinceChest = 0;
+  if (cur.z !== 1) moveTo(SHOTS.wide(), 4, "wide for the chest");   // the frame itself at rest
+  setTracker(TRACKER_CHEST, "chest shot");
+  setTimeout(() => { setTracker(TRACKER_BASE, "back to head and shoulders"); chest = false; }, rnd(20, 30) * 1000);
+}
 function schedule() {
-  // hold a shot for 45–100 s, then a slow 3–5 s drift to a different shot
+  // hold a shot for 45–100 s, then a slow 3–5 s drift to a different shot;
+  // every third change or so is the chest shot
   setTimeout(() => {
     if (pulling) { setTimeout(schedule, 0); return; }   // never step on a focus pull; try again after the hold
+    sinceChest++;
+    if (!chest && (sinceChest >= 3 || Math.random() < 0.25)) { chestShot(); schedule(); return; }
     let name; do { name = pick(WEIGHTS); } while (name === last);
     last = name;
     moveTo(SHOTS[name](), rnd(3, 5), name);
