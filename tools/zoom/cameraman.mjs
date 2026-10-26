@@ -41,9 +41,9 @@ const ease = (t) => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;  
 // centre line), so the operator's zooms stay modest to keep the total under ≈1.8x.
 const SHOTS = {
   "wide":          () => ({ z: 1.0, px: 0, py: 0 }),
-  "medium":        () => ({ z: rnd(1.06, 1.10), px: 0, py: rnd(-25, -10) }),
-  "push in":       () => ({ z: rnd(1.14, 1.20), px: 0, py: rnd(-55, -35) }),
-  "lift":          () => ({ z: rnd(1.03, 1.07), px: 0, py: rnd(-35, -20) }),
+  "medium":        () => ({ z: rnd(1.04, 1.07), px: 0, py: rnd(-14, -6) }),
+  "push in":       () => ({ z: rnd(1.09, 1.13), px: 0, py: rnd(-28, -16) }),
+  "lift":          () => ({ z: rnd(1.02, 1.05), px: 0, py: rnd(-16, -8) }),
 };
 const WEIGHTS = ["wide", "wide", "medium", "medium", "push in", "push in", "lift"];
 
