@@ -16,6 +16,8 @@ const LOG = `${HOME}/Library/Logs/on-air-cameraman.log`;
 const PIDFILE = `${HOME}/Library/Application Support/obs-studio/cameraman.pid`;
 const SCENE = "On Air", ITEM = 1;                 // the Camera scene item
 const W = 1920, H = 1080;
+const BANNER = 150;                               // the banner covers the bottom 150 px of the canvas
+const FLOOR = H - BANNER;                         // the picture's bottom edge always sits here, never under the banner
 const log = (s) => { try { appendFileSync(LOG, `${new Date().toISOString()} ${s}\n`); } catch {} };
 
 // one operator at a time
@@ -50,9 +52,13 @@ const SHOTS = {
 const WEIGHTS = ["wide", "a touch in", "a touch in", "in"];
 
 let ws, cur = { z: 1, px: 0, py: 0 }, last = "", activeTick = null;
+// The picture is anchored to the top of the banner: its bottom row lands on FLOOR, so nothing
+// the lens sees at the bottom (neck, collar, breast pocket) is ever hidden behind the banner
+// (Jason, 2026-10-26). What gets cropped instead is the top of the lens view: ceiling and
+// whiteboard. py ≤ 0 lifts it further still.
 function transform({ z, px, py }) {
   const bw = W * z, bh = H * z;
-  return { boundsWidth: bw, boundsHeight: bh, positionX: (W - bw) / 2 + px, positionY: (H - bh) / 2 + py };
+  return { boundsWidth: bw, boundsHeight: bh, positionX: (W - bw) / 2 + px, positionY: FLOOR - bh + py };
 }
 function send(type, data, id = "op") { ws.send(JSON.stringify({ op: 6, d: { requestType: type, requestId: id, requestData: data } })); }
 function setFrame(f) { send("SetSceneItemTransform", { sceneName: SCENE, sceneItemId: ITEM, sceneItemTransform: transform(f) }); }
@@ -163,8 +169,10 @@ function moveTo(target, secs, name) {
 // The chest shot (Jason, 2026-10-26: "Sometimes the cameraman must include my chest in the
 // shot. I often wear a pocket square"): the tracker itself widens (its zoom target drops and
 // the face rides a little higher), glides there over its own ~4 s, holds 20–30 s, eases back.
-const TRACKER_BASE = { track_z: 0.62, track_y: -0.14 };
-const TRACKER_CHEST = { track_z: 0.40, track_y: 0.10 };   // as wide as the lens allows, face high, so the breast pocket is in when the lens sees it
+// With the picture lifted by the banner height, the face is placed lower in the tracker's
+// output so the hair keeps its headroom at the top of the canvas.
+const TRACKER_BASE = { track_z: 0.62, track_y: -0.28 };
+const TRACKER_CHEST = { track_z: 0.40, track_y: -0.06 };   // full lens, face high enough for the breast pocket to be in
 let chest = false, sinceChest = 0;
 function setTracker(s, name) {
   send("SetSourceFilterSettings", { sourceName: "Camera", filterName: "Auto-framing", filterSettings: s });
