@@ -1030,7 +1030,9 @@
   const untilFull = FULL_AT - Date.now();
   if (untilFull <= 0) toPaid(); else if (untilFull < 2 ** 31 - 1) setTimeout(toPaid, untilFull);
 
-  // One-time / Monthly switch (Monthly on every visit; Jason, 2026-10-17): swaps each donation button's link and wording, and "From $1" → "/mo".
+  // One-time / Monthly switch (Monthly on every visit; Jason, 2026-10-17): swaps the wording and link of anything marked
+  // data-monthly-text. The product prices no longer change with it (Jason, 2026-10-27: "I don't need "/mo" listed on any of
+  // the product offerings when the monthly donation tab is already selected").
   const freqOpts = $$('.freq__opt');
   const monthlyBits = $$('[data-monthly-text]');
   monthlyBits.forEach((el) => {
