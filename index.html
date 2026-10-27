@@ -40,7 +40,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=65">
+<link rel="stylesheet" href="assets/site.css?v=66">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Jeffrey Epstein Was A CIA Asset, the new book by Jason Sullivan, is available now for early review: the documented story of the intelligence apparatus that made Jeffrey Epstein.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"bookFormat":"https://schema.org/EBook","genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/"}]}
 </script>
@@ -454,6 +454,17 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
               <p class="pkg__price"><b data-giveaway data-monthly-text="From $10/mo">From $10</b><span class="pkg__later" data-giveaway>$19.99 from Nov 4</span><b data-paid hidden>$19.99</b></p>
             </div>
             <p class="pkg__what" id="audiobookWhat">The whole book in the author’s own voice, with the ebook. It plays in your protected copy, chapter by chapter, and keeps your place.</p>
+            <!-- A free sample (Jason, 2026-10-27): the first half of the Introduction, fading out mid-sentence (assets/audiobook-sample.mp3,
+                 cut from the master at a sentence end, 1:48.7, then faded over 7.5 s; 1:57 long). -->
+            <div class="sample" data-sample>
+              <button class="sample__btn" type="button" aria-label="Play a sample of the audiobook" data-sample-btn><span class="sample__icon" aria-hidden="true"></span></button>
+              <div class="sample__body">
+                <p class="sample__label"><b>Listen to a sample</b> <span>The Introduction, first half</span></p>
+                <div class="sample__bar" data-sample-bar aria-hidden="true"><i data-sample-fill></i></div>
+              </div>
+              <span class="sample__time" data-sample-time>1:57</span>
+              <audio preload="none" src="assets/audiobook-sample.mp3" data-sample-audio></audio>
+            </div>
             <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="audiobook" aria-haspopup="dialog">Donate &amp; get the audiobook <span aria-hidden="true">→</span></button>
             <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="#preorder" data-audiobook-buy target="_blank" rel="noopener">Buy the audiobook <span aria-hidden="true">→</span></a>
           </article>
@@ -681,6 +692,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=56" defer></script>
+<script src="assets/site.js?v=57" defer></script>
 </body>
 </html>

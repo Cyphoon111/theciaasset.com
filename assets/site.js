@@ -1153,6 +1153,30 @@
     }).catch(() => {});
   }
 
+  /* ---------- the audiobook's free sample (Jason, 2026-10-27: "I want visitors to be able to listen to half of the
+     Introduction and then it will fade out"): assets/audiobook-sample.mp3 already fades out, so the player only plays,
+     pauses, shows the time left and lets a tap on the line jump. It lives in the audiobook card, so it appears with it. ---------- */
+  const sample = $('[data-sample]');
+  if (sample) {
+    const audio = $('[data-sample-audio]', sample), btn = $('[data-sample-btn]', sample);
+    const fill = $('[data-sample-fill]', sample), bar = $('[data-sample-bar]', sample), left = $('[data-sample-time]', sample);
+    const LEN = 117.2;   // the file's length, until the browser has read it
+    const fmt = (s) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+    const dur = () => (Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : LEN);
+    const show = () => { fill.style.width = `${(audio.currentTime / dur() * 100).toFixed(2)}%`; left.textContent = fmt(Math.max(0, dur() - audio.currentTime)); };
+    const state = (on) => { sample.classList.toggle('is-playing', on); btn.setAttribute('aria-label', on ? 'Pause the sample' : 'Play a sample of the audiobook'); };
+    btn.addEventListener('click', () => { if (audio.paused) audio.play().catch(() => state(false)); else audio.pause(); });
+    bar.addEventListener('click', (e) => {
+      const r = bar.getBoundingClientRect();
+      audio.currentTime = clamp((e.clientX - r.left) / r.width, 0, 1) * dur(); show();
+      if (audio.paused) audio.play().catch(() => {});
+    });
+    audio.addEventListener('play', () => state(true));
+    audio.addEventListener('pause', () => state(false));
+    audio.addEventListener('timeupdate', show);
+    audio.addEventListener('ended', () => { state(false); audio.currentTime = 0; show(); });
+  }
+
   /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle|audiobook; the opening screen is skipped).
      The book goes to the address typed at Square's checkout as a private reader link; the pop-up says so. ---------- */
   const thanks = $('#thanks');

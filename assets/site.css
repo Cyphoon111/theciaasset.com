@@ -557,6 +557,22 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .pkg--bundle .pkg__price b { color: var(--ink); }
 .pkg__later { font: 700 11px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
 .pkg__what { margin: 6px 0 0; font-size: 15.5px; color: var(--ink-2); }
+/* the audiobook's free sample (Jason, 2026-10-27): play/pause, a progress line you can tap to jump, the time left */
+.sample { display: flex; align-items: center; gap: 14px; margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--paper-2); }
+.sample__btn { flex: none; position: relative; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--ink); cursor: pointer; transition: background .2s, transform .2s; }
+.sample__btn:hover { background: var(--red); }
+.sample__btn:active { transform: scale(.94); }
+.sample__btn:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.sample__icon { position: absolute; left: 50%; top: 50%; width: 0; height: 0; margin: -8px 0 0 -5px; border-style: solid; border-width: 8px 0 8px 14px; border-color: transparent transparent transparent #fff; }
+.sample.is-playing .sample__icon { width: 14px; height: 16px; margin: -8px 0 0 -7px; border: 0; border-left: 5px solid #fff; border-right: 5px solid #fff; }
+.sample__body { flex: 1; min-width: 0; }
+.sample__label { margin: 0 0 8px; font-size: 14px; line-height: 1.3; color: var(--ink-2); }
+.sample__label span { color: var(--muted); }
+.sample__label span::before { content: '· '; }
+.sample__bar { position: relative; height: 4px; border-radius: 2px; background: var(--line); cursor: pointer; }
+.sample__bar::after { content: ''; position: absolute; inset: -10px 0; }   /* a taller tap target than the line itself */
+.sample__bar i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 2px; background: var(--red); }
+.sample__time { flex: none; font: 700 12px/1 var(--mono); letter-spacing: .06em; color: var(--muted); font-variant-numeric: tabular-nums; }
 /* thank-you pop-up for donors sent back from Square (?donated=ebook|bundle) */
 .thanks { width: min(520px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 34px 30px 28px; border: 0; border-top: 4px solid var(--red); border-radius: 16px; background: #fff; color: var(--ink); box-shadow: 0 40px 90px -30px rgba(0,0,0,.65); }
 .thanks::backdrop { background: rgba(8,8,10,.72); }
