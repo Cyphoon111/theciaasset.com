@@ -546,6 +546,23 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .freq__opt { height: 38px; padding: 0 20px; border: 0; border-radius: 999px; background: transparent; color: var(--ink-2); font: 700 12.5px/1 var(--body); letter-spacing: .08em; text-transform: uppercase; cursor: pointer; transition: background .2s, color .2s; }
 .freq__opt[aria-checked="true"] { background: var(--ink); color: #fff; }
 .freq__opt:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+/* Ask the Book, featured beside the switch (Jason, 2026-10-28: "feature this is a Super Intelligence book"); under it when
+   the copy column is too narrow for both (container query), and on its own after Election Day, when the switch goes */
+.preorder__copy { container-type: inline-size; }
+.preorder__row { display: flex; flex-wrap: wrap; align-items: center; gap: 18px 24px; margin: 24px 0 0; }
+.preorder__row > .freq-row { flex: 0 1 280px; margin: 0; }
+.askcard { position: relative; flex: 1 1 250px; max-width: 330px; margin: 0 0 0 auto; padding: 18px 20px 19px; border-radius: 16px; background: radial-gradient(120% 90% at 100% 0%, rgba(224, 18, 28, .24), transparent 62%), var(--ink); color: #fff; box-shadow: 0 22px 40px -26px rgba(0, 0, 0, .7); }
+.askcard::before { content: ''; position: absolute; inset: 0; padding: 1px; border-radius: inherit; background: linear-gradient(135deg, var(--red), var(--gold) 55%, rgba(201, 162, 75, .12)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+.askcard__kicker { display: flex; align-items: center; gap: 8px; margin: 0 0 9px; font: 700 10.5px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+.askcard__spark { flex: none; width: 15px; height: 15px; fill: var(--gold); animation: askSpark 2.6s ease-in-out infinite; }
+.askcard__title { margin: 0 0 8px; font: 400 27px/1 var(--display); letter-spacing: .02em; text-transform: uppercase; color: #fff; }
+.askcard__text { margin: 0; font: 400 13.5px/1.5 var(--body); color: #d4d4da; }
+.freq-row[hidden] + .askcard { margin-left: 0; }
+@keyframes askSpark { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: .5; transform: scale(.7) rotate(45deg); } }
+@container (max-width: 559px) {
+  .preorder__row > .freq-row { flex-basis: 100%; }
+  .askcard { flex-basis: 100%; max-width: none; margin-left: 0; }
+}
 .pkgs { display: grid; gap: 16px; margin: 18px 0 4px; }
 .pkg { padding: 20px 22px; border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 0 14px 14px 0; background: #fff; }
 .pkg--bundle { border-left-color: var(--gold); }
@@ -860,4 +877,5 @@ html:has(.zoom[open]) { overflow: hidden; }
   .brand__mark::after { animation-duration: 2.4s !important; animation-iteration-count: infinite !important; }
   .race__bar { transition-duration: 1.4s !important; }
   .freq__arrow { animation-duration: 1.1s !important; animation-iteration-count: infinite !important; }
+  .askcard__spark { animation-duration: 2.6s !important; animation-iteration-count: infinite !important; }
 }
