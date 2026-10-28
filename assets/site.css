@@ -557,7 +557,16 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .askcard__spark { flex: none; width: 15px; height: 15px; fill: var(--gold); animation: askSpark 2.6s ease-in-out infinite; }
 .askcard__title { margin: 0 0 8px; font: 400 27px/1 var(--display); letter-spacing: .02em; text-transform: uppercase; color: #fff; }
 .askcard__text { margin: 0; font: 400 13.5px/1.5 var(--body); color: #d4d4da; }
+.askcard__who { margin: 12px 0 0; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .12); font: 600 12px/1.4 var(--body); color: var(--gold); }
 .freq-row[hidden] + .askcard { margin-left: 0; }
+/* the bundle's card: Ask the Book beside its Donate button, for monthly donors only (Jason, 2026-10-28) */
+.pkg__row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 14px; }
+.pkg__row > .pkg__buy { margin-top: 0; }
+.pkg__ask { position: relative; display: inline-flex; align-items: center; gap: 10px; margin: 0; padding: 9px 16px 9px 13px; border-radius: 12px; background: radial-gradient(120% 120% at 100% 0%, rgba(224, 18, 28, .26), transparent 60%), var(--ink); color: #fff; font: 400 19px/1 var(--display); letter-spacing: .03em; text-transform: uppercase; white-space: nowrap; }
+.pkg__ask::before { content: ''; position: absolute; inset: 0; padding: 1px; border-radius: inherit; background: linear-gradient(135deg, var(--red), var(--gold) 55%, rgba(201, 162, 75, .12)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+.pkg__ask .askcard__spark { width: 18px; height: 18px; }
+.pkg__ask small { display: block; margin-bottom: 4px; font: 700 9.5px/1 var(--mono); letter-spacing: .16em; color: var(--gold); }
+@media (max-width: 560px) { .pkg__ask { flex: 1 1 100%; } }
 @keyframes askSpark { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: .5; transform: scale(.7) rotate(45deg); } }
 @container (max-width: 559px) {
   .preorder__row > .freq-row { flex-basis: 100%; }
