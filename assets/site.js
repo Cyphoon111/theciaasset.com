@@ -1087,7 +1087,11 @@
     const KINDS = {
       ebook: { name: 'The ebook', what: 'the ebook', min: 100, start: 1000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },
       bundle: { name: 'The ebook plus the entire Master Claims document', what: 'the ebook plus the entire Master Claims document', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },   // $1,000 too (Jason, 2026-10-17)
-      audiobook: { name: 'The audiobook', what: 'the audiobook', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },   // from $10 (Jason, 2026-10-20), with the ebook
+      // the audiobook's three options (Jason, 2026-10-28: from $10, $12 and $15; from Nov 4 "$19.99 … $24.99 … $29.99"): `after`
+      // replaces min, start and amounts from FULL_AT, and they stay donations, one-time or monthly
+      audio: { name: 'The audiobook', what: 'the audiobook', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000], after: { min: 1999, start: 2500, amounts: [1999, 2500, 5000, 10000, 30000, 50000, 100000] } },
+      audiobook: { name: 'The audiobook plus the ebook', what: 'the audiobook plus the ebook', min: 1200, start: 2000, amounts: [1200, 2000, 5000, 10000, 30000, 50000, 100000], after: { min: 2499, start: 3000, amounts: [2499, 3000, 5000, 10000, 30000, 50000, 100000] } },
+      audiobundle: { name: 'The audiobook plus the ebook plus the entire Master Claims document', what: 'the audiobook plus the ebook plus the entire Master Claims document', min: 1500, start: 2500, amounts: [1500, 2500, 5000, 10000, 30000, 50000, 100000], after: { min: 2999, start: 3500, amounts: [2999, 3500, 5000, 10000, 30000, 50000, 100000] } },
     };
     const MAX = 500000;
     const grid = $('.amt__grid', amt), other = $('#amtOther'), go = $('#amtGo'), msg = $('#amtMsg');
@@ -1120,6 +1124,7 @@
       monthly = $('.freq__opt[data-freq="monthly"]')?.getAttribute('aria-checked') === 'true';
       // from Election Day the ebook's button opens this window only for Monthly, from $10 (Jason, 2026-10-28)
       if (Date.now() >= FULL_AT && product === 'ebook' && monthly) K = { ...K, min: 1000, start: 1000 };
+      if (Date.now() >= FULL_AT && K.after) K = { ...K, ...K.after };
       $('#amtKicker').textContent = K.name;
       $('#amtTitle').textContent = monthly ? 'Choose your monthly donation' : 'Choose your donation';
       $('#amtSub').textContent = monthly ? `From ${usd(K.min)} a month. Square’s secure checkout opens next for exactly this amount, each month until you cancel.` : `From ${usd(K.min)}. Square’s secure checkout opens next for exactly this amount.`;
@@ -1184,10 +1189,7 @@
     fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-store/audiobook').then((r) => r.json()).then((j) => {
       if (!j || !j.ready) return;
       const what = $('#audiobookWhat');
-      if (what && j.hours) what.textContent = `About ${j.hours} hours in ${j.chapters} chapters, the whole book in the author’s own voice, with the ebook. It plays in your protected copy, chapter by chapter, and keeps your place.`;
-      // its fixed-price button (from Nov 4) needs its Square payment link; until that is in the page it stays hidden
-      const buy = $('[data-audiobook-buy]');
-      if (buy && /#preorder$/.test(buy.getAttribute('href') || '')) buy.removeAttribute('data-paid');
+      if (what && j.hours) what.textContent = `About ${j.hours} hours in ${j.chapters} chapters, the whole book in the author’s own voice. It plays in your protected copy, chapter by chapter, and keeps your place.`;
       $$('[data-audiobook]').forEach((el) => { el.hidden = false; });
     }).catch(() => {});
   }
@@ -1258,13 +1260,14 @@
     mute.addEventListener('click', () => setMix(mix === 'off' ? lastOn : 'off'));
   }
 
-  /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle|audiobook; the opening screen is skipped).
+  /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle|audio|audiobook|audiobundle; the opening screen is skipped).
      The book goes to the address typed at Square's checkout as a private reader link; the pop-up says so. ---------- */
   const thanks = $('#thanks');
   const donatedFor = new URLSearchParams(location.search).get('donated');
-  if (thanks && (donatedFor === 'ebook' || donatedFor === 'bundle' || donatedFor === 'audiobook')) {
+  const THANKS_WHAT = { ebook: 'the ebook', bundle: 'the ebook and the Master Claims document', audio: 'the audiobook', audiobook: 'the audiobook and the ebook', audiobundle: 'the audiobook, the ebook and the Master Claims document' };
+  if (thanks && THANKS_WHAT[donatedFor]) {
     history.replaceState(null, '', location.pathname + location.hash);   // a refresh or a shared link does not reopen it
-    $('#thanksWhat').textContent = donatedFor === 'bundle' ? 'the ebook and the Master Claims document' : donatedFor === 'audiobook' ? 'the audiobook and the ebook' : 'the ebook';
+    $('#thanksWhat').textContent = THANKS_WHAT[donatedFor];
     if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a minute';
     // tell the book store to look at Square now, so the copy is emailed within seconds (bookstore.mjs ping; it reads
     // Square itself, so this only says "look now")

@@ -40,7 +40,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=75">
+<link rel="stylesheet" href="assets/site.css?v=76">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Jeffrey Epstein Was A CIA Asset, the new book by Jason Sullivan, is available now for early review: the documented story of the intelligence apparatus that made Jeffrey Epstein.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"bookFormat":"https://schema.org/EBook","genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/"}]}
 </script>
@@ -469,13 +469,16 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
             </div>
           </article>
           <!-- The audiobook (2026-10-20): shown once PitchZing says its files are up (site.js asks /public/book-store/audiobook).
-               The narration in the author's own voice plus the ebook; it plays inside the buyer's protected copy. -->
+               The narration in the author's own voice; it plays inside the buyer's protected copy. Three options since 2026-10-28
+               (Jason: "Audiobook - donations begin at $10. Audiobook plus the ebook - donations start at $12. Audiobook plus the
+               ebook plus the master claims document - donations start at $15"; from Nov 4 "$19.99 … $24.99 … $29.99"), each a
+               donation, one-time or monthly as the switch says (PitchZing packages audio, audiobook, audiobundle). -->
           <article class="pkg pkg--audio" data-audiobook hidden>
             <div class="pkg__head">
               <h3 class="pkg__name">The audiobook</h3>
-              <p class="pkg__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>$19.99 from Nov 4</span><b data-paid hidden>$19.99</b></p>
+              <p class="pkg__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>From $19.99 on Nov 4</span><b data-paid hidden>From $19.99</b></p>
             </div>
-            <p class="pkg__what" id="audiobookWhat">The whole book in the author’s own voice, with the ebook. It plays in your protected copy, chapter by chapter, and keeps your place.</p>
+            <p class="pkg__what" id="audiobookWhat">The whole book in the author’s own voice. It plays in your protected copy, chapter by chapter, and keeps your place.</p>
             <!-- A free sample (Jason, 2026-10-27): the first half of the Introduction, fading out mid-sentence (assets/audiobook-sample-soundtrack.mp3 since 2026-10-28, with the soundtrack at level D;
                  cut from the master at a sentence end, 1:48.7, then faded over 7.5 s; 1:57 long). -->
             <div class="sample" data-sample>
@@ -501,12 +504,24 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
                 <span class="sample__st-v">Soundtrack <b data-sample-vol-label>+7 dB</b></span>
               </div>
             </div>
-            <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="audiobook" aria-haspopup="dialog">Donate &amp; get the audiobook <span aria-hidden="true">→</span></button>
-            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="https://square.link/u/ZnjuBCph" data-audiobook-buy target="_blank" rel="noopener">Buy the audiobook <span aria-hidden="true">→</span></a>
+            <ul class="aopts" aria-label="Choose your audiobook">
+              <li class="aopt">
+                <div class="aopt__txt"><h4 class="aopt__name">The audiobook</h4><p class="aopt__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>$19.99 minimum from Nov 4</span><b data-paid hidden>From $19.99</b></p></div>
+                <button class="btn btn--red pkg__buy" type="button" data-amount="audio" aria-haspopup="dialog">Donate &amp; get the audiobook <span aria-hidden="true">→</span></button>
+              </li>
+              <li class="aopt">
+                <div class="aopt__txt"><h4 class="aopt__name">The audiobook plus the ebook</h4><p class="aopt__price"><b data-giveaway>From $12</b><span class="pkg__later" data-giveaway>$24.99 minimum from Nov 4</span><b data-paid hidden>From $24.99</b></p></div>
+                <button class="btn btn--red pkg__buy" type="button" data-amount="audiobook" aria-haspopup="dialog">Donate &amp; get both <span aria-hidden="true">→</span></button>
+              </li>
+              <li class="aopt aopt--all">
+                <div class="aopt__txt"><h4 class="aopt__name">The audiobook plus the ebook plus the entire Master Claims Document</h4><p class="aopt__price"><b data-giveaway>From $15</b><span class="pkg__later" data-giveaway>$29.99 minimum from Nov 4</span><b data-paid hidden>From $29.99</b></p></div>
+                <button class="btn btn--red pkg__buy" type="button" data-amount="audiobundle" aria-haspopup="dialog">Donate &amp; get all three <span aria-hidden="true">→</span></button>
+              </li>
+            </ul>
           </article>
         </div>
-        <p class="preorder__fine" data-giveaway>You choose the amount here (the ebook from $1, the ebook plus the entire Master Claims document from $10<span data-audiobook hidden>, the audiobook from $10</span>), and Square’s secure checkout opens for exactly that amount. Square’s checkout also asks for your phone number for the receipt. Your copy is emailed to the address you enter there and opens in our protected online reader, for you alone. A monthly donation repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>; your copy comes with the first one. Donations go directly to the author and are not tax-deductible. <b>All donations are final: no refunds.</b></p>
-        <p class="preorder__fine" data-paid hidden>Secure checkout by Square, which also asks for your phone number for the receipt. Monthly: the ebook from $10 a month, or the ebook plus the entire Master Claims document, with Ask the Book, for $14.99 a month; it repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>, and your copy comes with the first payment. Your copy is emailed to the address you enter at checkout and opens in our protected online reader, for you alone. <b>All sales are final: no refunds.</b></p>
+        <p class="preorder__fine" data-giveaway>You choose the amount here (the ebook from $1, the ebook plus the entire Master Claims document from $10<span data-audiobook hidden>, the audiobook from $10, with the ebook from $12, or with the ebook and the entire Master Claims document from $15</span>), and Square’s secure checkout opens for exactly that amount. Square’s checkout also asks for your phone number for the receipt. Your copy is emailed to the address you enter there and opens in our protected online reader, for you alone. A monthly donation repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>; your copy comes with the first one. Donations go directly to the author and are not tax-deductible. <b>All donations are final: no refunds.</b></p>
+        <p class="preorder__fine" data-paid hidden>Secure checkout by Square, which also asks for your phone number for the receipt.<span data-audiobook hidden> The audiobook is a donation you choose, one-time or monthly: from $19.99, with the ebook from $24.99, or with the ebook and the entire Master Claims document from $29.99.</span> Monthly: the ebook from $10 a month, or the ebook plus the entire Master Claims document, with Ask the Book, for $14.99 a month; it repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>, and your copy comes with the first payment. Your copy is emailed to the address you enter at checkout and opens in our protected online reader, for you alone. <b>All sales are final: no refunds.</b></p>
       </div>
     </div>
   </section>
@@ -728,6 +743,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=65" defer></script>
+<script src="assets/site.js?v=66" defer></script>
 </body>
 </html>
