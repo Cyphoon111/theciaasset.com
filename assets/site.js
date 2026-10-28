@@ -1032,8 +1032,11 @@
 
   // One-time / Monthly switch (Monthly on every visit; Jason, 2026-10-17): swaps the wording and link of anything marked
   // data-monthly-text. The product prices no longer change with it (Jason, 2026-10-27: "I don't need "/mo" listed on any of
-  // the product offerings when the monthly donation tab is already selected").
+  // the product offerings when the monthly donation tab is already selected"). The note under it ("Continue to support this
+  // author's work. Cancel anytime.") is for Monthly only (Jason, 2026-10-28: "When the One Time button is selected this
+  // should disappear"); it keeps its line, so the packages below do not jump.
   const freqOpts = $$('.freq__opt');
+  const freqNote = $('#freqNote');
   const monthlyBits = $$('[data-monthly-text]');
   monthlyBits.forEach((el) => {
     const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
@@ -1042,6 +1045,7 @@
   });
   const setFreq = (freq) => {
     freqOpts.forEach((o) => o.setAttribute('aria-checked', String(o.dataset.freq === freq)));
+    if (freqNote) freqNote.style.visibility = freq === 'monthly' ? '' : 'hidden';
     monthlyBits.forEach((el) => {
       const monthly = freq === 'monthly';
       const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
