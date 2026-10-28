@@ -622,7 +622,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .sample__st input { flex: 1 1 90px; min-width: 90px; max-width: 240px; height: 28px; margin: 0; accent-color: var(--red); cursor: pointer; }
 .sample__st[data-muted] input { opacity: .4; }
 .sample__st-v { white-space: nowrap; }
-.sample__st-v b { color: var(--ink-2); font-weight: 700; }
+.sample__st-v b { display: inline-block; min-width: 4.2em; margin-left: 4px; padding: 3px 8px; border-radius: 999px; background: var(--ink); color: #fff; font: 700 12.5px/1.2 var(--mono); text-align: center; font-variant-numeric: tabular-nums; }
 @media (min-width: 520px) { .sample__st { padding-left: 58px; } }
 /* thank-you pop-up for donors sent back from Square (?donated=ebook|bundle) */
 .thanks { width: min(520px, calc(100% - 32px)); max-height: calc(100% - 32px); padding: 34px 30px 28px; border: 0; border-top: 4px solid var(--red); border-radius: 16px; background: #fff; color: var(--ink); box-shadow: 0 40px 90px -30px rgba(0,0,0,.65); }

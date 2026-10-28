@@ -1216,17 +1216,20 @@
     audio.addEventListener('ended', () => { state(false); audio.currentTime = 0; show(); });
     // the soundtrack's volume and mute (Jason, 2026-10-28): each level is its own file, so a change swaps the file at the same
     // moment, playing or paused; the mute button plays the voice only and brings back the level before. Kept on this device.
-    const LEVELS = [{ id: '1', label: 'Faint' }, { id: '2', label: 'Soft' }, { id: '3', label: 'Standard' }, { id: '4', label: 'Strong' }];
+    // 0 to +10 dB in 1 dB steps, +7 the default (Jason, 2026-10-28: "The volume control should allow 0-+10 db and it should display
+    // what volume they are choosing when they are sliding the control"); the value shows beside the slider as it moves
+    const LEVELS = Array.from({ length: 11 }, (_, x) => ({ id: String(x), label: x ? `+${x} dB` : '0 dB' }));
+    const DEF = '7';
     const vol = $('[data-sample-vol]', sample), mute = $('[data-sample-mute]', sample), vlab = $('[data-sample-vol-label]', sample), row = $('[data-sample-st]', sample);
-    const fileOf = (id) => `assets/audiobook-sample-st-${id}.mp3`;
+    const fileOf = (id) => (id === 'off' ? 'assets/audiobook-sample-st-off.mp3' : `assets/audiobook-sample-db${id}.mp3`);
     const get = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
     const put = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
-    let mix = get('sample:mix'), lastOn = get('sample:mixOn');
-    if (mix !== 'off' && !LEVELS.some((l) => l.id === mix)) mix = '3';
-    if (!LEVELS.some((l) => l.id === lastOn)) lastOn = mix === 'off' ? '3' : mix;
+    let mix = get('sample:db'), lastOn = get('sample:dbOn');
+    if (mix !== 'off' && !LEVELS.some((l) => l.id === mix)) mix = DEF;
+    if (!LEVELS.some((l) => l.id === lastOn)) lastOn = mix === 'off' ? DEF : mix;
     const paint = () => {
       const off = mix === 'off', i = Math.max(0, LEVELS.findIndex((l) => l.id === (off ? lastOn : mix)));
-      vol.value = String(i); vlab.textContent = off ? 'Muted' : LEVELS[i].label;
+      vol.value = String(i); vlab.textContent = off ? 'Muted' : LEVELS[i].label; vol.setAttribute('aria-valuetext', off ? 'Muted' : LEVELS[i].label);
       row.toggleAttribute('data-muted', off);
       mute.setAttribute('aria-pressed', String(off));
       const t = off ? 'Turn the soundtrack back on' : 'Mute the soundtrack'; mute.setAttribute('aria-label', t); mute.title = t;
@@ -1234,7 +1237,7 @@
     const setMix = (id) => {
       if (id === mix) return paint();
       mix = id; if (id !== 'off') lastOn = id;
-      put('sample:mix', id); if (id !== 'off') put('sample:mixOn', id);
+      put('sample:db', id); if (id !== 'off') put('sample:dbOn', id);
       paint();
       const t = audio.currentTime, playing = !audio.paused && !audio.ended;
       audio.src = fileOf(id);
@@ -1243,9 +1246,10 @@
         audio.load();
       }
     };
-    if (mix !== '3') audio.src = fileOf(mix);
+    if (mix !== DEF) audio.src = fileOf(mix);
     paint();
-    vol.addEventListener('input', () => { vlab.textContent = LEVELS[Number(vol.value)].label; });
+    // while sliding: the value it is on, at once (the file changes when the slider is let go)
+    vol.addEventListener('input', () => { const l = LEVELS[Number(vol.value)]; vlab.textContent = l.label; vol.setAttribute('aria-valuetext', l.label); row.removeAttribute('data-muted'); });
     vol.addEventListener('change', () => setMix(LEVELS[Number(vol.value)].id));
     mute.addEventListener('click', () => setMix(mix === 'off' ? lastOn : 'off'));
   }
