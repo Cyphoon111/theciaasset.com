@@ -1193,7 +1193,7 @@
   }
 
   /* ---------- the audiobook's free sample (Jason, 2026-10-27: "I want visitors to be able to listen to half of the
-     Introduction and then it will fade out"): assets/audiobook-sample.mp3 already fades out, so the player only plays,
+     Introduction and then it will fade out"): assets/audiobook-sample-st-<level>.mp3 already fades out, so the player only plays,
      pauses, shows the time left and lets a tap on the line jump. It lives in the audiobook card, so it appears with it. ---------- */
   const sample = $('[data-sample]');
   if (sample) {
@@ -1214,6 +1214,40 @@
     audio.addEventListener('pause', () => state(false));
     audio.addEventListener('timeupdate', show);
     audio.addEventListener('ended', () => { state(false); audio.currentTime = 0; show(); });
+    // the soundtrack's volume and mute (Jason, 2026-10-28): each level is its own file, so a change swaps the file at the same
+    // moment, playing or paused; the mute button plays the voice only and brings back the level before. Kept on this device.
+    const LEVELS = [{ id: '1', label: 'Faint' }, { id: '2', label: 'Soft' }, { id: '3', label: 'Standard' }, { id: '4', label: 'Strong' }];
+    const vol = $('[data-sample-vol]', sample), mute = $('[data-sample-mute]', sample), vlab = $('[data-sample-vol-label]', sample), row = $('[data-sample-st]', sample);
+    const fileOf = (id) => `assets/audiobook-sample-st-${id}.mp3`;
+    const get = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+    const put = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+    let mix = get('sample:mix'), lastOn = get('sample:mixOn');
+    if (mix !== 'off' && !LEVELS.some((l) => l.id === mix)) mix = '3';
+    if (!LEVELS.some((l) => l.id === lastOn)) lastOn = mix === 'off' ? '3' : mix;
+    const paint = () => {
+      const off = mix === 'off', i = Math.max(0, LEVELS.findIndex((l) => l.id === (off ? lastOn : mix)));
+      vol.value = String(i); vlab.textContent = off ? 'Muted' : LEVELS[i].label;
+      row.toggleAttribute('data-muted', off);
+      mute.setAttribute('aria-pressed', String(off));
+      const t = off ? 'Turn the soundtrack back on' : 'Mute the soundtrack'; mute.setAttribute('aria-label', t); mute.title = t;
+    };
+    const setMix = (id) => {
+      if (id === mix) return paint();
+      mix = id; if (id !== 'off') lastOn = id;
+      put('sample:mix', id); if (id !== 'off') put('sample:mixOn', id);
+      paint();
+      const t = audio.currentTime, playing = !audio.paused && !audio.ended;
+      audio.src = fileOf(id);
+      if (t > 0 || playing) {
+        audio.addEventListener('loadedmetadata', function once() { audio.removeEventListener('loadedmetadata', once); audio.currentTime = t; show(); if (playing) audio.play().catch(() => state(false)); });
+        audio.load();
+      }
+    };
+    if (mix !== '3') audio.src = fileOf(mix);
+    paint();
+    vol.addEventListener('input', () => { vlab.textContent = LEVELS[Number(vol.value)].label; });
+    vol.addEventListener('change', () => setMix(LEVELS[Number(vol.value)].id));
+    mute.addEventListener('click', () => setMix(mix === 'off' ? lastOn : 'off'));
   }
 
   /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle|audiobook; the opening screen is skipped).
