@@ -1035,11 +1035,13 @@
   // the product offerings when the monthly donation tab is already selected"). The note under it ("Continue to support this
   // author's work. Cancel anytime.") is for Monthly only (Jason, 2026-10-28: "When the One Time button is selected this
   // should disappear"); it keeps its line, so the packages below do not jump. Anything marked data-freq-show shows only
-  // under its option: beside the bundle's Donate button, "Monthly donors also get Ask the Book" under Monthly and the
-  // upsell under One-time (Jason, 2026-10-28), which switches to Monthly when tapped (data-freq-to).
+  // under its option (site.css, from the section's data-freq): beside the bundle's button, "Monthly donors also get Ask the
+  // Book" under Monthly and the upsell under One-time (Jason, 2026-10-28), which switches to Monthly when tapped
+  // (data-freq-to); and from Election Day each package's price and button for that option. The switch stays then
+  // (Jason, 2026-10-28): one-time purchases, or monthly, the ebook from $10 and the bundle as a $14.99 subscription.
   const freqOpts = $$('.freq__opt');
   const freqNote = $('#freqNote');
-  const freqShow = $$('[data-freq-show]');
+  const store = $('#preorder');
   const monthlyBits = $$('[data-monthly-text]');
   monthlyBits.forEach((el) => {
     const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
@@ -1049,7 +1051,7 @@
   const setFreq = (freq) => {
     freqOpts.forEach((o) => o.setAttribute('aria-checked', String(o.dataset.freq === freq)));
     if (freqNote) freqNote.style.visibility = freq === 'monthly' ? '' : 'hidden';
-    freqShow.forEach((el) => { el.hidden = el.dataset.freqShow !== freq; });
+    if (store) store.dataset.freq = freq;
     monthlyBits.forEach((el) => {
       const monthly = freq === 'monthly';
       const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
@@ -1116,6 +1118,8 @@
     $$('[data-amount]').forEach((b) => b.addEventListener('click', () => {
       product = KINDS[b.dataset.amount] ? b.dataset.amount : 'bundle'; K = KINDS[product];
       monthly = $('.freq__opt[data-freq="monthly"]')?.getAttribute('aria-checked') === 'true';
+      // from Election Day the ebook's button opens this window only for Monthly, from $10 (Jason, 2026-10-28)
+      if (Date.now() >= FULL_AT && product === 'ebook' && monthly) K = { ...K, min: 1000, start: 1000 };
       $('#amtKicker').textContent = K.name;
       $('#amtTitle').textContent = monthly ? 'Choose your monthly donation' : 'Choose your donation';
       $('#amtSub').textContent = monthly ? `From ${usd(K.min)} a month. Square’s secure checkout opens next for exactly this amount, each month until you cancel.` : `From ${usd(K.min)}. Square’s secure checkout opens next for exactly this amount.`;
@@ -1142,6 +1146,27 @@
       finally { clearTimeout(timer); }
     });
   }
+
+  /* ---------- from Election Day, the ebook plus the entire Master Claims document as a subscription (Jason, 2026-10-28: "If
+     they subscribe monthly … they will be incentivized to do so for only $14.99"): one price, so its button opens Square's
+     checkout for $14.99 a month straight away (PitchZing sets the price; the subscription comes with Ask the Book). ---------- */
+  const subscribes = $$('[data-subscribe]');
+  subscribes.forEach((b) => { b.dataset.label = b.firstChild.nodeValue; });
+  // back from Square's checkout (the page restored as it was left): the button is ready again
+  addEventListener('pageshow', () => subscribes.forEach((b) => { b.disabled = false; b.firstChild.nodeValue = b.dataset.label; }));
+  subscribes.forEach((b) => b.addEventListener('click', async () => {
+    if (b.disabled) return;
+    const label = b.dataset.label;
+    b.disabled = true; b.firstChild.nodeValue = 'Opening Square’s secure checkout… ';
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
+    try {
+      const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product: b.dataset.subscribe, monthly: true, cents: 1499 }), signal: ctl.signal });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.url) throw new Error(j.error || 'The checkout did not open. Please try again.');
+      location.href = j.url;
+    } catch (err) { b.disabled = false; b.firstChild.nodeValue = label; toast(err.name === 'AbortError' ? 'Square did not answer in time. Please tap again.' : err.message); }
+    finally { clearTimeout(timer); }
+  }));
 
   /* ---------- release: at 8 AM Eastern on October 20, 2026 (EDT, 12:00 UTC) the pre-order wording becomes the release wording.
      A page left open switches on the minute. The book itself is emailed by the store worker, not by this page. ---------- */
@@ -1202,10 +1227,6 @@
     // tell the book store to look at Square now, so the copy is emailed within seconds (bookstore.mjs ping; it reads
     // Square itself, so this only says "look now")
     try { fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-store/ping', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ from: 'thank-you', for: donatedFor }) }).catch(() => {}); } catch {}
-    if (Date.now() >= FULL_AT) {   // donations no longer come with a package once the giveaway is over
-      $('#thanksSent').textContent = 'Your support means a great deal.';
-      $('#thanksHow').hidden = true;
-    }
     $$('[data-close]', thanks).forEach((b) => b.addEventListener('click', () => thanks.close()));
     thanks.addEventListener('click', (e) => { if (e.target === thanks) thanks.close(); });   // a click on the dimmed backdrop
     if (typeof thanks.showModal === 'function') thanks.showModal(); else thanks.setAttribute('open', '');

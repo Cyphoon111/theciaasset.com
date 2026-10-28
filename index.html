@@ -40,7 +40,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=71">
+<link rel="stylesheet" href="assets/site.css?v=72">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Jeffrey Epstein Was A CIA Asset, the new book by Jason Sullivan, is available now for early review: the documented story of the intelligence apparatus that made Jeffrey Epstein.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"bookFormat":"https://schema.org/EBook","genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/"}]}
 </script>
@@ -409,7 +409,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
   </section>
 
   <!-- ============ PRE-ORDER ============ -->
-  <section class="section preorder" id="preorder">
+  <section class="section preorder" id="preorder" data-freq="monthly">
     <div class="wrap preorder__box reveal">
       <!-- "Early Release" above the book (Jason, 2026-10-28), a stamp like the hero's CLASSIFIED, while the giveaway lasts -->
       <div class="preorder__cover"><p class="early" data-giveaway><span>Early Release</span></p><img src="assets/cover-760.jpg" alt="" loading="lazy" width="506" height="760"></div>
@@ -421,9 +421,11 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
         <p class="preorder__lead" data-giveaway data-release-text="Until Election Day, November 3, donate any amount from $1 and get the book, or from $10 for the book with the entire Master Claims document. Your copy is emailed to you within minutes.">Until Election Day, November 3, donate any amount from $1 and get the book, or from $10 for the book with the entire Master Claims document. Your copy is emailed to you at release: Tuesday, October 20, 2026, at 8 AM Eastern.</p>
         <p class="preorder__lead" data-paid hidden>The book is out now. Get the ebook, or the ebook with the entire Master Claims document,<span data-audiobook hidden> or the audiobook in the author’s own voice,</span> and start reading today: your copy is emailed to you within minutes of checkout.</p>
         <div class="preorder__row">
-          <div class="freq-row" data-giveaway>
+          <!-- the switch stays after Election Day (Jason, 2026-10-28): one-time purchases, or monthly (the ebook from $10, the
+               ebook plus the entire Master Claims document as a $14.99 subscription with Ask the Book) -->
+          <div class="freq-row">
             <div class="freq-line">
-              <div class="freq" role="radiogroup" aria-label="How often to donate">
+              <div class="freq" role="radiogroup" aria-label="One-time or monthly">
                 <button class="freq__opt" type="button" role="radio" aria-checked="false" data-freq="once">One-time</button>
                 <button class="freq__opt" type="button" role="radio" aria-checked="true" data-freq="monthly" aria-describedby="freqNote">Monthly</button>
               </div>
@@ -436,33 +438,35 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
             <p class="askcard__kicker"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg>A Super Intelligence Book</p>
             <h3 class="askcard__title" id="askTitle">Ask the <span class="red">Book</span></h3>
             <p class="askcard__text">Ask any question and get a detailed answer grounded in the book’s contents, with supporting quotes and clickable page references that take you directly to the highlighted passages.</p>
-            <p class="askcard__who">For monthly donors of the ebook plus the entire Master Claims Document</p>
+            <p class="askcard__who"><span data-giveaway>For monthly donors of</span><span data-paid hidden>For monthly subscribers to</span> the ebook plus the entire Master Claims Document</p>
           </aside>
         </div>
         <div class="pkgs">
           <article class="pkg">
             <div class="pkg__head">
               <h3 class="pkg__name">The ebook</h3>
-              <p class="pkg__price"><b data-giveaway>From $1</b><span class="pkg__later" data-giveaway>$14.99 from Nov 4</span><b data-paid hidden>$14.99</b></p>
+              <p class="pkg__price"><b data-giveaway>From $1</b><span class="pkg__later" data-giveaway data-freq-show="once">$14.99 from Nov 4</span><span class="pkg__later" data-giveaway data-freq-show="monthly">$10 minimum from Nov 4</span><b data-paid hidden data-freq-show="once">$14.99</b><b data-paid hidden data-freq-show="monthly">From $10</b></p>
             </div>
             <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="ebook" aria-haspopup="dialog">Donate &amp; get the ebook <span aria-hidden="true">→</span></button>
-            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="https://square.link/u/Ixh9rcrv" target="_blank" rel="noopener">Buy the ebook <span aria-hidden="true">→</span></a>
+            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden data-freq-show="once" href="https://square.link/u/Ixh9rcrv" target="_blank" rel="noopener">Buy the ebook <span aria-hidden="true">→</span></a>
+            <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="monthly" data-amount="ebook" aria-haspopup="dialog">Donate monthly &amp; get the ebook <span aria-hidden="true">→</span></button>
           </article>
           <article class="pkg pkg--bundle">
             <div class="pkg__head">
               <h3 class="pkg__name">The ebook plus the entire Master Claims Document</h3>
-              <p class="pkg__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>$19.99 from Nov 4</span><b data-paid hidden>$19.99</b></p>
+              <p class="pkg__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway data-freq-show="once">$19.99 from Nov 4</span><span class="pkg__later" data-giveaway data-freq-show="monthly">$14.99 from Nov 4</span><b data-paid hidden data-freq-show="once">$19.99</b><b data-paid hidden data-freq-show="monthly">$14.99</b></p>
             </div>
             <!-- Ask the Book comes only with a monthly donation for this package (Jason, 2026-10-28); PitchZing checks each copy's
                  address for an active monthly subscription on the bundle's plan (bookstore.mjs askAccess). With One-time selected,
                  the upsell instead (Jason, 2026-10-28: "subscribe monthly and gain access to the Super Intelligence Ask The Book
                  special feature"); tapping it switches to Monthly. site.js shows the one that matches the switch. -->
-            <div class="pkg__row" data-giveaway>
+            <div class="pkg__row">
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="bundle" aria-haspopup="dialog">Donate &amp; get both <span aria-hidden="true">→</span></button>
-              <p class="pkg__ask" data-freq-show="monthly"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Monthly donors also get</small> Ask the Book</span></p>
-              <button class="pkg__ask pkg__ask--up" type="button" data-freq-show="once" data-freq-to="monthly" hidden><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Subscribe monthly</small> Ask the Book <em>Gain access to the Super Intelligence special feature <b aria-hidden="true">→</b></em></span></button>
+              <a class="btn btn--red btn--lg pkg__buy" data-paid hidden data-freq-show="once" href="https://square.link/u/aZYSl5PA" target="_blank" rel="noopener">Buy the ebook plus the entire Master Claims document <span aria-hidden="true">→</span></a>
+              <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="monthly" data-subscribe="bundle">Subscribe &amp; get both <span aria-hidden="true">→</span></button>
+              <p class="pkg__ask" data-freq-show="monthly"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small><span data-giveaway>Monthly donors also get</span><span data-paid hidden>Subscribers also get</span></small> Ask the Book</span></p>
+              <button class="pkg__ask pkg__ask--up" type="button" data-freq-show="once" data-freq-to="monthly"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small><span data-giveaway>Subscribe monthly</span><span data-paid hidden>Subscribe monthly for only $14.99</span></small> Ask the Book <em>Gain access to the Super Intelligence special feature <b aria-hidden="true">→</b></em></span></button>
             </div>
-            <a class="btn btn--red btn--lg pkg__buy" data-paid hidden href="https://square.link/u/aZYSl5PA" target="_blank" rel="noopener">Buy the ebook plus the entire Master Claims document <span aria-hidden="true">→</span></a>
           </article>
           <!-- The audiobook (2026-10-20): shown once PitchZing says its files are up (site.js asks /public/book-store/audiobook).
                The narration in the author's own voice plus the ebook; it plays inside the buyer's protected copy. -->
@@ -488,7 +492,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
           </article>
         </div>
         <p class="preorder__fine" data-giveaway>You choose the amount here (the ebook from $1, the ebook plus the entire Master Claims document from $10<span data-audiobook hidden>, the audiobook from $10</span>), and Square’s secure checkout opens for exactly that amount. Square’s checkout also asks for your phone number for the receipt. Your copy is emailed to the address you enter there and opens in our protected online reader, for you alone. A monthly donation repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>; your copy comes with the first one. Donations go directly to the author and are not tax-deductible. <b>All donations are final: no refunds.</b></p>
-        <p class="preorder__fine" data-paid hidden>Secure checkout by Square, which also asks for your phone number for the receipt. Your copy is emailed to the address you enter at checkout and opens in our protected online reader, for you alone. <b>All sales are final: no refunds.</b></p>
+        <p class="preorder__fine" data-paid hidden>Secure checkout by Square, which also asks for your phone number for the receipt. Monthly: the ebook from $10 a month, or the ebook plus the entire Master Claims document, with Ask the Book, for $14.99 a month; it repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>, and your copy comes with the first payment. Your copy is emailed to the address you enter at checkout and opens in our protected online reader, for you alone. <b>All sales are final: no refunds.</b></p>
       </div>
     </div>
   </section>
@@ -710,6 +714,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=60" defer></script>
+<script src="assets/site.js?v=62" defer></script>
 </body>
 </html>

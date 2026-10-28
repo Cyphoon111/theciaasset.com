@@ -534,6 +534,8 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .preorder__fine { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); }
 /* giveaway until Nov 4 ([data-giveaway]), then the same packages for sale ([data-paid]); site.js flips them on the minute */
 .preorder [hidden] { display: none !important; }
+/* what shows under one option of the One-time / Monthly switch only (site.js sets the section's data-freq) */
+.preorder[data-freq="once"] [data-freq-show="monthly"], .preorder[data-freq="monthly"] [data-freq-show="once"] { display: none !important; }
 /* one-time / monthly switch above the packages (one-time on every visit) */
 .freq-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 24px 0 0; }
 .freq-line { display: inline-flex; align-items: center; gap: 8px; }
