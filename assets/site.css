@@ -566,7 +566,13 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .pkg__ask::before { content: ''; position: absolute; inset: 0; padding: 1px; border-radius: inherit; background: linear-gradient(135deg, var(--red), var(--gold) 55%, rgba(201, 162, 75, .12)); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
 .pkg__ask .askcard__spark { width: 18px; height: 18px; }
 .pkg__ask small { display: block; margin-bottom: 4px; font: 700 9.5px/1 var(--mono); letter-spacing: .16em; color: var(--gold); }
-@media (max-width: 560px) { .pkg__ask { flex: 1 1 100%; } }
+/* with One-time selected: the upsell, a button that switches to Monthly */
+.pkg__ask--up { flex: 1 1 240px; max-width: 300px; border: 0; text-align: left; white-space: normal; cursor: pointer; transition: transform .2s var(--ease), box-shadow .2s var(--ease); }
+.pkg__ask--up:hover { transform: translateY(-1px); box-shadow: 0 14px 26px -16px rgba(224, 18, 28, .7); }
+.pkg__ask--up:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.pkg__ask--up em { display: block; margin-top: 5px; font: 500 11.5px/1.35 var(--body); font-style: normal; letter-spacing: 0; text-transform: none; color: #d4d4da; }
+.pkg__ask--up em b { color: var(--gold); }
+@media (max-width: 560px) { .pkg__ask { flex: 1 1 100%; max-width: none; } }
 @keyframes askSpark { 0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); } 50% { opacity: .5; transform: scale(.7) rotate(45deg); } }
 @container (max-width: 559px) {
   .preorder__row > .freq-row { flex-basis: 100%; }
