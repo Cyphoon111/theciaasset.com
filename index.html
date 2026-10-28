@@ -40,7 +40,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=74">
+<link rel="stylesheet" href="assets/site.css?v=75">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Jeffrey Epstein Was A CIA Asset, the new book by Jason Sullivan, is available now for early review: the documented story of the intelligence apparatus that made Jeffrey Epstein.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"bookFormat":"https://schema.org/EBook","genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/"}]}
 </script>
@@ -479,7 +479,12 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
             <!-- A free sample (Jason, 2026-10-27): the first half of the Introduction, fading out mid-sentence (assets/audiobook-sample-soundtrack.mp3 since 2026-10-28, with the soundtrack at level D;
                  cut from the master at a sentence end, 1:48.7, then faded over 7.5 s; 1:57 long). -->
             <div class="sample" data-sample>
-              <button class="sample__btn" type="button" aria-label="Play a sample of the audiobook" data-sample-btn><span class="sample__icon" aria-hidden="true"></span></button>
+              <!-- back / forward 10 seconds (Jason, 2026-10-28: "We need a Rewind 10-seconds and Forward 10-seconds icon function on the audiobook player"; "Yes, add them" to the sample) -->
+              <div class="sample__ctl">
+                <button class="sample__skip" type="button" aria-label="Back 10 seconds" title="Back 10 seconds" data-sample-skip="-10"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M6.5 2.4v4h4"/></g><text x="12" y="15.4" text-anchor="middle" font-size="7.6" font-weight="800" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">10</text></svg></button>
+                <button class="sample__btn" type="button" aria-label="Play a sample of the audiobook" data-sample-btn><span class="sample__icon" aria-hidden="true"></span></button>
+                <button class="sample__skip" type="button" aria-label="Forward 10 seconds" title="Forward 10 seconds" data-sample-skip="10"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><g transform="matrix(-1 0 0 1 24 0)"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M6.5 2.4v4h4"/></g><text x="12" y="15.4" text-anchor="middle" font-size="7.6" font-weight="800" fill="currentColor" stroke="none" font-family="-apple-system,system-ui,sans-serif">10</text></svg></button>
+              </div>
               <div class="sample__body">
                 <p class="sample__label"><b>Listen to a sample</b> <span>The Introduction, first half</span></p>
                 <div class="sample__bar" data-sample-bar aria-hidden="true"><i data-sample-fill></i></div>
@@ -723,6 +728,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=64" defer></script>
+<script src="assets/site.js?v=65" defer></script>
 </body>
 </html>

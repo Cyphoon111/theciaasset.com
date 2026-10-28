@@ -1210,6 +1210,10 @@
       audio.currentTime = clamp((e.clientX - r.left) / r.width, 0, 1) * dur(); show();
       if (audio.paused) audio.play().catch(() => {});
     });
+    // back / forward 10 seconds (Jason, 2026-10-28): playing or paused, it stays that way; never before the start or past the end
+    sample.querySelectorAll('[data-sample-skip]').forEach((b) => b.addEventListener('click', () => {
+      audio.currentTime = clamp(audio.currentTime + Number(b.dataset.sampleSkip), 0, dur() - 0.5); show();
+    }));
     audio.addEventListener('play', () => state(true));
     audio.addEventListener('pause', () => state(false));
     audio.addEventListener('timeupdate', show);
