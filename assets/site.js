@@ -736,17 +736,15 @@
      should expand in a pop-up when clicked"). Every card photo and the poster open large in #zoom. The cards show small crops
      (assets/chain/X.png or .jpg); the pop-up shows the whole photo from assets/chain/full/X.jpg, the small one standing in
      until it has loaded. Click/tap or Enter/Space opens; the ×, Esc, or a click anywhere (photo or backdrop) closes. A card with
-     no public photo (Douglas Leese) opens its placeholder large the same way (Jason, 2026-11-03: "turn this No Public Photo
+     no public photo (Douglas Leese) has a photo of its own, assets/chain/file-leese.png, so it opens the same way (Jason, 2026-11-03: "turn this No Public Photo
      thumbnail into an image that expands upon clicking or tapping it… just like all of the other image thumbnails"). ---------- */
   const zoom = $('#zoom');
   if (files && zoom && typeof zoom.showModal === 'function') {
     const zImg = $('.zoom__img', zoom), zCap = $('.zoom__cap', zoom);
-    const zNo = document.createElement('div'); zNo.className = 'zoom__nophoto'; zNo.hidden = true; zImg.after(zNo);   // the placeholder, large
     let want = '';
     const fullOf = (src) => src.replace(/assets\/chain\/([^/?#]+)\.(png|jpe?g)(?=$|[?#])/, 'assets/chain/full/$1.jpg');
     const open = (img) => {
       const small = img.currentSrc || img.src, full = fullOf(small);
-      zNo.hidden = true; zNo.replaceChildren(); zImg.hidden = false;
       zImg.src = small; zImg.alt = img.alt;
       zCap.innerHTML = img.closest('figure')?.querySelector('figcaption')?.innerHTML || '';
       want = full;
@@ -765,18 +763,6 @@
       fig.tabIndex = 0; fig.setAttribute('role', 'button'); fig.setAttribute('aria-label', `Enlarge photo: ${img.alt}`);
       fig.addEventListener('click', () => open(img));
       fig.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(img); } });
-    });
-    const openNo = (np) => {
-      want = ''; zImg.hidden = true; zImg.removeAttribute('src'); zImg.alt = '';
-      zNo.replaceChildren(np.cloneNode(true)); zNo.hidden = false;
-      zCap.innerHTML = np.closest('figure')?.querySelector('figcaption')?.innerHTML || '';
-      zoom.showModal();
-    };
-    $$('#files .file__nophoto').forEach((np) => {
-      const fig = np.closest('figure');
-      fig.tabIndex = 0; fig.setAttribute('role', 'button'); fig.setAttribute('aria-label', `Enlarge: ${np.getAttribute('aria-label') || 'no public photo'}`);
-      fig.addEventListener('click', () => openNo(np));
-      fig.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openNo(np); } });
     });
     zoom.addEventListener('click', () => zoom.close());   // the ×, the photo and the dark backdrop all close it
   }

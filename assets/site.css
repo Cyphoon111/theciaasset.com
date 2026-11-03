@@ -656,8 +656,8 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 
 /* the chain of custody photo pop-up: a click or tap on any card photo (or the poster) opens it large; a click outside the
    photo, the × or Esc closes it (Jason, 2026-10-23) */
-#files .file__pic:has(img), #files .file__pic:has(.file__nophoto), #files .poster__pic { cursor: zoom-in; }
-#files .file__pic:has(img):focus-visible, #files .file__pic:has(.file__nophoto):focus-visible, #files .poster__pic:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; }
+#files .file__pic:has(img), #files .poster__pic { cursor: zoom-in; }
+#files .file__pic:has(img):focus-visible, #files .poster__pic:focus-visible { outline: 3px solid var(--red); outline-offset: 4px; }
 /* the dark veil is the dialog's own background, which fills the window; Edge was seen not painting a ::backdrop here */
 .zoom { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: rgba(8,8,10,.86); overflow: hidden; }
 .zoom[open] { display: grid; place-items: center; }
@@ -666,10 +666,6 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .zoom[open] .zoom__fig { animation: zoomIn .28s var(--ease) both; }
 @keyframes zoomIn { from { opacity: 0; transform: scale(.96); } }
 .zoom__img { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - 130px); margin: 0 auto; background: #ececee; }
-/* a card with no public photo: its placeholder, large, as tall as a photo may be (Jason, 2026-11-03) */
-.zoom__nophoto { width: min(88vw, 900px, calc((100dvh - 130px) * 4 / 3)); }
-.zoom__img[hidden], .zoom__nophoto[hidden] { display: none; }
-.zoom__nophoto .file__nophoto span { padding: .45em .6em .35em; border-width: 3px; font-size: clamp(16px, 3.4vw, 36px); }
 .zoom__cap { padding: 9px 2px 11px; font: 700 11px/1.45 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: #55555c; max-width: 72ch; }
 .zoom__cap b { color: var(--ink); }
 .zoom__x { position: fixed; top: 14px; right: 14px; z-index: 2; width: 44px; height: 44px; border: 0; border-radius: 50%; background: rgba(255,255,255,.94); color: var(--ink); font: 400 26px/1 var(--body); cursor: pointer; box-shadow: 0 6px 18px -6px rgba(0,0,0,.5); }
