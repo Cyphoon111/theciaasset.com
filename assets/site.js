@@ -704,6 +704,32 @@
     const draw = () => { tick = false; const b = files.getBoundingClientRect(); const p = clamp((innerHeight * 0.6 - b.top) / b.height, 0, 1); files.style.setProperty('--thread', `${(p * 100).toFixed(1)}%`); };
     addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(draw); } }, { passive: true });
     draw();
+    // Every card only as tall as what is in it (Jason, 2026-11-03: the 1980s card was "so tall with so much empty space … keep
+    // the flow of the timeline"): with two columns, each card is placed on 1 px rows (site.css .files.is-stacked) at its own
+    // height, 26 px under the card above it in its column and at least 90 px (the old drop) below the card before it, so the
+    // left/right zigzag stays in date order. Placed again whenever a card or the list changes size; one column (phones) keeps
+    // the plain list.
+    const GAP = 26, DROP = 90;
+    let queued = 0;
+    const stack = () => {
+      queued = 0;
+      const two = getComputedStyle(files).gridTemplateColumns.trim().split(/\s+/).length === 2;
+      files.classList.toggle('is-stacked', two);
+      const bottom = [0, 0];
+      let prev = -DROP;
+      [...files.children].forEach((li, i) => {
+        if (!two) { li.style.gridRow = ''; return; }
+        const side = i % 2, h = Math.ceil(li.offsetHeight);
+        const top = Math.max(bottom[side] ? bottom[side] + GAP : 0, prev + DROP);
+        li.style.gridRow = `${top + 1} / span ${h}`;
+        bottom[side] = top + h; prev = top;
+      });
+      draw();
+    };
+    const restack = () => { if (!queued) queued = requestAnimationFrame(stack); };
+    if (window.ResizeObserver) { const ro = new ResizeObserver(restack); ro.observe(files); for (const li of files.children) ro.observe(li); }
+    else addEventListener('resize', restack);
+    stack();
   }
 
   /* ---------- chain of custody photo pop-up (Jason, 2026-10-23: "All images located on the cards within The chain of custody
