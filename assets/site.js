@@ -1306,7 +1306,8 @@
   /* ---------- the trailer pop-up (Jason, 2026-11-04: "a pop-up video window on the homepage… It must automatically pop-up on the
      home screen 3 seconds after each visitor enters into the website. It should be fairly large and it should include a play
      button at the center of the video and… an expand to full screen icon at the bottom right… Sound should always be ON by
-     default"). It opens 3 s after the visitor is through the opening screen (on every visit), never over another pop-up (it
+     default"). It opens 2 s after the visitor is through the opening screen (Jason, 2026-11-04: "after 2 seconds"), slamming up
+     onto the screen (site.css vpopSlam, the page behind jolting with it), on every visit, never over another pop-up (it
      waits for that one to close). The big play button starts the trailer with sound (the tap is what lets a browser play
      sound); a tap on the picture pauses or plays; the corner button puts the video itself full screen, with the browser's
      own controls there. The lens waits until it is closed (trailer), and its shutter keeps quiet while it is open (quiet). The
@@ -1338,6 +1339,7 @@
       quiet.on = true; quiet.stop();
       vid.preload = 'auto';
       vpop.showModal();
+      document.documentElement.classList.add('is-slam'); setTimeout(() => document.documentElement.classList.remove('is-slam'), 900);   // the page jolts at the hit
       playBtn.focus({ preventScroll: true });
       paint();
     };
@@ -1348,7 +1350,7 @@
       const busy = $$('dialog[open]').find((d) => d !== vpop);
       if (busy) busy.addEventListener('close', () => setTimeout(showWhenFree, 1500), { once: true }); else open();
     };
-    whenGateOpen(() => setTimeout(showWhenFree, 3000));
+    whenGateOpen(() => setTimeout(showWhenFree, 2000));
   }
 
   /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle|audio|audiobook|audiobundle; the opening screen is skipped).
