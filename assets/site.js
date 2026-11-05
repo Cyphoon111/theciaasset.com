@@ -217,7 +217,30 @@
   // The lens's shutter keeps quiet while the trailer pop-up is on screen (Jason, 2026-11-04: "the sound effects from my image
   // with the camera lens taking snap shots SHOULD NOT SOUND while this pop-up video is on the screen at any time"): `on` holds
   // every shot, `stop` cuts any already on its way. Closing the pop-up lets the next burst sound as normal.
-  const quiet = { on: false, stop: () => {} };
+  // Since 2026-11-04 (Jason: "THIS SOUND EFFECT SHOULD NEVER PLAY WHILE MY VIDEO POP-UP SIZZLE REEL IS EVEN UP ON THE SCREEN AT ANY
+  // TIME"): while it is up the lens's sound engine is switched off as well (mute: the audio context suspended, and no tap may
+  // wake it), and every other open tab of the site goes quiet too (a BroadcastChannel; each tab with the pop-up up repeats
+  // its notice every 4 s, and a notice older than 12 s lapses, so a closed or crashed tab cannot keep the others quiet).
+  const quiet = {
+    on: false, local: false, remote: new Map(), stop: () => {}, mute: () => {}, unmute: () => {},
+    set() { const on = this.local || this.remote.size > 0; if (on === this.on) return; this.on = on; if (on) { this.stop(); this.mute(); } else this.unmute(); },
+    hold() { this.local = true; this.set(); quietSay(true); },
+    release() { this.local = false; this.set(); quietSay(false); },
+  };
+  let quietBc = null;
+  try { quietBc = new BroadcastChannel('cia-trailer-quiet'); } catch {}
+  const QUIET_ID = Math.random().toString(36).slice(2);
+  const quietSay = (open) => { try { if (quietBc) quietBc.postMessage({ id: QUIET_ID, open }); } catch {} };
+  if (quietBc) {
+    quietBc.onmessage = (e) => { const d = e.data || {}; if (!d.id || d.id === QUIET_ID) return; if (d.open) quiet.remote.set(d.id, Date.now()); else quiet.remote.delete(d.id); quiet.set(); };
+    setInterval(() => {
+      const old = Date.now() - 12000;
+      quiet.remote.forEach((at, id) => { if (at < old) quiet.remote.delete(id); });
+      if (quiet.local) quietSay(true);
+      quiet.set();
+    }, 4000);
+    addEventListener('pagehide', () => { if (quiet.local) quietSay(false); });
+  }
   // The lens does not start until the visitor has closed the trailer pop-up (Jason, 2026-11-04: "this animated video of me
   // should not even start playing until after the pop-up video is closed by the end user"): trailer.done(fn) runs fn once
   // the pop-up has been closed, or at once where there is no pop-up (a browser without <dialog>).
@@ -411,7 +434,7 @@
     const disarm = () => { if (!armed) return; armed = false; GESTURES.forEach((ev) => removeEventListener(ev, onGesture, true)); };
     const goneLive = () => { disarm(); if (!firstLive) { firstLive = true; onFirstLive(); } };
     const onGesture = (e) => {
-      if (!soundOn() || (e.target && e.target.closest && e.target.closest('#lensSnd'))) return;
+      if (quiet.on || !soundOn() || (e.target && e.target.closest && e.target.closest('#lensSnd'))) return;   // the pop-up is up: taps there do not wake the shutter
       audio(true);
     };
     const audio = (gesture) => {
@@ -428,6 +451,7 @@
         c.onstatechange = () => { paintSnd(); if (audioLive()) goneLive(); else if (soundOn()) arm(); };
         if (audioLive()) { disarm(); firstLive = true; }
       }
+      if (quiet.on) { paintSnd(); return snd.ctx; }   // switched off while the trailer pop-up is up
       if (snd.ctx.state !== 'running') snd.ctx.resume().catch(() => {});
       // iPhone: starting a silent sound inside the tap is what unlocks audio there
       if (gesture) { try { const s = snd.ctx.createBufferSource(); s.buffer = snd.ctx.createBuffer(1, 1, snd.ctx.sampleRate); s.connect(snd.ctx.destination); s.start(0); } catch {} }
@@ -446,12 +470,14 @@
       if (snd.ctx && snd.ctx.state === 'running') snd.ctx.suspend().catch(() => {});
     };
     quiet.stop = () => { pending.forEach((s) => { try { s.stop(); } catch {} }); pending.clear(); if (snd.ctx && snd.ctx.stopBurst) snd.ctx.stopBurst(); };
-    const whenLive = (fn) => { if (!snd.ctx) return; if (audioLive()) fn(); else snd.ctx.resume().then(() => { if (audioLive()) fn(); }).catch(() => {}); };
+    quiet.mute = () => { if (snd.ctx && snd.ctx.state === 'running') snd.ctx.suspend().catch(() => {}); };
+    quiet.unmute = () => { if (snd.ctx && soundOn() && !document.hidden) snd.ctx.resume().catch(() => {}); };
+    const whenLive = (fn) => { if (!snd.ctx || quiet.on) return; if (audioLive()) fn(); else snd.ctx.resume().then(() => { if (audioLive()) fn(); }).catch(() => {}); };
     if (AC) arm();
     // leaving the tab silences everything at once; coming back asks the browser to resume (allowed once the visitor has interacted)
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) silence();
-      else if (snd.ctx && soundOn() && !audioLive()) snd.ctx.resume().catch(() => {});
+      else if (snd.ctx && soundOn() && !audioLive() && !quiet.on) snd.ctx.resume().catch(() => {});
     });
     addEventListener('pagehide', silence);
 
@@ -577,7 +603,7 @@
       const p = performance.now();
       shotsAt = [at, at + SHOT_GAP, at + 2 * SHOT_GAP]; shotWall = shotsAt.map((t) => p + (t - T) * 1000); fired = 0; burstNo++; setShots(0);
       burstSound = soundShots(0);
-      if (!burstSound && snd.ctx && soundOn()) {
+      if (!burstSound && snd.ctx && soundOn() && !quiet.on) {
         const n = burstNo;
         snd.ctx.resume().then(() => { if (audioLive() && n === burstNo && (phase === 'snap' || phase === 'locked') && !burstSound && fired < 3) burstSound = soundShots(fired); }).catch(() => {});
       }
@@ -1365,14 +1391,14 @@
     document.addEventListener('fullscreenchange', fsChange); document.addEventListener('webkitfullscreenchange', fsChange);
     const open = () => {
       if (vpop.open) return;
-      quiet.on = true; quiet.stop();
+      quiet.hold();
       vid.preload = 'auto';
       vpop.showModal();
       document.documentElement.classList.add('is-slam'); setTimeout(() => document.documentElement.classList.remove('is-slam'), 900);   // the page jolts at the hit
       playBtn.focus({ preventScroll: true });
       paint();
     };
-    vpop.addEventListener('close', () => { vid.pause(); quiet.on = false; trailer.close(); });   // the lens starts now (trailer)
+    vpop.addEventListener('close', () => { vid.pause(); quiet.release(); trailer.close(); });   // the lens starts now (trailer)
     $('.vpop__x', vpop).addEventListener('click', () => vpop.close());
     vpop.addEventListener('click', (e) => { if (e.target === vpop) vpop.close(); });   // the dimmed backdrop
     const showWhenFree = () => {
