@@ -214,6 +214,11 @@
     bookWrap.addEventListener('pointerleave', () => { book.style.removeProperty('--ry'); book.style.removeProperty('--rx'); });
   });
 
+  // The lens's shutter keeps quiet while the trailer pop-up is on screen (Jason, 2026-11-04: "the sound effects from my image
+  // with the camera lens taking snap shots SHOULD NOT SOUND while this pop-up video is on the screen at any time"): `on` holds
+  // every shot, `stop` cuts any already on its way. Closing the pop-up lets the next burst sound as normal.
+  const quiet = { on: false, stop: () => {} };
+
   /* ---------- stamp: CLASSIFIED until the lens's first three-frame burst; on that burst's first frame it is stamped again,
      DECLASSIFIED, and stays so (Jason, 2026-10-17: "show the word: "CLASSIFIED" until the moment that the first triple clicks
      of the camera and the moment the triple clicks execute, I want the word to change from CLASSIFIED to DECLASSIFIED") ---------- */
@@ -331,6 +336,7 @@
         return unlocking;
       };
       ctx.suspend = () => { clearTimeout(burstT); pool.forEach((el) => el.pause()); setState('suspended'); return Promise.resolve(); };
+      ctx.stopBurst = () => { clearTimeout(burstT); pool.forEach((el) => el.pause()); };   // the trailer pop-up opened (quiet)
     }
 
     /* shutter sound, synthesised in the browser (no audio file). Browsers allow sound only after the visitor's first tap, click or key press. */
@@ -422,7 +428,7 @@
     };
     const pending = new Set();
     const clickAt = (when) => {
-      if (document.hidden) return;
+      if (document.hidden || quiet.on) return;
       const c = snd.ctx, s = c.createBufferSource(), g = c.createGain();
       s.buffer = snd.buf; s.playbackRate.value = 0.97 + Math.random() * 0.06; g.gain.value = 0.85 + Math.random() * 0.15;
       s.connect(g); g.connect(snd.bus); s.onended = () => pending.delete(s); pending.add(s); s.start(Math.max(c.currentTime, when));
@@ -431,6 +437,7 @@
       pending.forEach((s) => { try { s.stop(); } catch {} }); pending.clear();
       if (snd.ctx && snd.ctx.state === 'running') snd.ctx.suspend().catch(() => {});
     };
+    quiet.stop = () => { pending.forEach((s) => { try { s.stop(); } catch {} }); pending.clear(); if (snd.ctx && snd.ctx.stopBurst) snd.ctx.stopBurst(); };
     const whenLive = (fn) => { if (!snd.ctx) return; if (audioLive()) fn(); else snd.ctx.resume().then(() => { if (audioLive()) fn(); }).catch(() => {}); };
     if (AC) arm();
     // leaving the tab silences everything at once; coming back asks the browser to resume (allowed once the visitor has interacted)
@@ -550,7 +557,7 @@
     const LOCK_AT = 0.45, SHOT_GAP = 0.2;
     let shotWall = [];
     const soundShots = (k0) => {
-      if (!audioLive() || !soundOn() || !snd.buf) return false;
+      if (quiet.on || !audioLive() || !soundOn() || !snd.buf) return false;
       // scheduled ahead, minus the output device's delay beyond the screen's own ~25 ms (Bluetooth speakers and AirPods add up to a quarter second)
       if (snd.ctx.playBurst) { snd.ctx.playBurst(shotWall[k0] - performance.now(), k0); return true; } // no Web Audio: one recorded burst
       const now = snd.ctx.currentTime, lat = Math.max(0, (snd.ctx.outputLatency || 0) + (snd.ctx.baseLatency || 0) - 0.025), p = performance.now();
@@ -1286,6 +1293,53 @@
     vol.addEventListener('input', () => { const l = LEVELS[Number(vol.value)]; vlab.textContent = l.label; vol.setAttribute('aria-valuetext', l.label); row.removeAttribute('data-muted'); });
     vol.addEventListener('change', () => setMix(LEVELS[Number(vol.value)].id));
     mute.addEventListener('click', () => setMix(mix === 'off' ? lastOn : 'off'));
+  }
+
+  /* ---------- the trailer pop-up (Jason, 2026-11-04: "a pop-up video window on the homepage… It must automatically pop-up on the
+     home screen 3 seconds after each visitor enters into the website. It should be fairly large and it should include a play
+     button at the center of the video and… an expand to full screen icon at the bottom right… Sound should always be ON by
+     default"). It opens 3 s after the visitor is through the opening screen (on every visit), never over another pop-up (it
+     waits for that one to close). The big play button starts the trailer with sound (the tap is what lets a browser play
+     sound); a tap on the picture pauses or plays; the corner button puts the video itself full screen, with the browser's
+     own controls there. While it is open the lens's shutter keeps quiet (quiet). The ×, Esc or a click outside closes it. ---------- */
+  const vpop = $('#vpop');
+  if (vpop && typeof vpop.showModal === 'function') {
+    const vid = $('.vpop__video', vpop), playBtn = $('.vpop__play', vpop), fsBtn = $('.vpop__fs', vpop), barEl = $('.vpop__bar i', vpop);
+    const paint = () => {
+      const on = !vid.paused && !vid.ended;
+      vpop.classList.toggle('is-playing', on);
+      playBtn.setAttribute('aria-label', vid.ended ? 'Play the trailer again' : 'Play the trailer');
+    };
+    const play = () => { vid.muted = false; vid.volume = 1; if (vid.ended) vid.currentTime = 0; vid.play().then(paint, paint); };
+    playBtn.addEventListener('click', play);
+    vid.addEventListener('click', () => { if (vid.paused || vid.ended) play(); else vid.pause(); });
+    ['play', 'playing', 'pause', 'ended'].forEach((ev) => vid.addEventListener(ev, paint));
+    vid.addEventListener('timeupdate', () => { barEl.style.width = `${vid.duration ? (vid.currentTime / vid.duration) * 100 : 0}%`; });
+    // full screen: the video element itself (an iPhone can only do that, with webkitEnterFullscreen); the browser shows its
+    // own controls there and the picture keeps playing where it was
+    fsBtn.addEventListener('click', () => {
+      if (vid.requestFullscreen && document.fullscreenEnabled !== false) vid.requestFullscreen().catch(() => { if (vid.webkitEnterFullscreen) vid.webkitEnterFullscreen(); });
+      else if (vid.webkitRequestFullscreen) vid.webkitRequestFullscreen();
+      else if (vid.webkitEnterFullscreen) vid.webkitEnterFullscreen();
+    });
+    const fsChange = () => { vid.controls = (document.fullscreenElement || document.webkitFullscreenElement) === vid; };
+    document.addEventListener('fullscreenchange', fsChange); document.addEventListener('webkitfullscreenchange', fsChange);
+    const open = () => {
+      if (vpop.open) return;
+      quiet.on = true; quiet.stop();
+      vid.preload = 'auto';
+      vpop.showModal();
+      playBtn.focus({ preventScroll: true });
+      paint();
+    };
+    vpop.addEventListener('close', () => { vid.pause(); quiet.on = false; });
+    $('.vpop__x', vpop).addEventListener('click', () => vpop.close());
+    vpop.addEventListener('click', (e) => { if (e.target === vpop) vpop.close(); });   // the dimmed backdrop
+    const showWhenFree = () => {
+      const busy = $$('dialog[open]').find((d) => d !== vpop);
+      if (busy) busy.addEventListener('close', () => setTimeout(showWhenFree, 1500), { once: true }); else open();
+    };
+    whenGateOpen(() => setTimeout(showWhenFree, 3000));
   }
 
   /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle|audio|audiobook|audiobundle; the opening screen is skipped).

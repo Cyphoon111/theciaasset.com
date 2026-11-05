@@ -665,6 +665,27 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .zoom__fig { margin: 0; padding: 10px 10px 0; max-width: min(94vw, 1180px); background: #fff; box-shadow: 0 40px 90px -30px rgba(0,0,0,.8); cursor: zoom-out; }
 .zoom[open] .zoom__fig { animation: zoomIn .28s var(--ease) both; }
 @keyframes zoomIn { from { opacity: 0; transform: scale(.96); } }
+/* the trailer pop-up (Jason, 2026-11-04): large, the play button at the centre, full screen at the bottom right */
+.vpop { width: min(1120px, 92vw); max-width: none; max-height: none; margin: auto; padding: 0; border: 0; background: transparent; overflow: visible; }
+.vpop::backdrop { background: rgba(6, 6, 8, .84); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.vpop[open] { animation: zoomIn .32s var(--ease) both; }
+.vpop__frame { position: relative; aspect-ratio: 16 / 9; background: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 40px 110px -30px rgba(0, 0, 0, .9), 0 0 0 1px rgba(255, 255, 255, .08); }
+.vpop__video { display: block; width: 100%; height: 100%; object-fit: contain; background: #000; cursor: pointer; }
+.vpop__play { position: absolute; left: 50%; top: 50%; display: grid; place-items: center; width: clamp(76px, 10vw, 120px); aspect-ratio: 1; padding: 0; border: 0; border-radius: 50%; background: var(--red); color: #fff; box-shadow: 0 0 0 10px rgba(224, 18, 28, .24), 0 20px 44px rgba(0, 0, 0, .55); transform: translate(-50%, -50%); cursor: pointer; transition: transform .2s var(--ease), opacity .25s, box-shadow .2s; }
+.vpop__play svg { width: 44%; margin-left: 9%; fill: currentColor; }
+.vpop__play:hover { transform: translate(-50%, -50%) scale(1.07); box-shadow: 0 0 0 14px rgba(224, 18, 28, .3), 0 20px 44px rgba(0, 0, 0, .55); }
+.vpop__play:focus-visible { outline: 3px solid #fff; outline-offset: 6px; }
+.vpop.is-playing .vpop__play { opacity: 0; pointer-events: none; }
+.vpop__fs { position: absolute; right: 14px; bottom: 16px; display: grid; place-items: center; width: 46px; height: 46px; padding: 0; border: 0; border-radius: 10px; background: rgba(0, 0, 0, .58); color: #fff; cursor: pointer; transition: background .2s, transform .2s; }
+.vpop__fs svg { width: 24px; height: 24px; }
+.vpop__fs:hover { background: rgba(0, 0, 0, .82); transform: scale(1.06); }
+.vpop__fs:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+.vpop__bar { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255, 255, 255, .16); pointer-events: none; }
+.vpop__bar i { display: block; width: 0; height: 100%; background: var(--red); }
+.vpop__x { position: absolute; z-index: 2; top: -20px; right: -20px; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: #fff; color: var(--ink); font: 400 28px/1 var(--body); cursor: pointer; box-shadow: 0 8px 22px -6px rgba(0, 0, 0, .6); }
+.vpop__x:hover { background: #f1f1f3; }
+html:has(.vpop[open]) { overflow: hidden; }
+@media (max-width: 700px) { .vpop { width: 94vw; } .vpop__x { top: -56px; right: 0; } .vpop__fs { right: 10px; bottom: 12px; width: 42px; height: 42px; } }
 .zoom__img { display: block; width: auto; height: auto; max-width: 100%; max-height: calc(100dvh - 130px); margin: 0 auto; background: #ececee; }
 .zoom__cap { padding: 9px 2px 11px; font: 700 11px/1.45 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: #55555c; max-width: 72ch; }
 .zoom__cap b { color: var(--ink); }
