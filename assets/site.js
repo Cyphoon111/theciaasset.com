@@ -783,12 +783,13 @@
     const tilt = () => {
       tq = 0;
       const y = innerHeight * LINE, b = files.getBoundingClientRect();
-      let best = null, bt = -Infinity;
+      // the last card whose top has reached the line; none once it has gone by (never back to an earlier, taller one)
+      let best = null, bt = -Infinity, bb = 0;
       if (b.top < y && b.bottom > y) for (const li of files.children) {
         const r = li.getBoundingClientRect();
-        if (r.top > y || r.bottom < y) continue;
-        if (r.top > bt) { bt = r.top; best = li; }
+        if (r.top <= y && r.top > bt) { bt = r.top; bb = r.bottom; best = li; }
       }
+      if (best && bb < y) best = null;
       if (best === tilted) return;
       if (tilted) tilted.classList.remove('is-tilt');
       tilted = best;
