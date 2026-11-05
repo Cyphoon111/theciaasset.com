@@ -771,6 +771,32 @@
     if (window.ResizeObserver) { const ro = new ResizeObserver(restack); ro.observe(files); for (const li of files.children) ro.observe(li); }
     else addEventListener('resize', restack);
     stack();
+    // The photo of the card the visitor is passing tilts by itself (Jason, 2026-11-04: "the moment any of the cards reach the
+    // current level of the screen where the first card … is right now … One by one they tilt as the end-user scrolls by each
+    // one and once the end-user scrolls past that card it automatically tilt back"): the reading line is 42% down the
+    // window, where the first card sits when the section comes into view; the one card (or the poster) whose middle is
+    // nearest the line, among those crossing it, wears .is-tilt (site.css). A click or hover still works as before.
+    const LINE = 0.42;
+    let tilted = null, tq = 0;
+    const tilt = () => {
+      tq = 0;
+      const y = innerHeight * LINE, b = files.getBoundingClientRect();
+      let best = null, bd = Infinity;
+      if (b.top < y && b.bottom > y) for (const li of files.children) {
+        const r = li.getBoundingClientRect();
+        if (r.top > y || r.bottom < y) continue;
+        const d = Math.abs((r.top + r.bottom) / 2 - y);
+        if (d < bd) { bd = d; best = li; }
+      }
+      if (best === tilted) return;
+      if (tilted) tilted.classList.remove('is-tilt');
+      tilted = best;
+      if (tilted) tilted.classList.add('is-tilt');
+    };
+    const retilt = () => { if (!tq) tq = requestAnimationFrame(tilt); };
+    addEventListener('scroll', retilt, { passive: true });
+    addEventListener('resize', retilt);
+    tilt();
   }
 
   /* ---------- chain of custody photo pop-up (Jason, 2026-10-23: "All images located on the cards within The chain of custody
