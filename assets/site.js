@@ -218,6 +218,14 @@
   // with the camera lens taking snap shots SHOULD NOT SOUND while this pop-up video is on the screen at any time"): `on` holds
   // every shot, `stop` cuts any already on its way. Closing the pop-up lets the next burst sound as normal.
   const quiet = { on: false, stop: () => {} };
+  // The lens does not start until the visitor has closed the trailer pop-up (Jason, 2026-11-04: "this animated video of me
+  // should not even start playing until after the pop-up video is closed by the end user"): trailer.done(fn) runs fn once
+  // the pop-up has been closed, or at once where there is no pop-up (a browser without <dialog>).
+  const trailer = {
+    closed: !($('#vpop') && typeof $('#vpop').showModal === 'function'), waiting: [],
+    done(fn) { if (this.closed) fn(); else this.waiting.push(fn); },
+    close() { if (this.closed) return; this.closed = true; this.waiting.splice(0).forEach((fn) => fn()); },
+  };
 
   /* ---------- stamp: CLASSIFIED until the lens's first three-frame burst; on that burst's first frame it is stamped again,
      DECLASSIFIED, and stays so (Jason, 2026-10-17: "show the word: "CLASSIFIED" until the moment that the first triple clicks
@@ -699,7 +707,7 @@
     if (AC && soundOn()) audio(false);
     new IntersectionObserver((es) => es.forEach((e) => {
       visRatio = e.intersectionRatio;
-      if (!started) { if (e.intersectionRatio >= 0.35) whenGateOpen(startLens); }
+      if (!started) { if (e.intersectionRatio >= 0.35) whenGateOpen(() => trailer.done(startLens)); }
       else if (e.isIntersecting && !document.hidden) run(); else halt();
     }), { threshold: [0, 0.35, 0.6] }).observe(lens);
   }
@@ -1301,7 +1309,8 @@
      default"). It opens 3 s after the visitor is through the opening screen (on every visit), never over another pop-up (it
      waits for that one to close). The big play button starts the trailer with sound (the tap is what lets a browser play
      sound); a tap on the picture pauses or plays; the corner button puts the video itself full screen, with the browser's
-     own controls there. While it is open the lens's shutter keeps quiet (quiet). The ×, Esc or a click outside closes it. ---------- */
+     own controls there. The lens waits until it is closed (trailer), and its shutter keeps quiet while it is open (quiet). The
+     ×, Esc or a click outside closes it. ---------- */
   const vpop = $('#vpop');
   if (vpop && typeof vpop.showModal === 'function') {
     const vid = $('.vpop__video', vpop), playBtn = $('.vpop__play', vpop), fsBtn = $('.vpop__fs', vpop), barEl = $('.vpop__bar i', vpop);
@@ -1332,7 +1341,7 @@
       playBtn.focus({ preventScroll: true });
       paint();
     };
-    vpop.addEventListener('close', () => { vid.pause(); quiet.on = false; });
+    vpop.addEventListener('close', () => { vid.pause(); quiet.on = false; trailer.close(); });   // the lens starts now (trailer)
     $('.vpop__x', vpop).addEventListener('click', () => vpop.close());
     vpop.addEventListener('click', (e) => { if (e.target === vpop) vpop.close(); });   // the dimmed backdrop
     const showWhenFree = () => {
