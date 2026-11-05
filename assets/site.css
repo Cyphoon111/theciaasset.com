@@ -606,6 +606,9 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .pkg__price b { font: 400 30px/1 var(--display); color: var(--red); white-space: nowrap; }
 .pkg--bundle .pkg__price b { color: var(--ink); }
 .pkg__later { font: 700 11px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+/* under each monthly amount, in small print (Jason, 2026-11-04: "just underneath these monthly donation amounts in smaller print type Cancel Anytime"); to the cancel page */
+.pkg__cancel { flex-basis: 100%; margin-top: 3px; font: 600 12.5px/1.3 var(--body); letter-spacing: .01em; color: var(--muted); text-decoration: none; }
+.pkg__cancel:hover, .pkg__cancel:focus-visible { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
 .pkg__what { margin: 6px 0 0; font-size: 15.5px; color: var(--ink-2); }
 /* the audiobook's three options (Jason, 2026-10-28): each with its own minimum and button, under the card's sample */
 .aopts { list-style: none; display: grid; gap: 10px; margin: 16px 0 0; padding: 0; }
