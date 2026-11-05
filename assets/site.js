@@ -1160,9 +1160,9 @@
       bundle: { name: 'The ebook plus the entire Master Claims document', what: 'the ebook plus the entire Master Claims document', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000] },   // $1,000 too (Jason, 2026-10-17)
       // the audiobook's three options (Jason, 2026-10-28: from $10, $12 and $15; from Nov 4 "$19.99 … $24.99 … $29.99"): `after`
       // replaces min, start and amounts from FULL_AT, and they stay donations, one-time or monthly
-      audio: { name: 'The audiobook', what: 'the audiobook', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000], after: { min: 1999, start: 2500, amounts: [1999, 2500, 5000, 10000, 30000, 50000, 100000] } },
-      audiobook: { name: 'The audiobook plus the ebook', what: 'the audiobook plus the ebook', min: 1200, start: 2000, amounts: [1200, 2000, 5000, 10000, 30000, 50000, 100000], after: { min: 2499, start: 3000, amounts: [2499, 3000, 5000, 10000, 30000, 50000, 100000] } },
-      audiobundle: { name: 'The audiobook plus the ebook plus the entire Master Claims document', what: 'the audiobook plus the ebook plus the entire Master Claims document', min: 1500, start: 2500, amounts: [1500, 2500, 5000, 10000, 30000, 50000, 100000], after: { min: 2999, start: 3500, amounts: [2999, 3500, 5000, 10000, 30000, 50000, 100000] } },
+      audio: { name: 'The audiobook', what: 'the audiobook', min: 1000, start: 2000, amounts: [1000, 2000, 5000, 10000, 30000, 50000, 100000], after: { min: 1999, start: 2500, amounts: [1999, 2500, 5000, 10000, 30000, 50000, 100000] }, afterMonthly: { min: 1499, start: 2000, amounts: [1499, 2000, 5000, 10000, 30000, 50000, 100000] } },
+      audiobook: { name: 'The audiobook plus the ebook', what: 'the audiobook plus the ebook', min: 1200, start: 2000, amounts: [1200, 2000, 5000, 10000, 30000, 50000, 100000], after: { min: 2499, start: 3000, amounts: [2499, 3000, 5000, 10000, 30000, 50000, 100000] }, afterMonthly: { min: 1999, start: 2500, amounts: [1999, 2500, 5000, 10000, 30000, 50000, 100000] } },
+      audiobundle: { name: 'The audiobook plus the ebook plus the entire Master Claims document', what: 'the audiobook plus the ebook plus the entire Master Claims document', min: 1500, start: 2500, amounts: [1500, 2500, 5000, 10000, 30000, 50000, 100000], after: { min: 2999, start: 3500, amounts: [2999, 3500, 5000, 10000, 30000, 50000, 100000] }, afterMonthly: { min: 2499, start: 3000, amounts: [2499, 3000, 5000, 10000, 30000, 50000, 100000] } },
     };
     const MAX = 500000;
     const grid = $('.amt__grid', amt), other = $('#amtOther'), go = $('#amtGo'), msg = $('#amtMsg');
@@ -1195,7 +1195,8 @@
       monthly = $('.freq__opt[data-freq="monthly"]')?.getAttribute('aria-checked') === 'true';
       // from Election Day the ebook's button opens this window only for Monthly, from $10 (Jason, 2026-10-28)
       if (Date.now() >= FULL_AT && product === 'ebook' && monthly) K = { ...K, min: 1000, start: 1000 };
-      if (Date.now() >= FULL_AT && K.after) K = { ...K, ...K.after };
+      // monthly from Nov 4 the audiobook's options start lower (Jason, 2026-11-04: $14.99, $19.99, $24.99 a month)
+      if (Date.now() >= FULL_AT && K.after) K = { ...K, ...(monthly && K.afterMonthly ? K.afterMonthly : K.after) };
       $('#amtKicker').textContent = K.name;
       $('#amtTitle').textContent = monthly ? 'Choose your monthly donation' : 'Choose your donation';
       $('#amtSub').textContent = monthly ? `From ${usd(K.min)} a month. Square’s secure checkout opens next for exactly this amount, each month until you cancel.` : `From ${usd(K.min)}. Square’s secure checkout opens next for exactly this amount.`;
