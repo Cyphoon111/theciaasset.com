@@ -954,28 +954,56 @@
     });
   });
 
-  /* ---------- the next day: Pam Bondi at the Cabinet meeting (a portrait clip under the missing minute). A centred play button
-     starts it with sound, a tap on the picture pauses or resumes, and the button at the lower right goes full screen
-     (the native controls show there; on an iPhone the system player takes over). ---------- */
+  /* ---------- the next day: Pam Bondi at the Cabinet meeting (a portrait clip under the missing minute). Scrolled into view, it
+     plays by itself, silent and in black and white, on a loop, with the red play button still over it (Jason, 2026-11-04:
+     "a silent black and white autoplay. The red play button MUST REMAIN over the black and white video as it is playing and
+     ONCE THE END USER ACTUALLY PRESSES ON THAT RED CIRCLE PLAY BUTTON ONLY THEN WILL THE REAL FULL COLOR VIDEO WITH SOUND GO
+     AHEAD AND PLAY (THE BLACK AND WHITE EFFECT SIMPLY GOES AWAY SEAMLESSLY AND SMOOTH"). A press (the button, the picture or
+     full screen) plays the real video from its beginning, in colour and with sound: the black-and-white frame on screen
+     dissolves into it (.bondi__snap). Then a tap on the picture pauses or resumes, and the button at the lower right goes
+     full screen (the native controls show there; on an iPhone the system player takes over). The preview pauses when it
+     scrolls out of view. ---------- */
   const bondi = $('#bondi');
   if (bondi) {
-    const v = $('video', bondi), playBtn = $('.bondi__play', bondi), fullBtn = $('.bondi__full', bondi);
+    const v = $('video', bondi), playBtn = $('.bondi__play', bondi), fullBtn = $('.bondi__full', bondi), screen = $('.bondi__screen', bondi);
+    let live = false;   // false: the silent black-and-white preview (or not started yet); true: the real video
     const sync = () => {
-      bondi.classList.toggle('is-playing', !v.paused && !v.ended);
-      playBtn.setAttribute('aria-label', v.ended ? 'Play again' : 'Play video');
+      bondi.classList.toggle('is-playing', live && !v.paused && !v.ended);
+      playBtn.setAttribute('aria-label', !live ? 'Play the video with sound' : v.ended ? 'Play again' : 'Play video');
     };
-    const play = () => { v.muted = false; v.play().catch(() => {}); };
+    const preview = () => { if (live) return; v.muted = true; v.loop = true; bondi.classList.add('is-preview'); v.play().catch(() => {}); };
+    const dissolve = () => {   // the frame on screen now, in black and white, laid over the video and faded away
+      if (v.readyState < 2 || !v.videoWidth) return;
+      const r = screen.getBoundingClientRect(), dpr = Math.min(2, devicePixelRatio || 1), c = document.createElement('canvas');
+      c.width = Math.round(r.width * dpr); c.height = Math.round(r.height * dpr); c.className = 'bondi__snap';
+      const g = c.getContext('2d'), k = Math.min(c.width / v.videoWidth, c.height / v.videoHeight), w = v.videoWidth * k, h = v.videoHeight * k;
+      g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
+      try { g.drawImage(v, (c.width - w) / 2, (c.height - h) / 2, w, h); } catch { return; }
+      v.after(c);
+      requestAnimationFrame(() => requestAnimationFrame(() => c.classList.add('is-gone')));
+      setTimeout(() => c.remove(), 1400);
+    };
+    const play = () => {
+      if (!live) { live = true; dissolve(); bondi.classList.remove('is-preview'); v.loop = false; v.currentTime = 0; }
+      v.muted = false; v.play().catch(() => {}); sync();
+    };
     playBtn.addEventListener('click', play);
-    v.addEventListener('click', () => { if (v.paused) play(); else v.pause(); });
+    v.addEventListener('click', () => { if (!live || v.paused) play(); else v.pause(); });
     ['play', 'pause', 'ended'].forEach((ev) => v.addEventListener(ev, sync));
     fullBtn.addEventListener('click', () => {
       const enter = v.requestFullscreen || v.webkitRequestFullscreen;
       if (enter) { const p = enter.call(v); if (p && p.catch) p.catch(() => {}); } else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
-      if (v.paused) play();
+      if (!live || v.paused) play();
     });
     const onFs = () => { v.controls = (document.fullscreenElement || document.webkitFullscreenElement) === v; };
     document.addEventListener('fullscreenchange', onFs);
     document.addEventListener('webkitfullscreenchange', onFs);
+    // the preview starts when the clip is half in view and pauses when it leaves
+    new IntersectionObserver((es) => es.forEach((e) => {
+      if (live) return;
+      if (e.intersectionRatio >= 0.5) preview(); else if (!v.paused) v.pause();
+    }), { threshold: [0, 0.5] }).observe(screen);
+    sync();
   }
   // "Read the transcript" opens her answer about the missing minute in a pop-up (closed like the press pop-ups, below);
   // without this script the link still goes to the full Roll Call transcript

@@ -430,6 +430,11 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .bondi__play svg { width: 36px; height: 36px; margin-left: 5px; fill: currentColor; }
 .bondi__play:hover, .bondi__play:focus-visible { background: var(--red); transform: translate(-50%, -50%) scale(1.06); }
 .bondi.is-playing .bondi__play { opacity: 0; pointer-events: none; }
+/* the silent preview in black and white (Jason, 2026-11-04); a press dissolves it into the real video in colour (site.js) */
+.bondi__video { transition: filter .9s ease; }
+.bondi.is-preview .bondi__video { filter: grayscale(1) contrast(1.06); }
+.bondi__snap { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; filter: grayscale(1) contrast(1.06); opacity: 1; transition: opacity .9s ease; }
+.bondi__snap.is-gone { opacity: 0; }
 .bondi__full { position: absolute; right: 10px; bottom: 10px; display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 10px; background: rgba(8,8,10,.62); color: #fff; cursor: pointer; transition: background .2s; }
 .bondi__full svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 .bondi__full:hover, .bondi__full:focus-visible { background: var(--red); }
@@ -964,6 +969,8 @@ html:has(.zoom[open]) { overflow: hidden; }
   .stamp { opacity: .92; transform: translate(-50%, 0) rotate(-11deg) scale(1); }
   /* the site's ambient motion still runs (Jason, 2026-10-10: the banner must scroll on his Mac, which has Reduce Motion on) */
   .marquee__track { animation-duration: 48s !important; animation-iteration-count: infinite !important; }
+  /* the Bondi clip's black and white still fades smoothly into colour (Jason, 2026-11-04: "SEAMLESSLY AND SMOOTH") */
+  .bondi__video, .bondi__snap { transition-duration: .9s !important; }
   /* the trailer still slams onto the screen (Jason asked for it, 2026-11-04; his Mac has Reduce Motion on) */
   .vpop[open] { animation-duration: .6s, .42s !important; }
   .vpop[open]::backdrop { animation-duration: .5s !important; }
