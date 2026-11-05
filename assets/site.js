@@ -774,19 +774,20 @@
     // The photo of the card the visitor is passing tilts by itself (Jason, 2026-11-04: "the moment any of the cards reach the
     // current level of the screen where the first card … is right now … One by one they tilt as the end-user scrolls by each
     // one and once the end-user scrolls past that card it automatically tilt back"): the reading line is 42% down the
-    // window, where the first card sits when the section comes into view; the one card (or the poster) whose middle is
-    // nearest the line, among those crossing it, wears .is-tilt (site.css). A click or hover still works as before.
+    // window, where the first card sits when the section comes into view. Of the cards (and the poster) crossing the line,
+    // the one whose top passed it last wears .is-tilt (site.css): each card tilts from the moment its top reaches the line
+    // until the next card's top does (the timeline zigzags in date order, so every card gets its turn, in order) or it has
+    // gone by. A click or hover still works as before.
     const LINE = 0.42;
     let tilted = null, tq = 0;
     const tilt = () => {
       tq = 0;
       const y = innerHeight * LINE, b = files.getBoundingClientRect();
-      let best = null, bd = Infinity;
+      let best = null, bt = -Infinity;
       if (b.top < y && b.bottom > y) for (const li of files.children) {
         const r = li.getBoundingClientRect();
         if (r.top > y || r.bottom < y) continue;
-        const d = Math.abs((r.top + r.bottom) / 2 - y);
-        if (d < bd) { bd = d; best = li; }
+        if (r.top > bt) { bt = r.top; best = li; }
       }
       if (best === tilted) return;
       if (tilted) tilted.classList.remove('is-tilt');
