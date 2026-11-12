@@ -1394,18 +1394,39 @@
      waits for that one to close). The big play button starts the trailer with sound (the tap is what lets a browser play
      sound); a tap on the picture pauses or plays; the corner button puts the video itself full screen, with the browser's
      own controls there. The lens waits until it is closed (trailer), and its shutter keeps quiet while it is open (quiet). The
-     ×, Esc or a click outside closes it. ---------- */
+     ×, Esc or a click outside closes it.
+     Its reels play one after another (Jason, 2026-11-12: "this video will play first and immediately after it completes,
+     let's automatically bring in and play the book sizzle reel"): the video's data-reels, in order. When one ends the next
+     loads into the same video element and plays at once, with sound: the visitor's tap on the first is what lets a browser
+     (an iPhone too) go on playing that element with sound; should a browser refuse anyway, the big play button comes back on
+     the next reel's poster. After the last, the play button starts the whole series again. ---------- */
   const vpop = $('#vpop');
   if (vpop && typeof vpop.showModal === 'function') {
     const vid = $('.vpop__video', vpop), playBtn = $('.vpop__play', vpop), fsBtn = $('.vpop__fs', vpop), barEl = $('.vpop__bar i', vpop);
+    let reels = []; try { reels = JSON.parse(vid.dataset.reels || '[]'); } catch { reels = []; }
+    if (!reels.length) reels = [{ src: vid.getAttribute('src'), poster: vid.getAttribute('poster'), label: 'the video' }];
+    let reel = 0, advancing = false;
+    const load = (n) => { reel = n; vid.poster = reels[n].poster || ''; vid.src = reels[n].src; barEl.style.width = '0%'; };
     const paint = () => {
-      const on = !vid.paused && !vid.ended;
+      // a reel that has reached its end with another to come counts as playing (a browser says "pause" just before "ended")
+      const on = (!vid.paused && !vid.ended) || advancing || (vid.ended && reel < reels.length - 1);
       vpop.classList.toggle('is-playing', on);
-      playBtn.setAttribute('aria-label', vid.ended ? 'Play the trailer again' : 'Play the trailer');
+      playBtn.setAttribute('aria-label', vid.ended ? 'Play again from the start' : `Play ${reels[reel].label || 'the video'}`);
     };
-    const play = () => { vid.muted = false; vid.volume = 1; if (vid.ended) vid.currentTime = 0; vid.play().then(paint, paint); };
+    const play = () => {
+      vid.muted = false; vid.volume = 1;
+      if (vid.ended) { if (reels.length > 1) load(0); else vid.currentTime = 0; }
+      vid.play().then(paint, paint);
+    };
     playBtn.addEventListener('click', play);
     vid.addEventListener('click', () => { if (vid.paused || vid.ended) play(); else vid.pause(); });
+    // the next reel, the moment one ends (registered before paint, so the play button never flashes up in between)
+    vid.addEventListener('ended', () => {
+      if (reel >= reels.length - 1) return;
+      advancing = true; load(reel + 1);
+      const done = () => { advancing = false; if (!vpop.open) vid.pause(); paint(); };   // closed in that instant: stay quiet
+      vid.play().then(done, done);
+    });
     ['play', 'playing', 'pause', 'ended'].forEach((ev) => vid.addEventListener(ev, paint));
     vid.addEventListener('timeupdate', () => { barEl.style.width = `${vid.duration ? (vid.currentTime / vid.duration) * 100 : 0}%`; });
     // full screen: the video element itself (an iPhone can only do that, with webkitEnterFullscreen); the browser shows its
