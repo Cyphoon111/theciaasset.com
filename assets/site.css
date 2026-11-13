@@ -548,6 +548,19 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .early span { white-space: nowrap; text-transform: uppercase; font-size: clamp(22px, 2.4vw, 31px); }
 .preorder__cover img { width: 100%; aspect-ratio: 1100 / 1650; object-fit: cover; border-radius: 2px 6px 6px 2px; box-shadow: 0 30px 50px -24px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.18); transform: rotate(-3deg); transition: transform .4s var(--ease); }
 .preorder__box:hover .preorder__cover img { transform: rotate(0deg) translateY(-4px); }
+/* the hardcover first (Jason, 2026-11-13): the copy column in three (the intro, the hardcover card, then the switch, Ask the
+   Book and the other packages), and the book beside the hardcover card with "Pre-Order Now" stamped above it, its foot level
+   with the card's; on one column, the book comes between the intro and the card */
+.preorder__box { grid-template-areas: "cover intro" "cover hc" ". rest"; row-gap: 0; align-items: start; }
+.preorder__cover { grid-area: cover; align-self: end; }
+.preorder__intro { grid-area: intro; }
+.preorder__hc { grid-area: hc; }
+.preorder__hc > .pkg { margin-top: 24px; }
+.preorder__rest { grid-area: rest; }
+@media (max-width: 960px) {
+  .preorder__box { grid-template-areas: "intro" "cover" "hc" "rest"; }
+  .preorder__cover { margin-top: 34px; }
+}
 .preorder__lead { margin: 18px 0 0; max-width: 520px; font-size: 18px; color: var(--ink-2); }
 .preorder__price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin: 26px 0 24px; }
 .preorder__now { font: 400 clamp(54px, 6vw, 76px)/1 var(--display); color: var(--red); }
@@ -605,10 +618,16 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
   .preorder__row > .freq-row { flex-basis: 100%; }
   .askcard { flex-basis: 100%; max-width: none; margin-left: 0; }
 }
-.pkgs { display: grid; gap: 16px; margin: 18px 0 4px; }
+.pkgs { display: grid; gap: 22px; margin: 18px 0 4px; }
 .pkg { padding: 20px 22px; border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 0 14px 14px 0; background: #fff; }
 .pkg--bundle { border-left-color: var(--gold); }
 .pkg--audio { border-left-color: var(--ink); }
+/* each product its own card (Jason, 2026-11-13: "each of these section needs to have a shadow effect around them to make make
+   it more intuitive they are separate products"): a soft shadow all round, and on hover a glow in the card's own colour */
+.pkg { --pkg-glow: rgba(224, 18, 28, .26); box-shadow: 0 1px 2px rgba(11, 11, 13, .06), 0 10px 24px -8px rgba(11, 11, 13, .17), 0 28px 50px -30px rgba(11, 11, 13, .32); transition: box-shadow .25s var(--ease); }
+.pkg--bundle, .pkg--hardcover { --pkg-glow: rgba(201, 162, 75, .45); }
+.pkg--audio { --pkg-glow: rgba(11, 11, 13, .28); }
+@media (hover: hover) { .pkg:hover { box-shadow: 0 1px 2px rgba(11, 11, 13, .06), 0 12px 28px -8px rgba(11, 11, 13, .18), 0 0 0 1px var(--pkg-glow), 0 18px 46px -8px var(--pkg-glow); } }
 .pkg__head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 14px; }
 .pkg__name { margin: 0; font: 400 24px/1.1 var(--display); letter-spacing: .02em; text-transform: uppercase; }
 .pkg__price { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 0; }
