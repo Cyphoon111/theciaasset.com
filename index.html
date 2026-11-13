@@ -504,11 +504,14 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
                The narration in the author's own voice; it plays inside the buyer's protected copy. Three options since 2026-10-28
                (Jason: "Audiobook - donations begin at $10. Audiobook plus the ebook - donations start at $12. Audiobook plus the
                ebook plus the master claims document - donations start at $15"; from Nov 4 "$19.99 … $24.99 … $29.99"), each a
-               donation, one-time or monthly as the switch says (PitchZing packages audio, audiobook, audiobundle). -->
+               donation, one-time or monthly as the switch says (PitchZing packages audio, audiobook, audiobundle). Since 2026-11-13
+               One-time is a purchase at its price, no "From" (Jason: "It's a ONE TIME PURCHASE"): its Buy buttons open Square's
+               checkout for exactly that (site.js data-buy; PitchZing names the line "Buy …" and records an order); Monthly stays a
+               donation from its minimum, through the amount window. -->
           <article class="pkg pkg--audio" data-audiobook hidden>
             <div class="pkg__head">
               <h3 class="pkg__name">The audiobook</h3>
-              <p class="pkg__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>From $19.99 on Nov 4</span><b data-paid hidden data-freq-show="once">From $19.99</b><b data-paid hidden data-freq-show="monthly">From $14.99</b><a class="pkg__cancel" data-freq-show="monthly" href="/cancel/">Cancel anytime</a></p>
+              <p class="pkg__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>From $19.99 on Nov 4</span><b data-paid hidden data-freq-show="once">$19.99</b><b data-paid hidden data-freq-show="monthly">From $14.99</b><a class="pkg__cancel" data-freq-show="monthly" href="/cancel/">Cancel anytime</a></p>
             </div>
             <p class="pkg__what" id="audiobookWhat">The whole book in the author’s own voice. It plays in your protected copy, chapter by chapter, and keeps your place.</p>
             <!-- A free sample (Jason, 2026-10-27): the first half of the Introduction, fading out mid-sentence (assets/audiobook-sample-soundtrack.mp3 since 2026-10-28, with the soundtrack at level D;
@@ -538,22 +541,25 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
             </div>
             <ul class="aopts" aria-label="Choose your audiobook">
               <li class="aopt">
-                <div class="aopt__txt"><h4 class="aopt__name">The audiobook</h4><p class="aopt__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>$19.99 minimum from Nov 4</span><b data-paid hidden data-freq-show="once">From $19.99</b><b data-paid hidden data-freq-show="monthly">From $14.99</b></p></div>
-                <button class="btn btn--red pkg__buy" type="button" data-amount="audio" aria-haspopup="dialog">Donate &amp; get the audiobook <span aria-hidden="true">→</span></button>
+                <div class="aopt__txt"><h4 class="aopt__name">The audiobook</h4><p class="aopt__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>$19.99 minimum from Nov 4</span><b data-paid hidden data-freq-show="once">$19.99</b><b data-paid hidden data-freq-show="monthly">From $14.99</b></p></div>
+                <button class="btn btn--red pkg__buy" type="button" data-paid hidden data-freq-show="once" data-buy="audio" data-cents="1999">Buy the audiobook <span aria-hidden="true">→</span></button>
+                <button class="btn btn--red pkg__buy" type="button" data-freq-show="monthly" data-amount="audio" aria-haspopup="dialog">Donate &amp; get the audiobook <span aria-hidden="true">→</span></button>
               </li>
               <li class="aopt">
-                <div class="aopt__txt"><h4 class="aopt__name">The audiobook plus the ebook</h4><p class="aopt__price"><b data-giveaway>From $12</b><span class="pkg__later" data-giveaway>$24.99 minimum from Nov 4</span><b data-paid hidden data-freq-show="once">From $24.99</b><b data-paid hidden data-freq-show="monthly">From $19.99</b></p></div>
-                <button class="btn btn--red pkg__buy" type="button" data-amount="audiobook" aria-haspopup="dialog">Donate &amp; get both <span aria-hidden="true">→</span></button>
+                <div class="aopt__txt"><h4 class="aopt__name">The audiobook plus the ebook</h4><p class="aopt__price"><b data-giveaway>From $12</b><span class="pkg__later" data-giveaway>$24.99 minimum from Nov 4</span><b data-paid hidden data-freq-show="once">$24.99</b><b data-paid hidden data-freq-show="monthly">From $19.99</b></p></div>
+                <button class="btn btn--red pkg__buy" type="button" data-paid hidden data-freq-show="once" data-buy="audiobook" data-cents="2499">Buy both <span aria-hidden="true">→</span></button>
+                <button class="btn btn--red pkg__buy" type="button" data-freq-show="monthly" data-amount="audiobook" aria-haspopup="dialog">Donate &amp; get both <span aria-hidden="true">→</span></button>
               </li>
               <li class="aopt aopt--all">
-                <div class="aopt__txt"><h4 class="aopt__name">The audiobook plus the ebook plus the entire Master Claims Document</h4><p class="aopt__price"><b data-giveaway>From $15</b><span class="pkg__later" data-giveaway>$29.99 minimum from Nov 4</span><b data-paid hidden data-freq-show="once">From $29.99</b><b data-paid hidden data-freq-show="monthly">From $24.99</b></p></div>
-                <button class="btn btn--red pkg__buy" type="button" data-amount="audiobundle" aria-haspopup="dialog">Donate &amp; get all three <span aria-hidden="true">→</span></button>
+                <div class="aopt__txt"><h4 class="aopt__name">The audiobook plus the ebook plus the entire Master Claims Document</h4><p class="aopt__price"><b data-giveaway>From $15</b><span class="pkg__later" data-giveaway>$29.99 minimum from Nov 4</span><b data-paid hidden data-freq-show="once">$29.99</b><b data-paid hidden data-freq-show="monthly">From $24.99</b></p></div>
+                <button class="btn btn--red pkg__buy" type="button" data-paid hidden data-freq-show="once" data-buy="audiobundle" data-cents="2999">Buy all three <span aria-hidden="true">→</span></button>
+                <button class="btn btn--red pkg__buy" type="button" data-freq-show="monthly" data-amount="audiobundle" aria-haspopup="dialog">Donate &amp; get all three <span aria-hidden="true">→</span></button>
               </li>
             </ul>
           </article>
         </div>
         <p class="preorder__fine" data-giveaway>You choose the amount here (the ebook from $1, the ebook plus the entire Master Claims document from $10<span data-audiobook hidden>, the audiobook from $10, with the ebook from $12, or with the ebook and the entire Master Claims document from $15</span>), and Square’s secure checkout opens for exactly that amount. Square’s checkout also asks for your phone number for the receipt. Your copy is emailed to the address you enter there and opens in our protected online reader, for you alone. A monthly donation repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>; your copy comes with the first one. Donations go directly to the author and are not tax-deductible. <b>All donations are final: no refunds.</b></p>
-        <p class="preorder__fine" data-paid hidden>Secure checkout by Square, which also asks for your phone number for the receipt.<span data-audiobook hidden> The audiobook is a donation you choose: one-time from $19.99, with the ebook from $24.99, or with the ebook and the entire Master Claims document from $29.99; monthly from $14.99, $19.99 or $24.99 a month.</span> Monthly, both with Ask the Book: the ebook from $10 a month, or the ebook plus the entire Master Claims document for $14.99 a month; it repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>, and your copy comes with the first payment. Your copy is emailed to the address you enter at checkout and opens in our protected online reader, for you alone.<span data-hardcover hidden> The hardcover is a pre-order: <span data-hc-price>$49.99</span> a copy with its dust jacket, free shipping to US addresses, Nevada sales tax on Nevada deliveries. It ships by <span data-hc-shipby>December 15, 2026</span>; if it can’t, you’ll be emailed first and can choose a full refund.</span> <b>All <span data-hardcover hidden>ebook and audiobook </span>sales are final: no refunds.</b></p>
+        <p class="preorder__fine" data-paid hidden>Secure checkout by Square, which also asks for your phone number for the receipt.<span data-audiobook hidden> The audiobook one-time: $19.99, with the ebook $24.99, or with the ebook and the entire Master Claims document $29.99; or a monthly donation you choose, from $14.99, $19.99 or $24.99 a month.</span> Monthly, both with Ask the Book: the ebook from $10 a month, or the ebook plus the entire Master Claims document for $14.99 a month; it repeats each month until you cancel, which you can do at any time at <a href="/cancel/">theciaasset.com/cancel</a>, and your copy comes with the first payment. Your copy is emailed to the address you enter at checkout and opens in our protected online reader, for you alone.<span data-hardcover hidden> The hardcover is a pre-order: <span data-hc-price>$49.99</span> a copy with its dust jacket, free shipping to US addresses, Nevada sales tax on Nevada deliveries. It ships by <span data-hc-shipby>December 15, 2026</span>; if it can’t, you’ll be emailed first and can choose a full refund.</span> <b>All <span data-hardcover hidden>ebook and audiobook </span>sales are final: no refunds.</b></p>
       </div>
     </div>
   </section>
@@ -823,6 +829,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=81" defer></script>
+<script src="assets/site.js?v=82" defer></script>
 </body>
 </html>

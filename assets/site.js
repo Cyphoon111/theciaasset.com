@@ -1281,7 +1281,8 @@
   /* ---------- from Election Day, the ebook plus the entire Master Claims document as a subscription (Jason, 2026-10-28: "If
      they subscribe monthly … they will be incentivized to do so for only $14.99"): one price, so its button opens Square's
      checkout for $14.99 a month straight away (PitchZing sets the price; the subscription comes with Ask the Book). ---------- */
-  const subscribes = $$('[data-subscribe]');
+  // and the audiobook's one-time options (2026-11-13: "It's a ONE TIME PURCHASE"): data-buy, at its price (data-cents), the same way
+  const subscribes = $$('[data-subscribe], [data-buy]');
   subscribes.forEach((b) => { b.dataset.label = b.firstChild.nodeValue; });
   // back from Square's checkout (the page restored as it was left): the button is ready again
   addEventListener('pageshow', () => subscribes.forEach((b) => { b.disabled = false; b.firstChild.nodeValue = b.dataset.label; }));
@@ -1291,7 +1292,7 @@
     b.disabled = true; b.firstChild.nodeValue = 'Opening Square’s secure checkout… ';
     const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
     try {
-      const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product: b.dataset.subscribe, monthly: true, cents: 1499 }), signal: ctl.signal });
+      const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b.dataset.buy ? { product: b.dataset.buy, monthly: false, cents: Number(b.dataset.cents) } : { product: b.dataset.subscribe, monthly: true, cents: 1499 }), signal: ctl.signal });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.url) throw new Error(j.error || 'The checkout did not open. Please try again.');
       location.href = j.url;
@@ -1527,10 +1528,13 @@
      The book goes to the address typed at Square's checkout as a private reader link; the pop-up says so. ---------- */
   const thanks = $('#thanks');
   const donatedFor = new URLSearchParams(location.search).get('donated');
+  const boughtOnce = new URLSearchParams(location.search).get('order') === '1';   // read before the address is cleaned below
   const THANKS_WHAT = { ebook: 'the ebook', bundle: 'the ebook and the Master Claims document', audio: 'the audiobook', audiobook: 'the audiobook and the ebook', audiobundle: 'the audiobook, the ebook and the Master Claims document', hardcover: 'the hardcover' };
   if (thanks && THANKS_WHAT[donatedFor]) {
     history.replaceState(null, '', location.pathname + location.hash);   // a refresh or a shared link does not reopen it
     $('#thanksWhat').textContent = THANKS_WHAT[donatedFor];
+    // a purchase (the audiobook one-time, PitchZing's &order=1), thanked as an order
+    if (boughtOnce) $('#thanksTitle').textContent = 'Thank you for your order.';
     if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a minute';
     // the hardcover pre-order (2026-11-13): a printed book on its way, not a reader link
     if (donatedFor === 'hardcover') {
