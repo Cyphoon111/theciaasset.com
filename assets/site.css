@@ -810,6 +810,11 @@ html:has(.zoom[open]) { overflow: hidden; }
 .amt__fine a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
 /* the hardcover pre-order (2026-11-13): its card, and in its window the plus and minus, the Nevada choice, the counties and the total */
 .pkg--hardcover { border-left-color: var(--gold); background: linear-gradient(180deg, #fffcf2, #fff 70%); }
+/* the Christmas deadline on the hardcover card and in its window (shown while PitchZing says christmasBy) */
+.hc__xmas { margin: 14px 0 18px; padding: 11px 14px 10px; border-radius: 10px; background: var(--ink); color: #fff; font-weight: 700; font-size: 15.5px; line-height: 1.35; border-left: 4px solid var(--red); }
+.hc__xmas b { color: var(--gold); }
+.hc__xmas[hidden] { display: none; }
+.reqd__sub + .hc__xmas { margin-top: -6px; }
 .pkg__tag { display: inline-block; margin-left: 8px; padding: 5px 8px 4px; border-radius: 6px; background: var(--ink); color: var(--gold); font: 700 10.5px/1 var(--mono); letter-spacing: .14em; vertical-align: 5px; }
 .hc__group { display: grid; gap: 8px; }
 .hc__label { margin: 0; font: 700 12px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }

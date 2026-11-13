@@ -1335,6 +1335,9 @@
       const county$ = (c) => (c === 'Carson City' ? 'Carson City' : `${c} County`);
       $$('[data-hc-price]').forEach((el) => { el.textContent = usd(s.cents); });
       $$('[data-hc-shipby]').forEach((el) => { el.textContent = s.shipByText; });
+      // the Christmas deadline: shown only while PitchZing says orders still arrive for Christmas (christmasBy, null from December 1)
+      $$('[data-hc-xmas]').forEach((el) => { el.hidden = !s.christmasBy; });
+      if (s.christmasByText) $$('[data-hc-xmasby]').forEach((el) => { el.textContent = s.christmasByText; });
       $$('[data-hardcover]').forEach((el) => { el.hidden = false; });
       const counties = $('.hc__counties', hc), msg = $('#hcMsg'), go = $('#hcGo'), sum = $('#hcSum');
       counties.innerHTML = Object.keys(s.nvTax).map((c) => `<button type="button" class="hc__county" role="radio" aria-checked="false" data-county="${c}">${c}</button>`).join('');
