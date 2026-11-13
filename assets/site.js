@@ -1281,7 +1281,15 @@
   /* ---------- from Election Day, the ebook plus the entire Master Claims document as a subscription (Jason, 2026-10-28: "If
      they subscribe monthly … they will be incentivized to do so for only $14.99"): one price, so its button opens Square's
      checkout for $14.99 a month straight away (PitchZing sets the price; the subscription comes with Ask the Book). ---------- */
-  // and the audiobook's one-time options (2026-11-13: "It's a ONE TIME PURCHASE"): data-buy, at its price (data-cents), the same way
+  /* ---------- Ask the Book as an add-on (Jason, 2026-11-13: "selects it by a radio button centered above the Ask the Book black
+     tap, then the price in that product section should adjust accordingly"): the round button on the ebook's and the bundle's
+     cards marks the card (data-addon-on), and site.css shows "+ $10 a month", the add-on's button and the two-checkout line
+     in place of the plain Square link. Under Monthly the tab says Included free instead. ---------- */
+  const addonSync = () => $$('[data-addon]').forEach((cb) => cb.closest('[data-addon-card]')?.toggleAttribute('data-addon-on', cb.checked));
+  $$('[data-addon]').forEach((cb) => cb.addEventListener('change', addonSync));
+  addonSync(); addEventListener('pageshow', addonSync);   // a browser that restores the choice on the way back
+  // and the audiobook's one-time options (2026-11-13: "It's a ONE TIME PURCHASE"): data-buy, at its price (data-cents), the same way;
+  // with data-ask, the ebook or the bundle with the Ask the Book add-on (its second step is in the thank-you below)
   const subscribes = $$('[data-subscribe], [data-buy]');
   subscribes.forEach((b) => { b.dataset.label = b.firstChild.nodeValue; });
   // back from Square's checkout (the page restored as it was left): the button is ready again
@@ -1292,7 +1300,7 @@
     b.disabled = true; b.firstChild.nodeValue = 'Opening Square’s secure checkout… ';
     const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
     try {
-      const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b.dataset.buy ? { product: b.dataset.buy, monthly: false, cents: Number(b.dataset.cents) } : { product: b.dataset.subscribe, monthly: true, cents: 1499 }), signal: ctl.signal });
+      const r = await fetch(CHECKOUT_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(b.dataset.buy ? { product: b.dataset.buy, monthly: false, cents: Number(b.dataset.cents), ...(b.hasAttribute('data-ask') ? { ask: true } : {}) } : { product: b.dataset.subscribe, monthly: true, cents: 1499 }), signal: ctl.signal });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.url) throw new Error(j.error || 'The checkout did not open. Please try again.');
       location.href = j.url;
@@ -1529,6 +1537,13 @@
   const thanks = $('#thanks');
   const donatedFor = new URLSearchParams(location.search).get('donated');
   const boughtOnce = new URLSearchParams(location.search).get('order') === '1';   // read before the address is cleaned below
+  const addonTok = (new URLSearchParams(location.search).get('addon') || '').toLowerCase();   // the add-on's second step
+  const askedBack = new URLSearchParams(location.search).get('asked') === '1';   // back from the Ask the Book plan's checkout
+  const openThanks = () => {
+    $$('[data-close]', thanks).forEach((b) => b.addEventListener('click', () => thanks.close()));
+    thanks.addEventListener('click', (e) => { if (e.target === thanks) thanks.close(); });   // a click on the dimmed backdrop
+    if (typeof thanks.showModal === 'function') thanks.showModal(); else thanks.setAttribute('open', '');
+  };
   const THANKS_WHAT = { ebook: 'the ebook', bundle: 'the ebook and the Master Claims document', audio: 'the audiobook', audiobook: 'the audiobook and the ebook', audiobundle: 'the audiobook, the ebook and the Master Claims document', hardcover: 'the hardcover' };
   if (thanks && THANKS_WHAT[donatedFor]) {
     history.replaceState(null, '', location.pathname + location.hash);   // a refresh or a shared link does not reopen it
@@ -1545,9 +1560,34 @@
     // tell the book store to look at Square now, so the copy is emailed within seconds (bookstore.mjs ping; it reads
     // Square itself, so this only says "look now")
     try { fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-store/ping', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ from: 'thank-you', for: donatedFor }) }).catch(() => {}); } catch {}
-    $$('[data-close]', thanks).forEach((b) => b.addEventListener('click', () => thanks.close()));
-    thanks.addEventListener('click', (e) => { if (e.target === thanks) thanks.close(); });   // a click on the dimmed backdrop
-    if (typeof thanks.showModal === 'function') thanks.showModal(); else thanks.setAttribute('open', '');
+    // bought with the Ask the Book add-on (2026-11-13): step 2, the Ask plan's own Square checkout, with the address used at
+    // checkout filled in by PitchZing (ask-addon); while Square is still completing the order it tries again a few times
+    if (/^[a-f0-9]{24}$/.test(addonTok)) {
+      const go = $('#thanksAddonGo'), msg = $('#thanksAddonMsg');
+      $('#thanksAddon').hidden = false;
+      let tries = 0;
+      const start = async () => {
+        go.disabled = true; msg.textContent = 'Opening Square’s secure checkout…';
+        try {
+          const r = await fetch(`${STORE_API}/ask-addon`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ t: addonTok }) });
+          const j = await r.json().catch(() => ({}));
+          if (r.ok && j.url) { location.href = j.url; return; }
+          if (r.ok && j.already) { msg.textContent = 'Your address already has Ask the Book: it is ready in your copy.'; go.hidden = true; return; }
+          if (j.retry && tries++ < 6) { msg.textContent = 'Square is completing your order. One moment…'; setTimeout(start, 3000); return; }
+          throw new Error(j.error || 'The checkout did not open. Please try again.');
+        } catch (err) { go.disabled = false; msg.textContent = err.message; }
+      };
+      go.addEventListener('click', start);
+      addEventListener('pageshow', () => { go.disabled = false; msg.textContent = ''; });   // back from Square without subscribing
+    }
+    openThanks();
+  } else if (thanks && askedBack) {
+    // back from the Ask the Book plan's checkout (the add-on's second step)
+    history.replaceState(null, '', location.pathname + location.hash);
+    $('#thanksTitle').textContent = 'Ask the Book is on.';
+    $('#thanksSent').textContent = 'Thank you for subscribing. Open your copy from its email and tap Ask: 20 questions a day, answered from the book with page references.';
+    $('#thanksHow').textContent = 'More questions a day, or credit, whenever you need them, inside your copy. Cancel anytime at theciaasset.com/cancel.';
+    openThanks();
   }
 
   /* ---------- links from earlier emails ---------- */

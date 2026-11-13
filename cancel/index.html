@@ -76,6 +76,7 @@
   .human-box__label { margin: 0 0 6px; font: 700 11px/1 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
   [hidden] { display: none !important; }
   @media (max-width: 480px) { .card { padding: 24px 18px; } .row .btn { width: 100%; } }
+  .don__what { display: block; margin-top: 4px; font: 700 12px/1.3 var(--mono, monospace); letter-spacing: .12em; text-transform: uppercase; color: #9C7A2C; }
 </style>
 </head>
 <body>
@@ -171,18 +172,21 @@
     say(active.length ? 'Monthly donations for ' + d.email + ':' : 'Every monthly donation for ' + d.email + ' is already cancelled.');
     list.innerHTML = d.donations.map(function (x) {
       var amt = money(x.cents) ? money(x.cents) + ' a month' : 'Monthly donation';
+      // the plan's name when it is not a donation (2026-11-13): Ask the Book, or one of its upgrades (PitchZing's describe)
+      var what = x.what && x.what !== 'Monthly donation' ? x.what : '';
       if (x.cancelled) return '<div class="don is-done"><p class="don__amt">' + esc(amt) + '</p><p class="don__meta">Cancelled' + (x.endsOn ? ' · no further charges after ' + esc(day(x.endsOn)) : '') + (d.accessUntil ? ' · you can enjoy the book until ' + esc(day(d.accessUntil)) : '') + '</p></div>';
-      return '<div class="don" data-id="' + esc(x.id) + '" data-amt="' + esc(amt) + '"><p class="don__amt">' + esc(amt) + '</p><p class="don__meta">' + (x.startDate ? 'Since ' + esc(day(x.startDate)) : '') + (x.paidThrough ? ' · paid through ' + esc(day(x.paidThrough)) : '') + '</p><div class="act"><button class="btn btn--red" type="button" data-act="ask">Cancel this monthly donation</button></div></div>';
+      return '<div class="don" data-id="' + esc(x.id) + '" data-amt="' + esc(amt) + '" data-what="' + esc(what) + '"><p class="don__amt">' + esc(amt) + (what ? ' <span class="don__what">' + esc(what) + '</span>' : '') + '</p><p class="don__meta">' + (x.startDate ? 'Since ' + esc(day(x.startDate)) : '') + (x.paidThrough ? ' · paid through ' + esc(day(x.paidThrough)) : '') + '</p><div class="act"><button class="btn btn--red" type="button" data-act="ask">Cancel this monthly donation</button></div></div>';
     }).join('');
   }
   // "Are you sure?": thanks, 30 more days, the Yes choice, then the human check; the button works only with both
   function sure(box) {
-    var id = box.getAttribute('data-id'), amt = box.getAttribute('data-amt'), until = new Date(Date.now() + (info.accessAfterCancelDays || DAYS) * 86400e3);
+    var id = box.getAttribute('data-id'), amt = box.getAttribute('data-amt'), plan = box.getAttribute('data-what') || '', until = new Date(Date.now() + (info.accessAfterCancelDays || DAYS) * 86400e3);
     var act = box.querySelector('.act');
     act.innerHTML = '<div class="sure" role="group" aria-labelledby="sure-' + esc(id) + '"><h2 id="sure-' + esc(id) + '">Are you sure you wish to cancel?</h2>' +
-      '<p>If you cancel your ' + esc(amt.replace(' a month', '')) + ' monthly donation, you can still visit and enjoy the book for another ' + (info.accessAfterCancelDays || DAYS) + ' days, until <b>' + esc(day(until.toISOString())) + '</b>.</p>' +
+      (plan ? '<p>If you cancel <b>' + esc(plan) + '</b> (' + esc(amt) + '), it stops at the end of the month already paid. Your copy of the book is not affected.</p>'
+        : '<p>If you cancel your ' + esc(amt.replace(' a month', '')) + ' monthly donation, you can still visit and enjoy the book for another ' + (info.accessAfterCancelDays || DAYS) + ' days, until <b>' + esc(day(until.toISOString())) + '</b>.</p>') +
       '<p>Thank you for supporting the book and Jason Sullivan’s ongoing work. Donations already made are final.</p>' +
-      '<label class="yes"><input type="radio" name="yes-' + esc(id) + '" value="yes"><span>Yes, I wish to cancel my monthly donation.</span></label>' +
+      '<label class="yes"><input type="radio" name="yes-' + esc(id) + '" value="yes"><span>Yes, I wish to cancel ' + (plan ? esc(plan) : 'my monthly donation') + '.</span></label>' +
       '<p class="human-box__label">Confirm you are human</p><div class="human-box"></div>' +
       '<div class="row"><button class="btn btn--red" type="button" data-act="yes" disabled>Cancel my monthly donation</button><button class="btn btn--ghost" type="button" data-act="keep">Keep my donation</button></div></div>';
     var yes = act.querySelector('input[type=radio]'), go = act.querySelector('[data-act="yes"]');

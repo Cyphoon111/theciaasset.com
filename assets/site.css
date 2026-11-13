@@ -619,6 +619,38 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
   .askcard { flex-basis: 100%; max-width: none; margin-left: 0; }
 }
 .pkgs { display: grid; gap: 22px; margin: 18px 0 4px; }
+/* Ask the Book on the ebook's and the bundle's cards (Jason, 2026-11-13): One-time, an add-on chosen with the round button centered
+   above its black tab (the card then shows "+ $10 a month", the add-on's button and the two-checkout line); Monthly, the tab
+   says Included free, its button filled, with the perk line under the card */
+.pkg[data-addon-card]:not([data-addon-on]) [data-addon-show], .pkg[data-addon-on] [data-addon-hide] { display: none !important; }
+.addon { display: inline-flex; flex-direction: column; align-items: center; gap: 8px; margin: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.addon--in { cursor: default; }
+.addon .pkg__ask { flex: none; max-width: none; }
+.addon__radio { appearance: none; -webkit-appearance: none; display: grid; place-content: center; flex: none; width: 26px; height: 26px; margin: 0; border: 2px solid var(--ink); border-radius: 50%; background: #fff; cursor: pointer; transition: border-color .2s; }
+.addon__radio::before { content: ''; width: 12px; height: 12px; border-radius: 50%; background: var(--red); transform: scale(0); transition: transform .18s var(--ease); }
+.addon__radio:checked, .addon__radio--on { border-color: var(--red); }
+.addon__radio:checked::before, .addon__radio--on::before { transform: scale(1); }
+.addon__radio:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.addon--in .addon__radio { cursor: default; }
+.addon__tab { transition: box-shadow .2s var(--ease), transform .2s var(--ease); }
+.addon:not(.addon--in):hover .addon__tab { transform: translateY(-1px); }
+.addon__radio:checked + .addon__tab, .addon--in .addon__tab { box-shadow: 0 0 0 2px var(--gold), 0 14px 26px -16px rgba(224, 18, 28, .7); }
+.pkg__addon { display: inline-flex; flex-direction: column; font: 400 22px/1 var(--display); letter-spacing: .02em; color: var(--ink); white-space: nowrap; }
+.pkg__addon small { margin-top: 4px; font: 600 12px/1.3 var(--body); letter-spacing: 0; color: var(--muted); }
+.pkg__addon a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.pkg__perk { margin: 14px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-2); }
+.pkg__perk b { color: var(--ink); }
+.pkg__perk--add b { color: var(--red); }
+.pkg__row > .addon { margin-left: auto; }   /* at the card's right edge, beside the button or under it */
+@media (max-width: 560px) { .pkg__row > .addon { width: 100%; margin-left: 0; } }
+/* the add-on's second step in the thank-you */
+.thanks__step { margin: 18px 0 4px; padding: 16px 18px 18px; border-radius: 14px; background: var(--ink); color: #fff; }
+.thanks .thanks__step p { color: #d4d4da; }
+.thanks .thanks__step b { color: var(--gold); }
+.thanks .thanks__stepk { margin: 0 0 6px; font: 700 11px/1.2 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+.thanks .thanks__stepmsg { margin: 10px 0 0; font-size: 13.5px; color: #fff; }
+.thanks__stepmsg:empty { display: none; }
+.thanks__step[hidden] { display: none; }
 .pkg { padding: 20px 22px; border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 0 14px 14px 0; background: #fff; }
 .pkg--bundle { border-left-color: var(--gold); }
 .pkg--audio { border-left-color: var(--ink); }
