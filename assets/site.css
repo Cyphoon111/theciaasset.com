@@ -556,7 +556,7 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .preorder__intro { grid-area: intro; }
 .preorder__hc { grid-area: hc; }
 .preorder__hc > .pkg { margin-top: 24px; }
-.preorder__rest { grid-area: rest; }
+.preorder__rest { grid-area: rest; padding-top: clamp(24px, 4vw, 48px); }   /* breathing room under the hardcover (Jason, 2026-11-13): 48 to 72 px with the switch row's own 24 */
 @media (max-width: 960px) {
   .preorder__box { grid-template-areas: "intro" "cover" "hc" "rest"; }
   .preorder__cover { margin-top: 34px; }
