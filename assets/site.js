@@ -1320,6 +1320,69 @@
     }).catch(() => {});
   }
 
+  /* ---------- the hardcover pre-order (Jason, 2026-11-13: "let's set up the pre-order page at $49.99"): its card and mentions
+     show once PitchZing says pre-orders are open (with the price, the ship-by date and Nevada's county rates). The window asks
+     how many copies (plus and minus), whether they ship to a Nevada address and, if so, the county (Nevada's sales tax, shown
+     in the total), then PitchZing opens Square's checkout for exactly that, which asks the shipping address and email. ---------- */
+  const STORE_API = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-store';
+  const hc = $('#hc');
+  let hcState = null;
+  if (hc && $('[data-hardcover]')) {
+    fetch(`${STORE_API}/hardcover`).then((r) => r.json()).then((s) => {
+      if (!s || !s.open) return;
+      hcState = s;
+      const usd = (c) => '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const county$ = (c) => (c === 'Carson City' ? 'Carson City' : `${c} County`);
+      $$('[data-hc-price]').forEach((el) => { el.textContent = usd(s.cents); });
+      $$('[data-hc-shipby]').forEach((el) => { el.textContent = s.shipByText; });
+      $$('[data-hardcover]').forEach((el) => { el.hidden = false; });
+      const counties = $('.hc__counties', hc), msg = $('#hcMsg'), go = $('#hcGo'), sum = $('#hcSum');
+      counties.innerHTML = Object.keys(s.nvTax).map((c) => `<button type="button" class="hc__county" role="radio" aria-checked="false" data-county="${c}">${c}</button>`).join('');
+      let n = 1, nv = false, county = '', busy = false;
+      const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('is-err', !!bad); };
+      const paint = () => {
+        $('#hcN').textContent = String(n);
+        $$('[data-hc-step]', hc).forEach((b) => { b.disabled = b.dataset.hcStep === '-1' ? n <= 1 : n >= s.maxQty; });
+        $$('[data-hc-nv]', hc).forEach((b) => b.setAttribute('aria-checked', String((b.dataset.hcNv === '1') === nv)));
+        $('#hcCounty').hidden = !nv;
+        $$('.hc__county', hc).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.county === county)));
+        const sub = n * s.cents, tax = nv && county ? Math.round(sub * Number(s.nvTax[county]) / 100) : 0;
+        sum.innerHTML = `<div><dt>${n} × ${usd(s.cents)}</dt><dd>${usd(sub)}</dd></div><div><dt>Shipping</dt><dd>Free</dd></div>` +
+          (nv ? `<div><dt>Nevada sales tax${county ? ` (${county$(county)}, ${s.nvTax[county]}%)` : ''}</dt><dd>${county ? usd(tax) : 'Choose your county'}</dd></div>` : '') +
+          `<div class="hc__total"><dt>Total</dt><dd>${usd(sub + tax)}</dd></div>`;
+        go.disabled = busy || (nv && !county);
+      };
+      hc.addEventListener('click', (e) => {
+        const st = e.target.closest('[data-hc-step]');
+        if (st) { n = Math.min(s.maxQty, Math.max(1, n + Number(st.dataset.hcStep))); paint(); return; }
+        const v = e.target.closest('[data-hc-nv]');
+        if (v) { nv = v.dataset.hcNv === '1'; if (!nv) county = ''; say(''); paint(); return; }
+        const c = e.target.closest('.hc__county');
+        if (c) { county = c.dataset.county; say(''); paint(); }
+      });
+      $$('[data-hc-open]').forEach((b) => b.addEventListener('click', () => {
+        busy = false; say(''); paint();
+        if (typeof hc.showModal === 'function') hc.showModal(); else hc.setAttribute('open', '');
+      }));
+      addEventListener('pageshow', () => { busy = false; paint(); });   // back from Square's checkout: ready again
+      $('#hcForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (busy) return;
+        if (nv && !county) { say('Choose your Nevada county.', true); return; }
+        busy = true; paint(); say('Opening Square’s secure checkout…');
+        const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
+        try {
+          const r = await fetch(`${STORE_API}/hardcover-checkout`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ qty: n, nevada: nv, county }), signal: ctl.signal });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok || !j.url) throw new Error(j.error || 'The checkout did not open. Please try again.');
+          location.href = j.url;
+        } catch (err) { busy = false; paint(); say(err.name === 'AbortError' ? 'Square did not answer in time. Please tap again.' : err.message, true); }
+        finally { clearTimeout(timer); }
+      });
+      paint();
+    }).catch(() => {});
+  }
+
   /* ---------- the audiobook's free sample (Jason, 2026-10-27: "I want visitors to be able to listen to half of the
      Introduction and then it will fade out"): assets/audiobook-sample-st-<level>.mp3 already fades out, so the player only plays,
      pauses, shows the time left and lets a tap on the line jump. It lives in the audiobook card, so it appears with it. ---------- */
@@ -1461,11 +1524,17 @@
      The book goes to the address typed at Square's checkout as a private reader link; the pop-up says so. ---------- */
   const thanks = $('#thanks');
   const donatedFor = new URLSearchParams(location.search).get('donated');
-  const THANKS_WHAT = { ebook: 'the ebook', bundle: 'the ebook and the Master Claims document', audio: 'the audiobook', audiobook: 'the audiobook and the ebook', audiobundle: 'the audiobook, the ebook and the Master Claims document' };
+  const THANKS_WHAT = { ebook: 'the ebook', bundle: 'the ebook and the Master Claims document', audio: 'the audiobook', audiobook: 'the audiobook and the ebook', audiobundle: 'the audiobook, the ebook and the Master Claims document', hardcover: 'the hardcover' };
   if (thanks && THANKS_WHAT[donatedFor]) {
     history.replaceState(null, '', location.pathname + location.hash);   // a refresh or a shared link does not reopen it
     $('#thanksWhat').textContent = THANKS_WHAT[donatedFor];
     if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a minute';
+    // the hardcover pre-order (2026-11-13): a printed book on its way, not a reader link
+    if (donatedFor === 'hardcover') {
+      $('#thanksTitle').textContent = 'Thank you for your pre-order.';
+      $('#thanksSent').textContent = 'Your first-edition hardcover is reserved. Your confirmation is on its way to the email you used at checkout.';
+      $('#thanksHow').textContent = 'It will be printed and mailed to the address you entered, by the ship-by date in your confirmation.';
+    }
     // tell the book store to look at Square now, so the copy is emailed within seconds (bookstore.mjs ping; it reads
     // Square itself, so this only says "look now")
     try { fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-store/ping', { method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' }, body: JSON.stringify({ from: 'thank-you', for: donatedFor }) }).catch(() => {}); } catch {}

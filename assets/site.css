@@ -808,6 +808,32 @@ html:has(.zoom[open]) { overflow: hidden; }
 .amt__fine { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
 #amtGo:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
 .amt__fine a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+/* the hardcover pre-order (2026-11-13): its card, and in its window the plus and minus, the Nevada choice, the counties and the total */
+.pkg--hardcover { border-left-color: var(--gold); background: linear-gradient(180deg, #fffcf2, #fff 70%); }
+.pkg__tag { display: inline-block; margin-left: 8px; padding: 5px 8px 4px; border-radius: 6px; background: var(--ink); color: var(--gold); font: 700 10.5px/1 var(--mono); letter-spacing: .14em; vertical-align: 5px; }
+.hc__group { display: grid; gap: 8px; }
+.hc__label { margin: 0; font: 700 12px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--ink); }
+.hc__label small { display: block; margin-top: 4px; font: 600 12.5px/1.3 var(--body); letter-spacing: 0; text-transform: none; color: var(--muted); }
+.hc__qty { display: inline-flex; align-items: center; gap: 14px; }
+.hc__step { width: 54px; height: 54px; border: 0; border-radius: 12px; background: var(--red); color: #fff; font: 700 30px/1 var(--body); cursor: pointer; transition: transform .15s, opacity .15s; }
+.hc__step:hover:not(:disabled) { transform: translateY(-1px); }
+.hc__step:disabled { opacity: .3; cursor: default; }
+.hc__n { min-width: 46px; text-align: center; font: 400 40px/1 var(--display); }
+.hc__choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.hc__opt { font-size: 21px; }
+.hc__counties { display: flex; flex-wrap: wrap; gap: 8px; }
+.hc__county { padding: 9px 12px; border: 1.5px solid #d5d0c4; border-radius: 10px; background: #fff; color: var(--ink); font: 600 14px/1 var(--body); cursor: pointer; transition: border-color .15s, background .15s, color .15s; }
+.hc__county:hover { border-color: var(--red); }
+.hc__county[aria-checked="true"] { border-color: var(--red); background: var(--red); color: #fff; }
+.hc__county:focus-visible, .hc__step:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.hc__sum { display: grid; gap: 6px; margin: 4px 0 0; padding: 14px 16px; border-radius: 12px; background: var(--paper-2); }
+.hc__sum div { display: flex; justify-content: space-between; gap: 12px; font-size: 15px; color: var(--ink-2); }
+.hc__sum dt, .hc__sum dd { margin: 0; }
+.hc__sum .hc__total { padding-top: 8px; border-top: 1px solid var(--line); color: var(--ink); font-weight: 700; align-items: baseline; }
+.hc__sum .hc__total dd { font: 400 26px/1 var(--display); color: var(--red); }
+#hcGo:disabled { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+.hc .amt__form > *, .hc__choices > * { min-width: 0; }   /* never wider than the window on a phone */
+@media (max-width: 560px) { .hc__opt { font-size: 18px; } .hc__county { padding: 8px 10px; font-size: 13.5px; } .hc__sum div { font-size: 14px; } }
 @media (max-width: 560px) { .reqd { padding: 30px 20px 22px; } }
 /* transcript pop-up (Pam Bondi on the missing minute) */
 .tx__meta { margin: 0 0 12px; padding-right: 40px; font: 700 11px/1.5 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--red-ink); }
