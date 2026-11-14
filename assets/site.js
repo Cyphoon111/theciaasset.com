@@ -1296,6 +1296,7 @@
   addEventListener('pageshow', () => subscribes.forEach((b) => { b.disabled = false; b.firstChild.nodeValue = b.dataset.label; }));
   subscribes.forEach((b) => b.addEventListener('click', async () => {
     if (b.disabled) return;
+    if (b.hasAttribute('data-ask') && onestepReady()) { openPay(b.dataset.buy); return; }   // the add-on in one step (below)
     const label = b.dataset.label;
     b.disabled = true; b.firstChild.nodeValue = 'Opening Square’s secure checkout… ';
     const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
@@ -1588,6 +1589,85 @@
     $('#thanksSent').textContent = 'Thank you for subscribing. Open your copy from its email and tap Ask: 20 questions a day, answered from the book with page references.';
     $('#thanksHow').textContent = 'More questions a day, or credit, whenever you need them, inside your copy. Cancel anytime at theciaasset.com/cancel.';
     openThanks();
+  }
+
+  /* ---------- the Ask the Book add-on in one step (2026-11-14, Jason: "This can't be achieved in a single streamlined and
+     efficient 1 step process?"). Square's own checkout pages sell a purchase or a subscription, never both, so the ebook (or
+     both) with Ask the Book is paid here: Square's secure card field (Web Payments SDK, loaded only when the window opens;
+     tokenize() verifies the buyer for a charge that is also kept on file), one payment for the copy and the first month,
+     then PitchZing saves the card at Square and starts the $10 monthly plan a month later (bookstore.mjs addonPay). The
+     window opens for the add-on buttons when PitchZing says it is on (pay-config), or with ?onestep=1 to preview it. ---------- */
+  const payDlg = $('#paydlg');
+  const ONESTEP_PREVIEW = /[?&]onestep=1/.test(location.search);
+  let PAY = null, sqPayments = null, sqCard = null, payProduct = null, paying = false;
+  const usd2 = (c) => `$${(c / 100).toFixed(2)}`;
+  function onestepReady() { return !!(payDlg && PAY && PAY.applicationId && PAY.locationId && PAY.products && (PAY.enabled || ONESTEP_PREVIEW)); }
+  fetch(`${STORE_API}/pay-config`).then((r) => r.json()).then((j) => {
+    PAY = j;
+    if (onestepReady()) { $$('[data-twostep]').forEach((el) => { el.hidden = true; }); $$('[data-onestep]').forEach((el) => { el.hidden = false; }); }
+  }).catch(() => {});
+  const loadSquare = () => (window.Square ? Promise.resolve() : new Promise((ok, no) => {
+    const s = document.createElement('script'); s.src = 'https://web.squarecdn.com/v1/square.js';
+    s.onload = ok; s.onerror = () => no(new Error('Square’s card field did not load. Please check your connection and try again.'));
+    document.head.appendChild(s);
+  }));
+  const syncGo = () => { const go = $('#payGo'); if (go && !paying) go.disabled = !$('#payTerms').checked || !sqCard; };
+  async function openPay(product) {
+    const p = PAY.products[product]; if (!p) return;
+    payProduct = product;
+    const both = product === 'bundle';
+    $('#payTitle').textContent = both ? 'Both + Ask the Book' : 'The ebook + Ask the Book';
+    $('#payCopyName').textContent = both ? 'The ebook plus the entire Master Claims document' : 'The ebook';
+    $('#payCopy').textContent = usd2(p.copy); $('#payAsk').textContent = usd2(p.ask); $('#payToday').textContent = usd2(p.today);
+    $('#payMonthly').textContent = `${usd2(PAY.monthly)} a month`; $('#payStart').textContent = PAY.startText; $('#payDaily').textContent = String(PAY.daily || 20);
+    $('#payKeep').textContent = both ? 'the ebook and the Master Claims document stay yours' : 'the ebook stays yours';
+    $('#payTermsText').textContent = p.terms; $('#payTerms').checked = false;
+    $('#payGo').textContent = `Pay ${usd2(p.today)}`; $('#payMsg').textContent = '';
+    if (typeof payDlg.showModal === 'function') payDlg.showModal(); else payDlg.setAttribute('open', '');
+    syncGo();
+    try {
+      await loadSquare();
+      if (!sqPayments) sqPayments = window.Square.payments(PAY.applicationId, PAY.locationId);
+      if (!sqCard) { sqCard = await sqPayments.card(); await sqCard.attach('#payCard'); }
+    } catch (err) { $('#payMsg').textContent = (err && err.message) || 'Square’s card field did not load. Please try again.'; }
+    syncGo();
+  }
+  if (payDlg) {
+    $('#payTerms').addEventListener('change', syncGo);
+    $$('[data-pay-close]', payDlg).forEach((b) => b.addEventListener('click', () => { if (!paying) payDlg.close(); }));
+    payDlg.addEventListener('click', (e) => { if (e.target === payDlg && !paying) payDlg.close(); });
+    payDlg.addEventListener('cancel', (e) => { if (paying) e.preventDefault(); });
+    $('#payForm').addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      if (paying || !sqCard) return;
+      const email = $('#payEmail').value.trim(), givenName = $('#payGiven').value.trim(), familyName = $('#payFamily').value.trim();
+      const msg = $('#payMsg'), go = $('#payGo'), p = PAY.products[payProduct];
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = 'Enter the email address your copy should go to.'; $('#payEmail').focus(); return; }
+      if (!$('#payTerms').checked) { msg.textContent = 'Tick the box to agree to the terms.'; return; }
+      paying = true; go.disabled = true; go.textContent = 'Paying…'; msg.textContent = '';
+      try {
+        const t = await sqCard.tokenize({ amount: (p.today / 100).toFixed(2), currencyCode: 'USD', intent: 'CHARGE_AND_STORE', customerInitiated: true, sellerKeyedIn: false,
+          billingContact: { email, ...(givenName ? { givenName } : {}), ...(familyName ? { familyName } : {}) } });
+        if (!t || t.status !== 'OK') throw new Error((t && t.errors && t.errors[0] && t.errors[0].message) || 'Please check your card details.');
+        const r = await fetch(`${STORE_API}/addon-pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product: payProduct, email, givenName, familyName, sourceId: t.token, consent: true }) });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok || !j.ok) throw new Error(j.error || 'The payment did not go through. Nothing was charged. Please try again.');
+        paying = false; payDlg.close();
+        // the thank-you, as an order, with Ask the Book on
+        $('#thanksWhat').textContent = THANKS_WHAT[payProduct];
+        $('#thanksTitle').textContent = 'Thank you for your order.';
+        $('#thanksWhen').textContent = 'within a minute';
+        const ask = $('#thanksAsk');
+        if (ask) {
+          ask.textContent = '';
+          const b = document.createElement('b'); b.textContent = 'Ask the Book is on. ';
+          ask.append(b, `${PAY.daily || 20} questions a day in your copy, answered from the book with page references. Your ${usd2(j.monthly)} monthly plan begins ${j.startText}; cancel anytime at theciaasset.com/cancel/.`);
+          ask.hidden = false;
+        }
+        openThanks();
+      } catch (err) { msg.textContent = err.message; go.textContent = `Pay ${usd2(p.today)}`; }
+      finally { paying = false; syncGo(); }
+    });
   }
 
   /* ---------- links from earlier emails ---------- */
