@@ -1334,9 +1334,9 @@
   }
 
   /* ---------- the hardcover pre-order (Jason, 2026-11-13: "let's set up the pre-order page at $49.99"): its card and mentions
-     show once PitchZing says pre-orders are open (with the price, the ship-by date and Nevada's county rates). The window asks
-     how many copies (plus and minus), whether they ship to a Nevada address and, if so, the county (Nevada's sales tax, shown
-     in the total), then PitchZing opens Square's checkout for exactly that, which asks the shipping address and email. ---------- */
+     show once PitchZing says pre-orders are open (with the price and the ship-by date). The window asks how many copies (plus and
+     minus), then the site's own checkout asks the shipping address, the email and the card; Nevada's sales tax, for a Nevada
+     address only, comes from its ZIP code there (2026-11-15). ---------- */
   const STORE_API = 'https://pitchzing-haro.pitchzing.workers.dev/public/book-store';
   const hc = $('#hc');
   let hcState = null;
@@ -1352,51 +1352,27 @@
       $$('[data-hc-xmas]').forEach((el) => { el.hidden = !s.christmasBy; });
       if (s.christmasByText) $$('[data-hc-xmasby]').forEach((el) => { el.textContent = s.christmasByText; });
       $$('[data-hardcover]').forEach((el) => { el.hidden = false; });
-      const counties = $('.hc__counties', hc), msg = $('#hcMsg'), go = $('#hcGo'), sum = $('#hcSum');
-      counties.innerHTML = Object.keys(s.nvTax).map((c) => `<button type="button" class="hc__county" role="radio" aria-checked="false" data-county="${c}">${c}</button>`).join('');
-      let n = 1, nv = false, county = '', busy = false;
+      const msg = $('#hcMsg'), go = $('#hcGo'), sum = $('#hcSum');
+      // how many copies; no Nevada or county question (Jason, 2026-11-15: "I have NEVER ... gone to purchase a product online and
+      // it ask me to identify the county"): the checkout works out Nevada's tax from the ZIP code of the address it ships to
+      let n = 1;
       const say = (t, bad) => { msg.textContent = t; msg.classList.toggle('is-err', !!bad); };
       const paint = () => {
         $('#hcN').textContent = String(n);
         $$('[data-hc-step]', hc).forEach((b) => { b.disabled = b.dataset.hcStep === '-1' ? n <= 1 : n >= s.maxQty; });
-        $$('[data-hc-nv]', hc).forEach((b) => b.setAttribute('aria-checked', String((b.dataset.hcNv === '1') === nv)));
-        $('#hcCounty').hidden = !nv;
-        $$('.hc__county', hc).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.county === county)));
-        const sub = n * s.cents, tax = nv && county ? Math.round(sub * Number(s.nvTax[county]) / 100) : 0;
-        sum.innerHTML = `<div><dt>${n} × ${usd(s.cents)}</dt><dd>${usd(sub)}</dd></div><div><dt>Shipping</dt><dd>Free</dd></div>` +
-          (nv ? `<div><dt>Nevada sales tax${county ? ` (${county$(county)}, ${s.nvTax[county]}%)` : ''}</dt><dd>${county ? usd(tax) : 'Choose your county'}</dd></div>` : '') +
-          `<div class="hc__total"><dt>Total</dt><dd>${usd(sub + tax)}</dd></div>`;
-        go.disabled = busy || (nv && !county);
+        sum.innerHTML = `<div><dt>${n} × ${usd(s.cents)}</dt><dd>${usd(n * s.cents)}</dd></div><div><dt>Shipping</dt><dd>Free</dd></div>` +
+          `<div class="hc__total"><dt>Total</dt><dd>${usd(n * s.cents)}</dd></div>`;
       };
       hc.addEventListener('click', (e) => {
         const st = e.target.closest('[data-hc-step]');
-        if (st) { n = Math.min(s.maxQty, Math.max(1, n + Number(st.dataset.hcStep))); paint(); return; }
-        const v = e.target.closest('[data-hc-nv]');
-        if (v) { nv = v.dataset.hcNv === '1'; if (!nv) county = ''; say(''); paint(); return; }
-        const c = e.target.closest('.hc__county');
-        if (c) { county = c.dataset.county; say(''); paint(); }
+        if (st) { n = Math.min(s.maxQty, Math.max(1, n + Number(st.dataset.hcStep))); paint(); }
       });
       $$('[data-hc-open]').forEach((b) => b.addEventListener('click', () => {
-        busy = false; say(''); paint();
+        say(''); paint();
         if (typeof hc.showModal === 'function') hc.showModal(); else hc.setAttribute('open', '');
       }));
-      addEventListener('pageshow', () => { busy = false; paint(); });   // back from Square's checkout: ready again
-      $('#hcForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        if (busy) return;
-        if (nv && !county) { say('Choose your Nevada county.', true); return; }
-        // the site's own checkout when it is on: these copies and this tax, then the address and the card there
-        if (ckOn()) { hc.close(); openCheckout({ kind: 'hardcover', qty: n, nevada: nv, county }); return; }
-        busy = true; paint(); say('Opening Square’s secure checkout…');
-        const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
-        try {
-          const r = await fetch(`${STORE_API}/hardcover-checkout`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ qty: n, nevada: nv, county }), signal: ctl.signal });
-          const j = await r.json().catch(() => ({}));
-          if (!r.ok || !j.url) throw new Error(j.error || 'The checkout did not open. Please try again.');
-          location.href = j.url;
-        } catch (err) { busy = false; paint(); say(err.name === 'AbortError' ? 'Square did not answer in time. Please tap again.' : err.message, true); }
-        finally { clearTimeout(timer); }
-      });
+      // the site's own checkout: these copies, then the address (and any Nevada tax from its ZIP code) and the card there
+      $('#hcForm').addEventListener('submit', (e) => { e.preventDefault(); hc.close(); openCheckout({ kind: 'hardcover', qty: n }); });
       paint();
     }).catch(() => {});
   }
@@ -1628,9 +1604,53 @@
   }));
   const syncGo = () => { const go = $('#payGo'); if (go && !paying) go.disabled = !$('#payTerms').checked || !sqCard || !payQ; };
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  const showQuote = (q) => {
+    $('#payTitle').textContent = q.title;
+    $('#payLines').innerHTML = q.lines.map((l) => `<p><span>${esc(l.label)}</span><b>${usd2(l.cents * (l.qty || 1))}</b></p>`).join('');
+    $('#payToday').textContent = usd2(q.today);
+    $('#payNote').textContent = q.note || ''; $('#payNote').hidden = !q.note;
+    $('#payTermsText').textContent = q.terms;
+    $('#payGo').textContent = `Pay ${usd2(q.today)}`;
+    $('#payShip').hidden = !q.shipping;
+  };
+  // the hardcover's Nevada sales tax from the ZIP code (Jason, 2026-11-15): as the state and ZIP code are typed, PitchZing
+  // quotes again and the window shows the tax line, or none, and the new total before anyone pays; a total that changes after
+  // the terms were ticked must be agreed to again. A Nevada ZIP code it cannot place (a rural PO box) asks its county, only then.
+  let addrKey = '', addrTimer = 0, countyZip = '';
+  const shipAddr = () => ({ state: $('#shipState').value.trim().toUpperCase(), postal: $('#shipPostal').value.trim() });
+  async function requote() {
+    if (!payReq || payReq.kind !== 'hardcover') return;
+    const a = shipAddr();
+    const ready = /^[A-Z]{2}$/.test(a.state) && /^\d{5}(-\d{4})?$/.test(a.postal);
+    // the county question belongs to the ZIP code it was asked for: another ZIP code (or state) drops it
+    if (countyZip && (!ready || a.state !== 'NV' || a.postal.slice(0, 5) !== countyZip)) { countyZip = ''; $('#shipCounty').value = ''; $('#shipCountyRow').hidden = true; }
+    const county = $('#shipCounty').value;
+    const key = ready ? `${a.state}|${a.postal.slice(0, 5)}|${county}` : '-';
+    if (key === addrKey) return;
+    addrKey = key;
+    const msg = $('#payMsg'), before = payQ ? payQ.today : null, row = $('#shipCountyRow');
+    try {
+      const r = await fetch(`${STORE_API}/pay-quote`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, ship: ready ? a : null, ...(county ? { county } : {}) }) });
+      const q = await r.json().catch(() => ({}));
+      if (key !== addrKey) return;   // a newer address is being quoted
+      if (q.needCounty) {
+        const sel = $('#shipCounty');
+        if (sel.options.length < 2) sel.innerHTML = '<option value="">Choose the county</option>' + q.counties.map((c) => `<option>${esc(c)}</option>`).join('');
+        row.hidden = false; countyZip = a.postal.slice(0, 5); payQ = null; msg.textContent = q.error; syncGo(); return;
+      }
+      if (!r.ok || !q.ok) { payQ = null; msg.textContent = q.error || 'Please check the address.'; syncGo(); return; }
+      payQ = q; showQuote(q);
+      if (before != null && before !== q.today && $('#payTerms').checked) { $('#payTerms').checked = false; msg.textContent = `The total is now ${usd2(q.today)} for this address. Tick the box to agree to it.`; }
+      else msg.textContent = '';
+    } catch { addrKey = ''; msg.textContent = 'The total could not be checked. Please try again.'; }
+    syncGo();
+  }
+  ['#shipState', '#shipPostal'].forEach((id) => $(id)?.addEventListener('input', () => { clearTimeout(addrTimer); addrTimer = setTimeout(requote, 350); }));
+  $('#shipCounty')?.addEventListener('change', () => requote());
   async function openCheckout(req) {
     if (paying) return;
-    payReq = req; payQ = null;
+    payReq = req; payQ = null; addrKey = ''; countyZip = '';
+    if ($('#shipCountyRow')) { $('#shipCountyRow').hidden = true; $('#shipCounty').value = ''; }
     const msg = $('#payMsg'); msg.textContent = '';
     $('#payTitle').textContent = 'One moment…'; $('#payLines').innerHTML = ''; $('#payToday').textContent = ''; $('#payNote').hidden = true;
     $('#payTermsText').textContent = ''; $('#payTerms').checked = false; $('#payGo').textContent = 'Pay'; $('#payShip').hidden = true;
@@ -1640,14 +1660,8 @@
       const r = await fetch(`${STORE_API}/pay-quote`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(req) });
       const q = await r.json().catch(() => ({}));
       if (!r.ok || !q.ok) throw new Error(q.error || 'The checkout did not open. Please try again.');
-      payQ = q;
-      $('#payTitle').textContent = q.title;
-      $('#payLines').innerHTML = q.lines.map((l) => `<p><span>${esc(l.label)}</span><b>${usd2(l.cents * (l.qty || 1))}</b></p>`).join('');
-      $('#payToday').textContent = usd2(q.today);
-      if (q.note) { $('#payNote').textContent = q.note; $('#payNote').hidden = false; }
-      $('#payTermsText').textContent = q.terms;
-      $('#payGo').textContent = `Pay ${usd2(q.today)}`;
-      $('#payShip').hidden = !q.shipping;
+      payQ = q; showQuote(q);
+      if (q.shipping) { addrKey = ''; requote(); }   // an address already filled in (the browser's autofill) is quoted at once
     } catch (err) { $('#payTitle').textContent = 'Checkout'; msg.textContent = err.message; }
     syncGo();
     try {
@@ -1719,8 +1733,10 @@
     $('#payForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
       if (paying || !sqCard || !payQ) return;
+      if (payQ.shipping) { clearTimeout(addrTimer); await requote(); if (!payQ) return; }   // the total for the address as typed now
       const email = $('#payEmail').value.trim(), givenName = $('#payGiven').value.trim(), familyName = $('#payFamily').value.trim();
       const msg = $('#payMsg'), go = $('#payGo'), q = payQ;
+      if (!$('#payTerms').checked) { msg.textContent = msg.textContent || 'Tick the box to agree to the terms.'; return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = 'Enter the email address your copy should go to.'; $('#payEmail').focus(); return; }
       let ship = null;
       if (q.shipping) {
@@ -1733,12 +1749,14 @@
         const contact = { email, ...(givenName ? { givenName } : {}), ...(familyName ? { familyName } : {}), ...(ship ? { addressLines: [ship.line1, ship.line2].filter(Boolean), city: ship.city, state: ship.state, postalCode: ship.postal, countryCode: 'US' } : {}) };
         const t = await sqCard.tokenize({ amount: (q.today / 100).toFixed(2), currencyCode: 'USD', intent: q.monthly ? 'CHARGE_AND_STORE' : 'CHARGE', customerInitiated: true, sellerKeyedIn: false, billingContact: contact });
         if (!t || t.status !== 'OK') throw new Error((t && t.errors && t.errors[0] && t.errors[0].message) || 'Please check your card details.');
-        const r = await fetch(`${STORE_API}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, email, givenName, familyName, phone: q.shipping ? $('#shipPhone').value.trim() : '', ship, sourceId: t.token, consent: true }) });
+        const r = await fetch(`${STORE_API}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, email, givenName, familyName, phone: q.shipping ? $('#shipPhone').value.trim() : '', ship, ...(q.shipping && $('#shipCounty').value ? { county: $('#shipCounty').value } : {}), expect: q.today, sourceId: t.token, consent: true }) });
         const j = await r.json().catch(() => ({}));
+        // the total moved (another address, say): shown again for the buyer to agree to; nothing was charged
+        if (r.status === 409 && j.quote) { payQ = { ...payQ, ...j.quote }; showQuote(payQ); $('#payTerms').checked = false; addrKey = ''; throw new Error(j.error); }
         if (!r.ok || !j.ok) throw new Error(j.error || 'The payment did not go through. Nothing was charged. Please try again.');
         paying = false; payDlg.close();
         payThanks(payReq, j);
-      } catch (err) { msg.textContent = err.message; go.textContent = `Pay ${usd2(q.today)}`; }
+      } catch (err) { msg.textContent = err.message; go.textContent = `Pay ${usd2((payQ || q).today)}`; }
       finally { paying = false; syncGo(); }
     });
   }
