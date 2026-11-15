@@ -1642,12 +1642,14 @@
   const shipAddr = () => ({ state: $('#shipState').value.trim().toUpperCase(), postal: $('#shipPostal').value.trim() });
   async function requote() {
     if (!payReq || payReq.kind !== 'hardcover') return;
+    // the ZIP code alone decides the tax (Jason, 2026-11-15: "We don't need this warning popping up on any customers"); the
+    // state box follows the ZIP code's state from the quote, so an earlier ZIP code's state is put right, never reported
     const a = shipAddr();
-    const ready = /^[A-Z]{2}$/.test(a.state) && /^\d{5}(-\d{4})?$/.test(a.postal);
-    // the county question belongs to the ZIP code it was asked for: another ZIP code (or state) drops it
-    if (countyZip && (!ready || a.state !== 'NV' || a.postal.slice(0, 5) !== countyZip)) { countyZip = ''; $('#shipCounty').value = ''; $('#shipCountyRow').hidden = true; }
+    const ready = /^\d{5}(-\d{4})?$/.test(a.postal);
+    // the county question belongs to the ZIP code it was asked for: another ZIP code drops it
+    if (countyZip && (!ready || a.postal.slice(0, 5) !== countyZip)) { countyZip = ''; $('#shipCounty').value = ''; $('#shipCountyRow').hidden = true; }
     const county = $('#shipCounty').value;
-    const key = ready ? `${a.state}|${a.postal.slice(0, 5)}|${county}` : '-';
+    const key = ready ? `${a.postal.slice(0, 5)}|${county}` : '-';
     if (key === addrKey) return;
     addrKey = key;
     const msg = $('#payMsg'), before = payQ ? payQ.today : null, row = $('#shipCountyRow');
@@ -1655,6 +1657,7 @@
       const r = await fetch(`${STORE_API}/pay-quote`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, ship: ready ? a : null, ...(county ? { county } : {}) }) });
       const q = await r.json().catch(() => ({}));
       if (key !== addrKey) return;   // a newer address is being quoted
+      if (q.shipState) $('#shipState').value = q.shipState;
       if (q.needCounty) {
         const sel = $('#shipCounty');
         if (sel.options.length < 2) sel.innerHTML = '<option value="">Choose the county</option>' + q.counties.map((c) => `<option>${esc(c)}</option>`).join('');
@@ -1667,12 +1670,7 @@
     } catch { addrKey = ''; msg.textContent = 'The total could not be checked. Please try again.'; }
     syncGo();
   }
-  ['#shipState', '#shipPostal'].forEach((id) => $(id)?.addEventListener('input', () => {
-    // a Nevada ZIP code (889xx-898xx) with the state left blank fills in NV, so its tax shows at once
-    const st = $('#shipState'), zip = $('#shipPostal').value.trim();
-    if (!st.value.trim() && /^8(89|9[0-8])\d\d/.test(zip)) st.value = 'NV';
-    clearTimeout(addrTimer); addrTimer = setTimeout(requote, 350);
-  }));
+  $('#shipPostal')?.addEventListener('input', () => { clearTimeout(addrTimer); addrTimer = setTimeout(requote, 350); });
   $('#shipCounty')?.addEventListener('change', () => requote());
   async function openCheckout(req) {
     if (paying) return;
