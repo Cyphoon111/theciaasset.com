@@ -1431,18 +1431,23 @@
     // moment, playing or paused; the mute button plays the voice only and brings back the level before. Kept on this device.
     // 0 to +10 dB in 1 dB steps, +7 the default (Jason, 2026-10-28: "The volume control should allow 0-+10 db and it should display
     // what volume they are choosing when they are sliding the control"); the value shows beside the slider as it moves
-    const LEVELS = Array.from({ length: 11 }, (_, x) => ({ id: String(x), label: x ? `+${x} dB` : '0 dB' }));
+    // The far left is Off (Jason, 2026-11-15: "I turned the volume of the soundtrack all the way down and yet, the music is still
+    // playing. This volume feature MUST work precisely"): the voice alone (audiobook-sample-st-off.mp3, no music at all), then
+    // 0 to +10 dB as before. Measured in the pauses between the words: Off is digital silence (-84.6 dB), 0 dB is -45.3 dB of
+    // music and each step adds exactly 1.00 dB, to -35.3 dB at +10.
+    const LEVELS = [{ id: 'off', label: 'Off' }, ...Array.from({ length: 11 }, (_, x) => ({ id: String(x), label: x ? `+${x} dB` : '0 dB' }))];
     const DEF = '7';
     const vol = $('[data-sample-vol]', sample), mute = $('[data-sample-mute]', sample), vlab = $('[data-sample-vol-label]', sample), row = $('[data-sample-st]', sample);
     const fileOf = (id) => (id === 'off' ? 'assets/audiobook-sample-st-off.mp3' : `assets/audiobook-sample-db${id}.mp3`);
     const get = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
     const put = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
     let mix = get('sample:db'), lastOn = get('sample:dbOn');
-    if (mix !== 'off' && !LEVELS.some((l) => l.id === mix)) mix = DEF;
-    if (!LEVELS.some((l) => l.id === lastOn)) lastOn = mix === 'off' ? DEF : mix;
+    if (!LEVELS.some((l) => l.id === mix)) mix = DEF;
+    if (lastOn === 'off' || !LEVELS.some((l) => l.id === lastOn)) lastOn = mix === 'off' ? DEF : mix;
+    // the slider shows where the soundtrack is, Off included (all the way left); the mute button goes to Off and back
     const paint = () => {
-      const off = mix === 'off', i = Math.max(0, LEVELS.findIndex((l) => l.id === (off ? lastOn : mix)));
-      vol.value = String(i); vlab.textContent = off ? 'Muted' : LEVELS[i].label; vol.setAttribute('aria-valuetext', off ? 'Muted' : LEVELS[i].label);
+      const off = mix === 'off', i = Math.max(0, LEVELS.findIndex((l) => l.id === mix));
+      vol.value = String(i); vlab.textContent = LEVELS[i].label; vol.setAttribute('aria-valuetext', LEVELS[i].label);
       row.toggleAttribute('data-muted', off);
       mute.setAttribute('aria-pressed', String(off));
       const t = off ? 'Turn the soundtrack back on' : 'Mute the soundtrack'; mute.setAttribute('aria-label', t); mute.title = t;
@@ -1462,7 +1467,7 @@
     if (mix !== DEF) audio.src = fileOf(mix);
     paint();
     // while sliding: the value it is on, at once (the file changes when the slider is let go)
-    vol.addEventListener('input', () => { const l = LEVELS[Number(vol.value)]; vlab.textContent = l.label; vol.setAttribute('aria-valuetext', l.label); row.removeAttribute('data-muted'); });
+    vol.addEventListener('input', () => { const l = LEVELS[Number(vol.value)]; vlab.textContent = l.label; vol.setAttribute('aria-valuetext', l.label); row.toggleAttribute('data-muted', l.id === 'off'); });
     vol.addEventListener('change', () => setMix(LEVELS[Number(vol.value)].id));
     mute.addEventListener('click', () => setMix(mix === 'off' ? lastOn : 'off'));
   }
