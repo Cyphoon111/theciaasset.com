@@ -666,7 +666,9 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .paydlg__field input:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
 .paydlg__two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .paydlg__three { display: grid; grid-template-columns: 2fr .8fr 1.2fr; gap: 10px; }
-.paydlg__ship { margin: 4px 0 10px; padding: 12px 14px 4px; border: 1px solid var(--line); border-radius: 12px; }
+.paydlg__ship { min-width: 0; margin: 4px 0 10px; padding: 12px 14px 4px; border: 1px solid var(--line); border-radius: 12px; }
+.paydlg__field { min-width: 0; }
+.paydlg__field input { width: 100%; min-width: 0; box-sizing: border-box; }
 .paydlg__ship legend { padding: 0 6px; font: 700 11px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--gold-ink); }
 .thanks .paydlg__lines .paydlg__qty { color: var(--muted); font-weight: 400; }
 .paydlg__card { display: grid; gap: 4px; margin: 2px 0 6px; font-size: 13px; font-weight: 700; color: var(--ink-2); }
