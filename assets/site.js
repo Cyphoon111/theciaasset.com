@@ -1556,7 +1556,7 @@
     $('#thanksWhat').textContent = THANKS_WHAT[donatedFor];
     // a purchase (the audiobook one-time, PitchZing's &order=1), thanked as an order
     if (boughtOnce) $('#thanksTitle').textContent = 'Thank you for your order.';
-    if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'within a minute';
+    if (Date.now() >= RELEASE_AT) $('#thanksWhen').textContent = 'shortly';   // Jason, 2026-11-15: "shortly", not "within a minute"
     // the hardcover pre-order (2026-11-13): a printed book on its way, not a reader link
     if (donatedFor === 'hardcover') {
       $('#thanksTitle').textContent = 'Thank you for your pre-order.';
@@ -1660,9 +1660,14 @@
       $('#thanksSent').textContent = 'Your first-edition hardcover is reserved. Your confirmation is on its way to the email you used at checkout.';
       $('#thanksHow').textContent = 'It will be printed and mailed to the address you entered, by the ship-by date in your confirmation.';
     } else {
-      $('#thanksWhat').textContent = THANKS_WHAT[req.product] || 'your copy';
       $('#thanksTitle').textContent = req.kind === 'monthly' ? (req.product === 'bundle' ? 'Thank you for subscribing.' : 'Thank you for your donation.') : 'Thank you for your order.';
-      $('#thanksWhen').textContent = 'within a minute';
+      // the copy is emailed once (Jason, 2026-11-15: "I only want to send them their first email ... once"): an address that
+      // already holds it (j.already) is told so instead of waiting for a second email; "shortly", not "within a minute"
+      const sent = $('#thanksSent'), what = document.createElement('strong');
+      what.id = 'thanksWhat'; what.textContent = THANKS_WHAT[req.product] || 'your copy';
+      sent.textContent = '';
+      if (j.already) sent.append('This address already has its copy of ', what, ', so no new email is sent: open it from the email you received when you first got it.');
+      else { const when = document.createElement('span'); when.id = 'thanksWhen'; when.textContent = 'shortly'; sent.append('Your copy of ', what, ' will be emailed to the address you used at checkout ', when, '.'); }
       if (j.asks && ask) {
         ask.textContent = '';
         const b = document.createElement('b'); b.textContent = req.ask ? 'Ask the Book is on. ' : 'Ask the Book is included free. ';
