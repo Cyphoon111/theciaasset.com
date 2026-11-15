@@ -720,6 +720,8 @@ html:has(.paydlg[open]) { overflow: hidden; }
 .aopt__price { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; margin: 5px 0 0; }
 .aopt__price b { font: 400 22px/1 var(--display); color: var(--red); white-space: nowrap; }
 .aopt .pkg__buy { flex: none; width: min(100%, 340px); margin-top: 0; }   /* the same width in every row, left-aligned */
+.aopt > .addon { margin-left: auto; }   /* Monthly: Ask the Book included free, at the row's right edge (2026-11-15) */
+@media (max-width: 560px) { .aopt > .addon { width: 100%; margin-left: 0; } }
 /* the audiobook's free sample (Jason, 2026-10-27): play/pause, a progress line you can tap to jump, the time left */
 .sample { display: flex; align-items: center; gap: 14px; margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; background: var(--paper-2); }
 .sample__btn { flex: none; position: relative; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--ink); cursor: pointer; transition: background .2s, transform .2s; }
