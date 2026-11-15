@@ -1253,7 +1253,7 @@
       if (Date.now() >= FULL_AT && K.after) K = { ...K, ...(monthly && K.afterMonthly ? K.afterMonthly : K.after) };
       $('#amtKicker').textContent = K.name;
       $('#amtTitle').textContent = monthly ? 'Choose your monthly donation' : 'Choose your donation';
-      $('#amtSub').textContent = monthly ? `From ${usd(K.min)} a month. Square’s secure checkout opens next for exactly this amount, each month until you cancel.` : `From ${usd(K.min)}. Square’s secure checkout opens next for exactly this amount.`;
+      $('#amtSub').textContent = monthly ? `From ${usd(K.min)} a month. The secure checkout opens next for exactly this amount, each month until you cancel.` : `From ${usd(K.min)}. Square’s secure checkout opens next for exactly this amount.`;
       $('#amtFine').innerHTML = monthly ? 'Cancel anytime at <a href="/cancel/">theciaasset.com/cancel</a>. All donations are final: no refunds.' : 'All donations are final: no refunds.';
       grid.innerHTML = K.amounts.map((c) => `<button type="button" class="amt__opt" role="radio" data-cents="${c}">${usd(c)}</button>`).join('');
       other.placeholder = `${usd(K.min)} or more`;
@@ -1266,6 +1266,8 @@
       if (Date.now() - raisedAt < 700) return;   // the tap that left the box (and raised it to the minimum) only shows the new amount
       if (!(cents >= K.min)) { say(under(), true); paint(); return; }
       if (cents > MAX) { say(`Please choose ${usd(MAX)} or less here.`, true); other.focus(); return; }
+      // the site's own checkout when it is on: a monthly gift at exactly this amount (one-time gifts are bought at their price)
+      if (monthly && ckOn()) { amt.close(); openCheckout({ kind: 'monthly', product, cents }); return; }
       busy = true; go.disabled = true; say('Opening Square’s secure checkout…');
       const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
       try {
@@ -1296,7 +1298,8 @@
   addEventListener('pageshow', () => subscribes.forEach((b) => { b.disabled = false; b.firstChild.nodeValue = b.dataset.label; }));
   subscribes.forEach((b) => b.addEventListener('click', async () => {
     if (b.disabled) return;
-    if (b.hasAttribute('data-ask') && onestepReady()) { openPay(b.dataset.buy); return; }   // the add-on in one step (below)
+    // the site's own checkout when it is on (below): a copy once (with the add-on: Ask the Book too), or the bundle monthly
+    if (ckOn()) { openCheckout(b.dataset.buy ? { kind: 'buy', product: b.dataset.buy, ...(b.hasAttribute('data-ask') ? { ask: true } : {}) } : { kind: 'monthly', product: b.dataset.subscribe }); return; }
     const label = b.dataset.label;
     b.disabled = true; b.firstChild.nodeValue = 'Opening Square’s secure checkout… ';
     const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
@@ -1382,6 +1385,8 @@
         e.preventDefault();
         if (busy) return;
         if (nv && !county) { say('Choose your Nevada county.', true); return; }
+        // the site's own checkout when it is on: these copies and this tax, then the address and the card there
+        if (ckOn()) { hc.close(); openCheckout({ kind: 'hardcover', qty: n, nevada: nv, county }); return; }
         busy = true; paint(); say('Opening Square’s secure checkout…');
         const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
         try {
@@ -1591,46 +1596,81 @@
     openThanks();
   }
 
-  /* ---------- the Ask the Book add-on in one step (2026-11-14, Jason: "This can't be achieved in a single streamlined and
-     efficient 1 step process?"). Square's own checkout pages sell a purchase or a subscription, never both, so the ebook (or
-     both) with Ask the Book is paid here: Square's secure card field (Web Payments SDK, loaded only when the window opens;
-     tokenize() verifies the buyer for a charge that is also kept on file), one payment for the copy and the first month,
-     then PitchZing saves the card at Square and starts the $10 monthly plan a month later (bookstore.mjs addonPay). The
-     window opens for the add-on buttons when PitchZing says it is on (pay-config), or with ?onestep=1 to preview it. ---------- */
+  /* ---------- the site's own checkout, for every purchase (2026-11-14, Jason: "For continuity we should make all purchase
+     functions branded the same way instead of sending end-users to the Square checkout page on all the other products. Let's
+     make all purchases unified, professional and equally branded with same look and feel."). Square's own pages sell a
+     purchase or a subscription, never both, and look like Square's; this window looks like the site. It shows what PitchZing
+     quotes (pay-quote: the lines, today's total, the monthly amount and when it starts, the terms), takes the buyer's details
+     (and the hardcover's address), and Square's own secure card field (Web Payments SDK, loaded when the window first opens;
+     tokenize() verifies the buyer, for a charge kept on file when a plan follows). PitchZing then takes the one payment and,
+     for a monthly purchase, starts the plan a month on (bookstore.mjs storePay). Every buy, subscribe and pre-order button
+     opens it when PitchZing says it is on (pay-config), or with ?checkout=1 to preview it; until then Square's checkout. */
   const payDlg = $('#paydlg');
-  const ONESTEP_PREVIEW = /[?&]onestep=1/.test(location.search);
-  let PAY = null, sqPayments = null, sqCard = null, payProduct = null, paying = false;
-  const usd2 = (c) => `$${(c / 100).toFixed(2)}`;
-  function onestepReady() { return !!(payDlg && PAY && PAY.applicationId && PAY.locationId && PAY.products && (PAY.enabled || ONESTEP_PREVIEW)); }
+  const CK_PREVIEW = /[?&](checkout|onestep)=1/.test(location.search);
+  let PAY = null, sqPayments = null, sqCard = null, payReq = null, payQ = null, paying = false;
+  const usd2 = (c) => `$${(c / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  function ckOn() { return !!(payDlg && PAY && PAY.applicationId && PAY.locationId && (PAY.enabled || CK_PREVIEW)); }
   fetch(`${STORE_API}/pay-config`).then((r) => r.json()).then((j) => {
     PAY = j;
-    if (onestepReady()) { $$('[data-twostep]').forEach((el) => { el.hidden = true; }); $$('[data-onestep]').forEach((el) => { el.hidden = false; }); }
+    if (ckOn()) { $$('[data-twostep]').forEach((el) => { el.hidden = true; }); $$('[data-onestep]').forEach((el) => { el.hidden = false; }); }
   }).catch(() => {});
+  // the two plain Square links (the ebook, the bundle) open the window instead when it is on
+  $$('a[data-own]').forEach((a) => a.addEventListener('click', (e) => { if (!ckOn()) return; e.preventDefault(); openCheckout({ kind: 'buy', product: a.dataset.own }); }));
   const loadSquare = () => (window.Square ? Promise.resolve() : new Promise((ok, no) => {
-    const s = document.createElement('script'); s.src = 'https://web.squarecdn.com/v1/square.js';
-    s.onload = ok; s.onerror = () => no(new Error('Square’s card field did not load. Please check your connection and try again.'));
-    document.head.appendChild(s);
+    const sc = document.createElement('script'); sc.src = 'https://web.squarecdn.com/v1/square.js';
+    sc.onload = ok; sc.onerror = () => no(new Error('Square’s card field did not load. Please check your connection and try again.'));
+    document.head.appendChild(sc);
   }));
-  const syncGo = () => { const go = $('#payGo'); if (go && !paying) go.disabled = !$('#payTerms').checked || !sqCard; };
-  async function openPay(product) {
-    const p = PAY.products[product]; if (!p) return;
-    payProduct = product;
-    const both = product === 'bundle';
-    $('#payTitle').textContent = both ? 'Both + Ask the Book' : 'The ebook + Ask the Book';
-    $('#payCopyName').textContent = both ? 'The ebook plus the entire Master Claims document' : 'The ebook';
-    $('#payCopy').textContent = usd2(p.copy); $('#payAsk').textContent = usd2(p.ask); $('#payToday').textContent = usd2(p.today);
-    $('#payMonthly').textContent = `${usd2(PAY.monthly)} a month`; $('#payStart').textContent = PAY.startText; $('#payDaily').textContent = String(PAY.daily || 20);
-    $('#payKeep').textContent = both ? 'the ebook and the Master Claims document stay yours' : 'the ebook stays yours';
-    $('#payTermsText').textContent = p.terms; $('#payTerms').checked = false;
-    $('#payGo').textContent = `Pay ${usd2(p.today)}`; $('#payMsg').textContent = '';
+  const syncGo = () => { const go = $('#payGo'); if (go && !paying) go.disabled = !$('#payTerms').checked || !sqCard || !payQ; };
+  const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+  async function openCheckout(req) {
+    if (paying) return;
+    payReq = req; payQ = null;
+    const msg = $('#payMsg'); msg.textContent = '';
+    $('#payTitle').textContent = 'One moment…'; $('#payLines').innerHTML = ''; $('#payToday').textContent = ''; $('#payNote').hidden = true;
+    $('#payTermsText').textContent = ''; $('#payTerms').checked = false; $('#payGo').textContent = 'Pay'; $('#payShip').hidden = true;
     if (typeof payDlg.showModal === 'function') payDlg.showModal(); else payDlg.setAttribute('open', '');
+    syncGo();
+    try {
+      const r = await fetch(`${STORE_API}/pay-quote`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(req) });
+      const q = await r.json().catch(() => ({}));
+      if (!r.ok || !q.ok) throw new Error(q.error || 'The checkout did not open. Please try again.');
+      payQ = q;
+      $('#payTitle').textContent = q.title;
+      $('#payLines').innerHTML = q.lines.map((l) => `<p><span>${esc(l.label)}</span><b>${usd2(l.cents * (l.qty || 1))}</b></p>`).join('');
+      $('#payToday').textContent = usd2(q.today);
+      if (q.note) { $('#payNote').textContent = q.note; $('#payNote').hidden = false; }
+      $('#payTermsText').textContent = q.terms;
+      $('#payGo').textContent = `Pay ${usd2(q.today)}`;
+      $('#payShip').hidden = !q.shipping;
+    } catch (err) { $('#payTitle').textContent = 'Checkout'; msg.textContent = err.message; }
     syncGo();
     try {
       await loadSquare();
       if (!sqPayments) sqPayments = window.Square.payments(PAY.applicationId, PAY.locationId);
       if (!sqCard) { sqCard = await sqPayments.card(); await sqCard.attach('#payCard'); }
-    } catch (err) { $('#payMsg').textContent = (err && err.message) || 'Square’s card field did not load. Please try again.'; }
+    } catch (err) { msg.textContent = (err && err.message) || 'Square’s card field did not load. Please try again.'; }
     syncGo();
+  }
+  // the thank-you for what was bought
+  function payThanks(req, j) {
+    const ask = $('#thanksAsk'); if (ask) ask.hidden = true;
+    if (req.kind === 'hardcover') {
+      $('#thanksTitle').textContent = 'Thank you for your pre-order.';
+      $('#thanksSent').textContent = 'Your first-edition hardcover is reserved. Your confirmation is on its way to the email you used at checkout.';
+      $('#thanksHow').textContent = 'It will be printed and mailed to the address you entered, by the ship-by date in your confirmation.';
+    } else {
+      $('#thanksWhat').textContent = THANKS_WHAT[req.product] || 'your copy';
+      $('#thanksTitle').textContent = req.kind === 'monthly' ? (req.product === 'bundle' ? 'Thank you for subscribing.' : 'Thank you for your donation.') : 'Thank you for your order.';
+      $('#thanksWhen').textContent = 'within a minute';
+      if (j.asks && ask) {
+        ask.textContent = '';
+        const b = document.createElement('b'); b.textContent = req.ask ? 'Ask the Book is on. ' : 'Ask the Book is included. ';
+        ask.append(b, `${PAY.daily || 20} questions a day in your copy, answered from the book with page references.${j.startText ? ` Your ${usd2(j.monthly)} monthly plan ${req.ask ? 'begins' : 'renews'} ${j.startText}; cancel anytime at theciaasset.com/cancel/.` : ''}`);
+        ask.hidden = false;
+      }
+    }
+    openThanks();
   }
   if (payDlg) {
     $('#payTerms').addEventListener('change', syncGo);
@@ -1639,33 +1679,27 @@
     payDlg.addEventListener('cancel', (e) => { if (paying) e.preventDefault(); });
     $('#payForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
-      if (paying || !sqCard) return;
+      if (paying || !sqCard || !payQ) return;
       const email = $('#payEmail').value.trim(), givenName = $('#payGiven').value.trim(), familyName = $('#payFamily').value.trim();
-      const msg = $('#payMsg'), go = $('#payGo'), p = PAY.products[payProduct];
+      const msg = $('#payMsg'), go = $('#payGo'), q = payQ;
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = 'Enter the email address your copy should go to.'; $('#payEmail').focus(); return; }
+      let ship = null;
+      if (q.shipping) {
+        ship = { name: $('#shipName').value.trim(), line1: $('#shipLine1').value.trim(), line2: $('#shipLine2').value.trim(), city: $('#shipCity').value.trim(), state: $('#shipState').value.trim().toUpperCase(), postal: $('#shipPostal').value.trim() };
+        if (!ship.name || !ship.line1 || !ship.city || !/^[A-Z]{2}$/.test(ship.state) || !/^\d{5}(-\d{4})?$/.test(ship.postal)) { msg.textContent = 'Enter the full US address it ships to: name, street, city, state and ZIP code.'; return; }
+      }
       if (!$('#payTerms').checked) { msg.textContent = 'Tick the box to agree to the terms.'; return; }
       paying = true; go.disabled = true; go.textContent = 'Paying…'; msg.textContent = '';
       try {
-        const t = await sqCard.tokenize({ amount: (p.today / 100).toFixed(2), currencyCode: 'USD', intent: 'CHARGE_AND_STORE', customerInitiated: true, sellerKeyedIn: false,
-          billingContact: { email, ...(givenName ? { givenName } : {}), ...(familyName ? { familyName } : {}) } });
+        const contact = { email, ...(givenName ? { givenName } : {}), ...(familyName ? { familyName } : {}), ...(ship ? { addressLines: [ship.line1, ship.line2].filter(Boolean), city: ship.city, state: ship.state, postalCode: ship.postal, countryCode: 'US' } : {}) };
+        const t = await sqCard.tokenize({ amount: (q.today / 100).toFixed(2), currencyCode: 'USD', intent: q.monthly ? 'CHARGE_AND_STORE' : 'CHARGE', customerInitiated: true, sellerKeyedIn: false, billingContact: contact });
         if (!t || t.status !== 'OK') throw new Error((t && t.errors && t.errors[0] && t.errors[0].message) || 'Please check your card details.');
-        const r = await fetch(`${STORE_API}/addon-pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ product: payProduct, email, givenName, familyName, sourceId: t.token, consent: true }) });
+        const r = await fetch(`${STORE_API}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, email, givenName, familyName, phone: q.shipping ? $('#shipPhone').value.trim() : '', ship, sourceId: t.token, consent: true }) });
         const j = await r.json().catch(() => ({}));
         if (!r.ok || !j.ok) throw new Error(j.error || 'The payment did not go through. Nothing was charged. Please try again.');
         paying = false; payDlg.close();
-        // the thank-you, as an order, with Ask the Book on
-        $('#thanksWhat').textContent = THANKS_WHAT[payProduct];
-        $('#thanksTitle').textContent = 'Thank you for your order.';
-        $('#thanksWhen').textContent = 'within a minute';
-        const ask = $('#thanksAsk');
-        if (ask) {
-          ask.textContent = '';
-          const b = document.createElement('b'); b.textContent = 'Ask the Book is on. ';
-          ask.append(b, `${PAY.daily || 20} questions a day in your copy, answered from the book with page references. Your ${usd2(j.monthly)} monthly plan begins ${j.startText}; cancel anytime at theciaasset.com/cancel/.`);
-          ask.hidden = false;
-        }
-        openThanks();
-      } catch (err) { msg.textContent = err.message; go.textContent = `Pay ${usd2(p.today)}`; }
+        payThanks(payReq, j);
+      } catch (err) { msg.textContent = err.message; go.textContent = `Pay ${usd2(q.today)}`; }
       finally { paying = false; syncGo(); }
     });
   }

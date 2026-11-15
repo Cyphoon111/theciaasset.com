@@ -40,7 +40,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=91">
+<link rel="stylesheet" href="assets/site.css?v=92">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Jeffrey Epstein Was A CIA Asset, the new book by Jason Sullivan, is available now for early review: the documented story of the intelligence apparatus that made Jeffrey Epstein.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"bookFormat":"https://schema.org/EBook","genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/"}]}
 </script>
@@ -482,7 +482,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
             </div>
             <div class="pkg__row">
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="ebook" aria-haspopup="dialog">Donate &amp; get the ebook <span aria-hidden="true">→</span></button>
-              <a class="btn btn--red btn--lg pkg__buy" data-paid hidden data-freq-show="once" data-addon-hide href="https://square.link/u/Ixh9rcrv" target="_blank" rel="noopener">Buy the ebook <span aria-hidden="true">→</span></a>
+              <a class="btn btn--red btn--lg pkg__buy" data-paid hidden data-freq-show="once" data-addon-hide href="https://square.link/u/Ixh9rcrv" target="_blank" rel="noopener" data-own="ebook">Buy the ebook <span aria-hidden="true">→</span></a>
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="once" data-addon-show data-buy="ebook" data-cents="1499" data-ask>Buy the ebook + Ask the Book <span aria-hidden="true">→</span></button>
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="monthly" data-amount="ebook" aria-haspopup="dialog">Donate monthly &amp; get the ebook <span aria-hidden="true">→</span></button>
               <label class="addon" data-freq-show="once"><input class="addon__radio" type="checkbox" data-addon="ebook"><span class="pkg__ask addon__tab"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Add-on · +$10 a month</small> Ask the Book</span></span></label>
@@ -499,7 +499,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
             </div>
             <div class="pkg__row">
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="bundle" aria-haspopup="dialog">Donate &amp; get both <span aria-hidden="true">→</span></button>
-              <a class="btn btn--red btn--lg pkg__buy" data-paid hidden data-freq-show="once" data-addon-hide href="https://square.link/u/aZYSl5PA" target="_blank" rel="noopener">Buy the ebook plus the entire Master Claims document <span aria-hidden="true">→</span></a>
+              <a class="btn btn--red btn--lg pkg__buy" data-paid hidden data-freq-show="once" data-addon-hide href="https://square.link/u/aZYSl5PA" target="_blank" rel="noopener" data-own="bundle">Buy the ebook plus the entire Master Claims document <span aria-hidden="true">→</span></a>
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="once" data-addon-show data-buy="bundle" data-cents="1999" data-ask>Buy both + Ask the Book <span aria-hidden="true">→</span></button>
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="monthly" data-subscribe="bundle">Subscribe &amp; get both <span aria-hidden="true">→</span></button>
               <label class="addon" data-freq-show="once"><input class="addon__radio" type="checkbox" data-addon="bundle"><span class="pkg__ask addon__tab"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Add-on · +$10 a month</small> Ask the Book</span></span></label>
@@ -767,30 +767,41 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
   <button class="btn btn--red thanks__done" type="button" data-close>Done</button>
 </dialog>
 
-<!-- The Ask the Book add-on in one step (2026-11-14; site.js "one-step checkout"): the site's own checkout window. The card is
-     typed into Square's own secure field (Web Payments SDK) and goes to Square; PitchZing takes one payment for the copy and
-     the first month, saves the card at Square and starts the $10 monthly plan a month later. -->
+<!-- The site's own checkout window, for every purchase (2026-11-14; site.js "the site's own checkout"): what PitchZing quotes
+     (title, lines, today's total, the monthly amount and its start, the terms), the buyer's details (and the hardcover's
+     address), and Square's own secure card field (Web Payments SDK): the card goes to Square, never to this site. -->
 <dialog class="thanks paydlg" id="paydlg" aria-labelledby="payTitle">
   <button class="thanks__x" type="button" aria-label="Close" data-pay-close>×</button>
   <p class="paydlg__k">Secure checkout by Square</p>
-  <h2 id="payTitle">The ebook + Ask the Book</h2>
+  <h2 id="payTitle">Checkout</h2>
   <div class="paydlg__lines">
-    <p><span id="payCopyName">The ebook</span><b id="payCopy">$14.99</b></p>
-    <p><span>Ask the Book, first month</span><b id="payAsk">$10.00</b></p>
-    <p class="paydlg__total"><span>Today</span><b id="payToday">$24.99</b></p>
-    <p class="paydlg__then">Then <b id="payMonthly">$10.00 a month</b> for Ask the Book from <b id="payStart">next month</b>: <span id="payDaily">20</span> questions a day, answered from the book with page references. Cancel anytime; <span id="payKeep">the ebook stays yours</span>.</p>
+    <div id="payLines"></div>
+    <p class="paydlg__total"><span>Today</span><b id="payToday">$0.00</b></p>
+    <p class="paydlg__then" id="payNote" hidden></p>
   </div>
   <form id="payForm" novalidate>
-    <label class="paydlg__field"><span>Email for your copy</span><input id="payEmail" type="email" autocomplete="email" inputmode="email" required></label>
+    <label class="paydlg__field"><span>Email for your copy and receipt</span><input id="payEmail" type="email" autocomplete="email" inputmode="email" required></label>
     <div class="paydlg__two">
       <label class="paydlg__field"><span>First name</span><input id="payGiven" autocomplete="given-name"></label>
       <label class="paydlg__field"><span>Last name</span><input id="payFamily" autocomplete="family-name"></label>
     </div>
+    <fieldset class="paydlg__ship" id="payShip" hidden>
+      <legend>Ship to (US)</legend>
+      <label class="paydlg__field"><span>Full name</span><input id="shipName" autocomplete="shipping name"></label>
+      <label class="paydlg__field"><span>Street address</span><input id="shipLine1" autocomplete="shipping address-line1"></label>
+      <label class="paydlg__field"><span>Apartment, suite (optional)</span><input id="shipLine2" autocomplete="shipping address-line2"></label>
+      <div class="paydlg__three">
+        <label class="paydlg__field"><span>City</span><input id="shipCity" autocomplete="shipping address-level2"></label>
+        <label class="paydlg__field"><span>State</span><input id="shipState" autocomplete="shipping address-level1" maxlength="2" placeholder="NV"></label>
+        <label class="paydlg__field"><span>ZIP code</span><input id="shipPostal" autocomplete="shipping postal-code" inputmode="numeric" maxlength="10"></label>
+      </div>
+      <label class="paydlg__field"><span>Phone (for the carrier, optional)</span><input id="shipPhone" type="tel" autocomplete="tel"></label>
+    </fieldset>
     <div class="paydlg__card"><span>Card</span><div id="payCard"></div></div>
     <label class="paydlg__terms"><input type="checkbox" id="payTerms"><span id="payTermsText"></span></label>
-    <button class="btn btn--red btn--lg paydlg__go" type="submit" id="payGo" disabled>Pay $24.99</button>
+    <button class="btn btn--red btn--lg paydlg__go" type="submit" id="payGo" disabled>Pay</button>
     <p class="paydlg__msg" id="payMsg" role="alert"></p>
-    <p class="paydlg__fine">Your card goes straight to Square through its secure field; this site never sees or stores it. Square keeps it for your monthly plan, which you can cancel at theciaasset.com/cancel/.</p>
+    <p class="paydlg__fine">Your card goes straight to Square through its secure field; this site never sees or stores it. Monthly plans can be cancelled anytime at theciaasset.com/cancel/.</p>
   </form>
 </dialog>
 
@@ -874,6 +885,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=84" defer></script>
+<script src="assets/site.js?v=85" defer></script>
 </body>
 </html>
