@@ -1286,7 +1286,7 @@
   /* ---------- Ask the Book as an add-on (Jason, 2026-11-13: "selects it by a radio button centered above the Ask the Book black
      tap, then the price in that product section should adjust accordingly"): the round button on the ebook's and the bundle's
      cards marks the card (data-addon-on), and site.css shows "+ $10 a month", the add-on's button and the two-checkout line
-     in place of the plain Square link. Under Monthly the tab says Included free instead. ---------- */
+     in place of the plain Square link. Under Monthly the tab says Included, with a gold FREE seal, instead. ---------- */
   const addonSync = () => $$('[data-addon]').forEach((cb) => cb.closest('[data-addon-card]')?.toggleAttribute('data-addon-on', cb.checked));
   $$('[data-addon]').forEach((cb) => cb.addEventListener('change', addonSync));
   addonSync(); addEventListener('pageshow', addonSync);   // a browser that restores the choice on the way back
@@ -1665,7 +1665,7 @@
       $('#thanksWhen').textContent = 'within a minute';
       if (j.asks && ask) {
         ask.textContent = '';
-        const b = document.createElement('b'); b.textContent = req.ask ? 'Ask the Book is on. ' : 'Ask the Book is included. ';
+        const b = document.createElement('b'); b.textContent = req.ask ? 'Ask the Book is on. ' : 'Ask the Book is included free. ';
         ask.append(b, `${PAY.daily || 20} questions a day in your copy, answered from the book with page references.${j.startText ? ` Your ${usd2(j.monthly)} monthly plan ${req.ask ? 'begins' : 'renews'} ${j.startText}; cancel anytime at theciaasset.com/cancel/.` : ''}`);
         ask.hidden = false;
       }

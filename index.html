@@ -40,7 +40,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=93">
+<link rel="stylesheet" href="assets/site.css?v=94">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Jeffrey Epstein Was A CIA Asset, the new book by Jason Sullivan, is available now for early review: the documented story of the intelligence apparatus that made Jeffrey Epstein.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"bookFormat":"https://schema.org/EBook","genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/"}]}
 </script>
@@ -471,7 +471,7 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
                add-on option. It needs to be intuitive. And if the end-user selects it by a radio button centered above the Ask the
                Book black tap, then the price in that product section should adjust accordingly"; "it needs to be crystal clear that
                the Ask the Book is automatically included in their monthly donations and it is a perk for supporting the author's
-               work"). Monthly: the tab says Included free, its round button filled, and the perk line under the card. One-time: the
+               work"). Monthly: the tab says Included with a gold FREE seal (Jason, 2026-11-15: "The fact that Ask The Book is included FREE should be more pronounced"), its round button filled, and the perk line under the card. One-time: the
                round button above the tab adds it (site.js [data-addon]): the price shows "+ $10 a month", the Square link gives way
                to the add-on's button (data-buy + data-ask: PitchZing sells the copy, then the thank-you opens the Ask plan's
                checkout, Square taking a purchase or a subscription but not both), and the two-checkout line shows. -->
@@ -486,9 +486,9 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="once" data-addon-show data-buy="ebook" data-cents="1499" data-ask>Buy the ebook + Ask the Book <span aria-hidden="true">→</span></button>
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="monthly" data-amount="ebook" aria-haspopup="dialog">Donate monthly &amp; get the ebook <span aria-hidden="true">→</span></button>
               <label class="addon" data-freq-show="once"><input class="addon__radio" type="checkbox" data-addon="ebook"><span class="pkg__ask addon__tab"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Add-on · +$10 a month</small> Ask the Book</span></span></label>
-              <div class="addon addon--in" data-freq-show="monthly"><span class="addon__radio addon__radio--on" aria-hidden="true"></span><span class="pkg__ask addon__tab"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Included free</small> Ask the Book</span></span></div>
+              <div class="addon addon--in" data-freq-show="monthly"><span class="addon__radio addon__radio--on" aria-hidden="true"></span><span class="pkg__ask addon__tab"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Included</small> Ask the Book</span><b class="addon__free">Free</b></span></div>
             </div>
-            <p class="pkg__perk" data-freq-show="monthly"><b>Ask the Book is included.</b> It comes free with every monthly donation from $10: our thank-you for supporting the author’s work. 20 questions a day, with more a day or credit whenever you need them.</p>
+            <p class="pkg__perk" data-freq-show="monthly"><b>Ask the Book is included <em class="pkg__free">free</em>.</b> It comes with every monthly donation from $10: our thank-you for supporting the author’s work. 20 questions a day, with more a day or credit whenever you need them.</p>
             <p class="pkg__perk pkg__perk--add" data-freq-show="once" data-addon-show data-twostep><b>Two secure Square checkouts:</b> first the ebook, $14.99, then your Ask the Book plan, $10 a month for 20 questions a day. Cancel the plan anytime.</p>
             <p class="pkg__perk pkg__perk--add" data-freq-show="once" data-addon-show data-onestep hidden><b>One secure checkout:</b> $24.99 today, the ebook ($14.99) and your first month of Ask the Book ($10), then $10 a month for 20 questions a day. Cancel the plan anytime; the ebook stays yours.</p>
           </article>
@@ -503,9 +503,9 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="once" data-addon-show data-buy="bundle" data-cents="1999" data-ask>Buy both + Ask the Book <span aria-hidden="true">→</span></button>
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-paid hidden data-freq-show="monthly" data-subscribe="bundle">Subscribe &amp; get both <span aria-hidden="true">→</span></button>
               <label class="addon" data-freq-show="once"><input class="addon__radio" type="checkbox" data-addon="bundle"><span class="pkg__ask addon__tab"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Add-on · +$10 a month</small> Ask the Book</span></span></label>
-              <div class="addon addon--in" data-freq-show="monthly"><span class="addon__radio addon__radio--on" aria-hidden="true"></span><span class="pkg__ask addon__tab"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Included free</small> Ask the Book</span></span></div>
+              <div class="addon addon--in" data-freq-show="monthly"><span class="addon__radio addon__radio--on" aria-hidden="true"></span><span class="pkg__ask addon__tab"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg><span><small>Included</small> Ask the Book</span><b class="addon__free">Free</b></span></div>
             </div>
-            <p class="pkg__perk" data-freq-show="monthly"><b>Ask the Book is included.</b> It comes free with this monthly subscription: our thank-you for supporting the author’s work. 20 questions a day, with more a day or credit whenever you need them.</p>
+            <p class="pkg__perk" data-freq-show="monthly"><b>Ask the Book is included <em class="pkg__free">free</em>.</b> It comes with this monthly subscription: our thank-you for supporting the author’s work. 20 questions a day, with more a day or credit whenever you need them.</p>
             <p class="pkg__perk pkg__perk--add" data-freq-show="once" data-addon-show data-twostep><b>Two secure Square checkouts:</b> first the ebook plus the entire Master Claims document, $19.99, then your Ask the Book plan, $10 a month for 20 questions a day. Cancel the plan anytime.</p>
             <p class="pkg__perk pkg__perk--add" data-freq-show="once" data-addon-show data-onestep hidden><b>One secure checkout:</b> $29.99 today, the ebook plus the entire Master Claims document ($19.99) and your first month of Ask the Book ($10), then $10 a month for 20 questions a day. Cancel the plan anytime; both stay yours.</p>
           </article>
@@ -885,6 +885,6 @@ if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(l
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=85" defer></script>
+<script src="assets/site.js?v=86" defer></script>
 </body>
 </html>
