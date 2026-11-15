@@ -694,6 +694,12 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .paydlg__terms { display: flex; gap: 10px; align-items: flex-start; margin: 4px 0 14px; font-size: 13.5px; line-height: 1.45; color: var(--ink-2); cursor: pointer; }
 .paydlg__terms input { width: 18px; height: 18px; margin-top: 2px; flex: none; accent-color: var(--red); }
 .paydlg__go { width: 100%; }
+/* the window scrolls in every browser (Safari's modal windows do not unless told), within the screen's visible height, and its
+   Pay button stays pinned at the foot while the form scrolls under it (2026-11-15) */
+.thanks.paydlg { max-height: calc(100% - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.thanks .paydlg__foot { position: sticky; bottom: -28px; z-index: 2; margin: 0 -30px; padding: 12px 30px 14px; background: #fff; box-shadow: 0 -12px 18px -16px rgba(0, 0, 0, .45); }
+.thanks .paydlg__foot .paydlg__msg { margin: 0 0 10px; }
+@media (max-width: 560px) { .thanks .paydlg__foot { bottom: -22px; margin: 0 -20px; padding: 10px 20px 12px; } }   /* flush with the window's edge (its padding: 28px, 22px on a phone) */
 .paydlg__go:disabled { opacity: .45; cursor: not-allowed; }
 .thanks .paydlg__msg { margin: 10px 0 0; font-size: 14px; font-weight: 600; color: var(--red-ink); }
 .paydlg__msg:empty { display: none; }

@@ -1602,7 +1602,9 @@
     sc.onload = ok; sc.onerror = () => no(new Error('Square’s card field did not load. Please check your connection and try again.'));
     document.head.appendChild(sc);
   }));
-  const syncGo = () => { const go = $('#payGo'); if (go && !paying) go.disabled = !$('#payTerms').checked || !sqCard || !payQ; };
+  // Pay works once the total and Square's card field are ready; the agreement box is asked for on the press, so a pinned button
+  // never sits greyed out with no reason given
+  const syncGo = () => { const go = $('#payGo'); if (go && !paying) go.disabled = !sqCard || !payQ; };
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const showQuote = (q) => {
     $('#payTitle').textContent = q.title;
@@ -1645,7 +1647,12 @@
     } catch { addrKey = ''; msg.textContent = 'The total could not be checked. Please try again.'; }
     syncGo();
   }
-  ['#shipState', '#shipPostal'].forEach((id) => $(id)?.addEventListener('input', () => { clearTimeout(addrTimer); addrTimer = setTimeout(requote, 350); }));
+  ['#shipState', '#shipPostal'].forEach((id) => $(id)?.addEventListener('input', () => {
+    // a Nevada ZIP code (889xx-898xx) with the state left blank fills in NV, so its tax shows at once
+    const st = $('#shipState'), zip = $('#shipPostal').value.trim();
+    if (!st.value.trim() && /^8(89|9[0-8])\d\d/.test(zip)) st.value = 'NV';
+    clearTimeout(addrTimer); addrTimer = setTimeout(requote, 350);
+  }));
   $('#shipCounty')?.addEventListener('change', () => requote());
   async function openCheckout(req) {
     if (paying) return;
@@ -1726,7 +1733,7 @@
     openThanks();
   }
   if (payDlg) {
-    $('#payTerms').addEventListener('change', syncGo);
+    $('#payTerms').addEventListener('change', () => { if ($('#payTerms').checked && /^(Tick the box|The total is now)/.test($('#payMsg').textContent)) $('#payMsg').textContent = ''; syncGo(); });
     $$('[data-pay-close]', payDlg).forEach((b) => b.addEventListener('click', () => { if (!paying) payDlg.close(); }));
     payDlg.addEventListener('click', (e) => { if (e.target === payDlg && !paying) payDlg.close(); });
     payDlg.addEventListener('cancel', (e) => { if (paying) e.preventDefault(); });
@@ -1736,7 +1743,7 @@
       if (payQ.shipping) { clearTimeout(addrTimer); await requote(); if (!payQ) return; }   // the total for the address as typed now
       const email = $('#payEmail').value.trim(), givenName = $('#payGiven').value.trim(), familyName = $('#payFamily').value.trim();
       const msg = $('#payMsg'), go = $('#payGo'), q = payQ;
-      if (!$('#payTerms').checked) { msg.textContent = msg.textContent || 'Tick the box to agree to the terms.'; return; }
+      if (!$('#payTerms').checked) { msg.textContent = 'Tick the box above to agree to the terms, then press Pay.'; $('#payTerms').closest('label').scrollIntoView({ block: 'center', behavior: 'smooth' }); $('#payTerms').focus({ preventScroll: true }); return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = 'Enter the email address your copy should go to.'; $('#payEmail').focus(); return; }
       let ship = null;
       if (q.shipping) {
