@@ -1586,6 +1586,26 @@
      tokenize() verifies the buyer, for a charge kept on file when a plan follows). PitchZing then takes the one payment and,
      for a monthly purchase, starts the plan a month on (bookstore.mjs storePay). Every buy, subscribe and pre-order button
      opens it when PitchZing says it is on (pay-config), or with ?checkout=1 to preview it; until then Square's checkout. */
+  // A phone's keyboard (Jason, 2026-11-15: "the moment I fill out any part of this form the scroll function freezes and I can NOT
+  // manually scroll down to see the bottom"): on iPhone the keyboard covers the window's lower part and the window does not
+  // shrink, so its end sat under the keyboard where no scroll could reach. While the keyboard is open the windows fit the
+  // space above it (--vvh, --vvt from the visual viewport; html.kb-open), the pinned Pay bar steps aside, and the field being
+  // typed in stays in view.
+  const vv = window.visualViewport;
+  if (vv) {
+    const root = document.documentElement;
+    const fit = () => {
+      const open = innerHeight - vv.height > 120;
+      root.style.setProperty('--vvh', `${Math.round(vv.height)}px`);
+      root.style.setProperty('--vvt', `${Math.round(vv.offsetTop)}px`);
+      if (open !== root.classList.contains('kb-open')) {
+        root.classList.toggle('kb-open', open);
+        const el = document.activeElement;
+        if (open && el && el.closest && el.closest('dialog[open]')) setTimeout(() => el.scrollIntoView({ block: 'center' }), 60);
+      }
+    };
+    vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); fit();
+  }
   const payDlg = $('#paydlg');
   const CK_PREVIEW = /[?&](checkout|onestep)=1/.test(location.search);
   let PAY = null, sqPayments = null, sqCard = null, payReq = null, payQ = null, paying = false;

@@ -699,6 +699,10 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .thanks.paydlg { max-height: calc(100% - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .thanks .paydlg__foot { position: sticky; bottom: -28px; z-index: 2; margin: 0 -30px; padding: 12px 30px 14px; background: #fff; box-shadow: 0 -12px 18px -16px rgba(0, 0, 0, .45); }
 .thanks .paydlg__foot .paydlg__msg { margin: 0 0 10px; }
+/* a phone's keyboard open (site.js kb-open): the open window fits the space above it, from the top of what can be seen, and the
+   pinned Pay bar goes back into the form's flow (it waits at the end) so the fields have the room */
+html.kb-open dialog.thanks[open], html.kb-open dialog.reqd[open] { top: calc(var(--vvt, 0px) + 8px); bottom: auto; margin-top: 0; margin-bottom: 0; max-height: calc(var(--vvh, 100dvh) - 16px); overflow-y: auto; }
+html.kb-open .thanks .paydlg__foot { position: static; box-shadow: none; }
 @media (max-width: 560px) { .thanks .paydlg__foot { bottom: -22px; margin: 0 -20px; padding: 10px 20px 12px; } }   /* flush with the window's edge (its padding: 28px, 22px on a phone) */
 .paydlg__go:disabled { opacity: .45; cursor: not-allowed; }
 .thanks .paydlg__msg { margin: 10px 0 0; font-size: 14px; font-weight: 600; color: var(--red-ink); }
