@@ -661,6 +661,13 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .thanks__stepmsg:empty { display: none; }
 .thanks .thanks__ask { margin: 16px 0 4px; padding: 14px 16px; border-radius: 12px; background: var(--ink); color: #d4d4da; font-size: 14.5px; line-height: 1.5; }
 .thanks .thanks__ask b { color: var(--gold); }
+/* the buyer's private copy, one tap from the thank-you (2026-11-15) */
+.thanks .thanks__open { margin: 16px 0 4px; }
+.thanks .thanks__wait { display: flex; align-items: center; gap: 10px; margin: 0; font-size: 14.5px; color: var(--muted); }
+.thanks .thanks__wait::before { content: ''; flex: none; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--red); animation: thanksSpin .8s linear infinite; }
+.thanks .thanks__wait.done::before { display: none; }
+.thanks .thanks__open [hidden] { display: none !important; }   /* the button and the wait line hide when told to (.btn and flex would show them) */
+@keyframes thanksSpin { to { transform: rotate(360deg); } }
 /* the Ask the Book add-on in one step: the site's own checkout window, with Square's card field (2026-11-14) */
 .paydlg { width: min(560px, calc(100% - 32px)); }
 .paydlg h2 { font-size: clamp(26px, 5vw, 34px); }

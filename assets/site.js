@@ -1653,8 +1653,31 @@
     syncGo();
   }
   // the thank-you for what was bought
+  // the buyer's private copy, one tap from the thank-you (Jason, 2026-11-15: "you should always at least include a direct link
+  // that takes the end-user to their private online copy of their book"): at once for an address that already holds it
+  // (j.copyUrl), else as soon as the store has made it (GET copy?p=, a few seconds after the payment)
+  let copyPoll = 0;
+  function copyButton(j) {
+    const box = $('#thanksOpen'), a = $('#thanksOpenA'), wait = $('#thanksWait');
+    clearTimeout(copyPoll);
+    if (!box) return;
+    const show = (url) => { a.href = url; a.hidden = false; wait.hidden = true; box.hidden = false; };
+    if (j.copyUrl) { show(j.copyUrl); return; }
+    if (!j.paymentId) { box.hidden = true; return; }
+    a.hidden = true; wait.classList.remove('done'); wait.textContent = 'Preparing your private copy…'; wait.hidden = false; box.hidden = false;
+    let n = 0;
+    const tick = async () => {
+      n++;
+      try { const c = await (await fetch(`${STORE_API}/copy?p=${encodeURIComponent(j.paymentId)}`)).json(); if (c.ready && c.url) { show(c.url); return; } } catch { /* try again */ }
+      if (n < 40) copyPoll = setTimeout(tick, 3000);
+      else { wait.classList.add('done'); wait.textContent = 'Your private link is on its way to your email.'; }
+    };
+    copyPoll = setTimeout(tick, 1500);
+  }
   function payThanks(req, j) {
     const ask = $('#thanksAsk'); if (ask) ask.hidden = true;
+    const openBox = $('#thanksOpen'); if (openBox) openBox.hidden = true;
+    clearTimeout(copyPoll);
     if (req.kind === 'hardcover') {
       $('#thanksTitle').textContent = 'Thank you for your pre-order.';
       $('#thanksSent').textContent = 'Your first-edition hardcover is reserved. Your confirmation is on its way to the email you used at checkout.';
@@ -1666,8 +1689,14 @@
       const sent = $('#thanksSent'), what = document.createElement('strong');
       what.id = 'thanksWhat'; what.textContent = THANKS_WHAT[req.product] || 'your copy';
       sent.textContent = '';
-      if (j.already) sent.append('This address already has its copy of ', what, ', so no new email is sent: open it from the email you received when you first got it.');
-      else { const when = document.createElement('span'); when.id = 'thanksWhen'; when.textContent = 'shortly'; sent.append('Your copy of ', what, ' will be emailed to the address you used at checkout ', when, '.'); }
+      if (j.already) {
+        sent.append('This address already has its copy of ', what, ', so no new email is sent. Open it now with the button below.');
+        $('#thanksHow').textContent = 'It opens in our protected online reader, for you alone: a one-time code sent to your email unlocks it on each new device. The email you received when you first got it has the same private link.';
+      } else {
+        const when = document.createElement('span'); when.id = 'thanksWhen'; when.textContent = 'shortly'; sent.append('Your copy of ', what, ' will be emailed to the address you used at checkout ', when, '. You can also open it right here in a moment.');
+        $('#thanksHow').textContent = 'It opens in our protected online reader, for you alone: a one-time code sent to your email unlocks it on each new device. Your email has the same private link for later.';
+      }
+      copyButton(j);
       if (j.asks && ask) {
         ask.textContent = '';
         const b = document.createElement('b'); b.textContent = req.ask ? 'Ask the Book is on. ' : 'Ask the Book is included free. ';
