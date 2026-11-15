@@ -714,7 +714,11 @@ html.kb-open .thanks .paydlg__foot { position: static; box-shadow: none; }
 .thanks .paydlg__sq svg { display: inline-block; width: 15px; height: 15px; margin-right: 6px; vertical-align: -2px; fill: #157347; }
 .thanks .paydlg__sq img { display: block; width: 112px; height: auto; }
 @media (max-width: 560px) { .paydlg__two, .paydlg__three { grid-template-columns: 1fr; gap: 0; } }
-html:has(.paydlg[open]) { overflow: hidden; }
+/* The page behind an open window is not locked with overflow: hidden (Chrome's guidance, and on a Mac trackpad that lock
+   could leave a swipe stuck on the locked page: Jason, 2026-11-15, "the moment I fill out any part of this form the scroll
+   function freezes", on his Mac in Edge); the window scrolls on its own and never hands a scroll to the page (site.js too) */
+dialog:modal { overscroll-behavior: contain; }
+dialog::backdrop { overflow: hidden; overscroll-behavior: contain; }
 .thanks__step[hidden] { display: none; }
 .pkg { padding: 20px 22px; border: 1px solid var(--line); border-left: 4px solid var(--red); border-radius: 0 14px 14px 0; background: #fff; }
 .pkg--bundle { border-left-color: var(--gold); }

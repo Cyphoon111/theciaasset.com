@@ -1606,6 +1606,18 @@
     };
     vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); fit();
   }
+  // A swipe or wheel over an open window scrolls that window, done here rather than left to the browser (Jason, 2026-11-15, on
+  // his Mac's trackpad in Edge: "the moment I fill out any part of this form the scroll function freezes and I can NOT manually
+  // scroll down"): the window takes the vertical delta itself, and at its top or end the swipe stops there instead of going to
+  // the page behind. Pinch-zoom (ctrl + wheel) and sideways swipes are left to the browser; the card field's own frame too.
+  $$('dialog.thanks, dialog.reqd').forEach((dlg) => dlg.addEventListener('wheel', (e) => {
+    if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    const max = dlg.scrollHeight - dlg.clientHeight;
+    if (max <= 0) { e.preventDefault(); return; }
+    const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? dlg.clientHeight : 1);
+    e.preventDefault();
+    dlg.scrollTop = Math.max(0, Math.min(max, dlg.scrollTop + dy));
+  }, { passive: false }));
   const payDlg = $('#paydlg');
   const CK_PREVIEW = /[?&](checkout|onestep)=1/.test(location.search);
   let PAY = null, sqPayments = null, sqCard = null, payReq = null, payQ = null, paying = false;
