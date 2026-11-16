@@ -7,6 +7,25 @@
   const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
+  /* ---------- a temporary scroll recorder (2026-11-15: Jason's Mac trackpad freeze in the checkout), only with ?diag=1: what
+     each wheel, scroll, focus and tap hit, with the checkout window's scroll, sent to PitchZing every 2 s for 4 minutes. No
+     keys and no typed text are recorded. ---------- */
+  if (/[?&]diag=1/.test(location.search)) {
+    const sid = 'diag-' + Math.random().toString(36).slice(2, 12), buf = [], t0 = performance.now();
+    const path = (el) => { const out = []; for (let n = el; n && n.nodeType === 1 && out.length < 5; n = n.parentElement) out.push(n.tagName.toLowerCase() + (n.id ? '#' + n.id : '') + (n.classList && n.classList[0] ? '.' + n.classList[0] : '')); return out.join('<'); };
+    const snap = () => { const d = document.getElementById('paydlg'); return d && d.open ? { top: Math.round(d.scrollTop), max: d.scrollHeight - d.clientHeight, ov: getComputedStyle(d).overflowY } : null; };
+    const push = (o) => { if (buf.length < 5000) buf.push({ t: Math.round(performance.now() - t0), ...o }); };
+    let wheels = 0, lastW = 0, scrolls = 0, lastS = 0;
+    addEventListener('wheel', (e) => { wheels++; const now = performance.now(); if (now - lastW < 150) return; lastW = now; push({ e: 'wheel', n: wheels, dy: Math.round(e.deltaY), dx: Math.round(e.deltaX), mode: e.deltaMode, c: e.cancelable, at: path(e.target), d: snap(), root: Math.round(document.scrollingElement.scrollTop) }); }, { capture: true, passive: true });
+    addEventListener('wheel', (e) => { if (performance.now() - lastW < 5) push({ e: 'wheel-end', prevented: e.defaultPrevented }); }, { passive: true });
+    addEventListener('scroll', (e) => { scrolls++; const now = performance.now(); if (now - lastS < 150) return; lastS = now; push({ e: 'scroll', n: scrolls, at: e.target === document ? 'document' : path(e.target), d: snap() }); }, { capture: true, passive: true });
+    ['focusin', 'input', 'pointerdown', 'click'].forEach((k) => addEventListener(k, (e) => push({ e: k, at: path(e.target), d: snap() }), { capture: true, passive: true }));
+    setInterval(() => push({ e: 'tick', d: snap(), wheels, scrolls, vv: [Math.round(window.visualViewport ? visualViewport.height : 0), innerHeight], html: document.documentElement.className, active: path(document.activeElement || document.body) }), 2000);
+    const send = () => { if (!buf.length) return; const events = buf.splice(0, 300); fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-store/diag', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sid, events }), keepalive: true }).catch(() => {}); };
+    const iv = setInterval(send, 2000); setTimeout(() => { clearInterval(iv); send(); }, 240000);
+    push({ e: 'start', ua: navigator.userAgent.slice(0, 160), v: (document.querySelector('script[src*="site.js"]') || {}).src, w: innerWidth, h: innerHeight, dpr: devicePixelRatio });
+  }
+
   /* ---------- a refresh (or Back) opens at the very top: no restored scroll, no leftover #section from the menu ---------- */
   const navEntry = performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
   const fresh = !navEntry || navEntry.type === 'navigate';
