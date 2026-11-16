@@ -1786,6 +1786,23 @@
     $('#payTerms').addEventListener('change', () => { if ($('#payTerms').checked && /^(Tick the box|The total is now)/.test($('#payMsg').textContent)) $('#payMsg').textContent = ''; syncGo(); });
     $$('[data-pay-close]', payDlg).forEach((b) => b.addEventListener('click', () => { if (!paying) payDlg.close(); }));
     payDlg.addEventListener('click', (e) => { if (onBackdrop(payDlg, e) && !paying) payDlg.close(); });   // the backdrop only, never the card's empty space
+    // Tab follows down the form (Jason, 2026-11-15: "if the end-user hits the tab button over and over again, the form never
+    // scrolls down with the tab"): a field the browser counted as in view slid under the pinned Pay bar. Whatever takes focus
+    // (a field, the card's frame, the agreement box) is brought into the clear space between the window's top and the bar.
+    // Square's card box is its own frame: going into it sends this page no focus event, only a focusout from the field before
+    // and, after it, the frame as the page's active element, so that is checked a moment later.
+    const follow = (el) => setTimeout(() => {
+      const foot = $('.paydlg__foot', payDlg); if (!el || !el.getBoundingClientRect || el === payDlg || (foot && foot.contains(el))) return;
+      const r = el.getBoundingClientRect(), d = payDlg.getBoundingClientRect(), fr = foot ? foot.getBoundingClientRect() : null;
+      const pinned = fr && getComputedStyle(foot).position === 'sticky' && fr.top < d.bottom - 1;
+      const bottom = (pinned ? fr.top : d.bottom) - 16, top = d.top + 16;
+      if (r.bottom > bottom) payDlg.scrollTop += Math.min(r.bottom - bottom, r.top - top);
+      else if (r.top < top) payDlg.scrollTop -= top - r.top;
+    }, 0);
+    const followFrame = () => setTimeout(() => { const a = document.activeElement; if (payDlg.open && a && a.tagName === 'IFRAME' && payDlg.contains(a)) follow(a); }, 0);
+    payDlg.addEventListener('focusin', (e) => follow(e.target));
+    payDlg.addEventListener('focusout', followFrame);
+    window.addEventListener('blur', followFrame);
     payDlg.addEventListener('cancel', (e) => { if (paying) e.preventDefault(); });
     $('#payForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
