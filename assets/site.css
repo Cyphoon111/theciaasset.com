@@ -697,6 +697,9 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 /* the window scrolls in every browser (Safari's modal windows do not unless told), within the screen's visible height, and its
    Pay button stays pinned at the foot while the form scrolls under it (2026-11-15) */
 .thanks.paydlg { max-height: calc(100% - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+/* while the bank checks a payment (site.js bankCheck), the window steps out of the top layer, under Square's own window: kept
+   where it was, centred, above the page and below Square's (z-index 2147483647) */
+dialog.thanks.paydlg.is-bankcheck[open] { position: fixed; inset: 0; margin: auto; z-index: 2147483000; }
 .thanks .paydlg__foot { position: sticky; bottom: -28px; z-index: 2; margin: 0 -30px; padding: 12px 30px 14px; background: #fff; box-shadow: 0 -12px 18px -16px rgba(0, 0, 0, .45); }
 .thanks .paydlg__foot .paydlg__msg { margin: 0 0 10px; }
 /* a phone's keyboard open (site.js kb-open): the open window fits the space above it, from the top of what can be seen, and the

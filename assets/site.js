@@ -1804,6 +1804,25 @@
     payDlg.addEventListener('focusout', followFrame);
     window.addEventListener('blur', followFrame);
     payDlg.addEventListener('cancel', (e) => { if (paying) e.preventDefault(); });
+    // The bank's own check (3-D Secure), found in Square's Sandbox 2026-11-15: when a card's bank asks the buyer to confirm,
+    // Square opens its window on the page itself (#sq-threeds-challenge-flow-modal). A modal window sits in the browser's top
+    // layer and leaves the page behind it frozen, so the bank's window was hidden behind the checkout and could not be used:
+    // the payment waited, then failed ("Your bank needs to verify this payment"). While the bank's window is up, the checkout
+    // is shown as an ordinary window under it, where it was; when it goes, the checkout is modal again.
+    let bankCheck = false;
+    const reopen = (modal) => { const top = payDlg.scrollTop; payDlg.close(); if (modal) payDlg.showModal(); else payDlg.show(); payDlg.scrollTop = top; };
+    const bankWatch = () => {
+      const m = document.getElementById('sq-threeds-challenge-flow-modal');
+      const up = !!m && m.classList.contains('square_threeds_modal__show') && getComputedStyle(m).display !== 'none';
+      if (up && !bankCheck && payDlg.open && payDlg.matches(':modal')) { bankCheck = true; payDlg.classList.add('is-bankcheck'); reopen(false); }
+      else if (!up && bankCheck) { bankCheck = false; payDlg.classList.remove('is-bankcheck'); if (payDlg.open) reopen(true); }
+    };
+    let bankEl = null; const bankObs = new MutationObserver(bankWatch);   // Square adds its window to the page's body
+    new MutationObserver(() => {
+      const m = document.getElementById('sq-threeds-challenge-flow-modal');
+      if (m !== bankEl) { bankObs.disconnect(); bankEl = m; if (m) bankObs.observe(m, { attributes: true, attributeFilter: ['class', 'style'] }); }
+      bankWatch();
+    }).observe(document.body, { childList: true });
     $('#payForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
       if (paying || !sqCard || !payQ) return;
