@@ -1640,7 +1640,10 @@
   setInterval(() => $$('dialog.thanks[open], dialog.reqd[open]').forEach(keepScroll), 500);
   const payDlg = $('#paydlg');
   const CK_PREVIEW = /[?&](checkout|onestep)=1/.test(location.search);
-  let PAY = null, sqPayments = null, sqCard = null, payReq = null, payQ = null, paying = false;
+  let PAY = null, sqPayments = null, sqCard = null, payReq = null, payQ = null, paying = false, payAttempt = '';
+  // one id per opened window, sent with Pay: pressing Pay again after a lost answer finds the payment already taken, never a
+  // second charge (PitchZing storePay derives Square's idempotency keys from it)
+  const newAttempt = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`);
   const usd2 = (c) => `$${(c / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   function ckOn() { return !!(payDlg && PAY && PAY.applicationId && PAY.locationId && (PAY.enabled || CK_PREVIEW)); }
   fetch(`${STORE_API}/pay-config`).then((r) => r.json()).then((j) => {
@@ -1706,7 +1709,7 @@
   $('#shipCounty')?.addEventListener('change', () => requote());
   async function openCheckout(req) {
     if (paying) return;
-    payReq = req; payQ = null; addrKey = ''; countyZip = '';
+    payReq = req; payQ = null; addrKey = ''; countyZip = ''; payAttempt = newAttempt();
     if ($('#shipCountyRow')) { $('#shipCountyRow').hidden = true; $('#shipCounty').value = ''; }
     const msg = $('#payMsg'); msg.textContent = '';
     $('#payTitle').textContent = 'One moment…'; $('#payLines').innerHTML = ''; $('#payToday').textContent = ''; $('#payNote').hidden = true;
@@ -1842,7 +1845,7 @@
         const contact = { email, ...(givenName ? { givenName } : {}), ...(familyName ? { familyName } : {}), ...(ship ? { addressLines: [ship.line1, ship.line2].filter(Boolean), city: ship.city, state: ship.state, postalCode: ship.postal, countryCode: 'US' } : {}) };
         const t = await sqCard.tokenize({ amount: (q.today / 100).toFixed(2), currencyCode: 'USD', intent: q.monthly ? 'CHARGE_AND_STORE' : 'CHARGE', customerInitiated: true, sellerKeyedIn: false, billingContact: contact });
         if (!t || t.status !== 'OK') throw new Error((t && t.errors && t.errors[0] && t.errors[0].message) || 'Please check your card details.');
-        const r = await fetch(`${STORE_API}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, email, givenName, familyName, phone: q.shipping ? $('#shipPhone').value.trim() : '', ship, ...(q.shipping && $('#shipCounty').value ? { county: $('#shipCounty').value } : {}), expect: q.today, sourceId: t.token, consent: true }) });
+        const r = await fetch(`${STORE_API}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, email, givenName, familyName, phone: q.shipping ? $('#shipPhone').value.trim() : '', ship, ...(q.shipping && $('#shipCounty').value ? { county: $('#shipCounty').value } : {}), expect: q.today, sourceId: t.token, consent: true, attempt: payAttempt }) });
         const j = await r.json().catch(() => ({}));
         // the total moved (another address, say): shown again for the buyer to agree to; nothing was charged
         if (r.status === 409 && j.quote) { payQ = { ...payQ, ...j.quote }; showQuote(payQ); $('#payTerms').checked = false; addrKey = ''; throw new Error(j.error); }
