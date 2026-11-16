@@ -6,6 +6,11 @@
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  // A click on a window's dark backdrop closes it; a click on the card itself never does (Jason, 2026-11-15: "if I click on either
+  // the left or right side of these form fields (far left or right side empty space) the form disappears. It should NOT
+  // disappear upon clicking any part of this form card"). The backdrop and the card's own padding both report the window as
+  // the click's target, so the click's place decides: only outside the card's edges.
+  const onBackdrop = (dlg, e) => { if (e.target !== dlg) return false; const r = dlg.getBoundingClientRect(); return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom; };
 
   /* ---------- a refresh (or Back) opens at the very top: no restored scroll, no leftover #section from the menu ---------- */
   const navEntry = performance.getEntriesByType ? performance.getEntriesByType('navigation')[0] : null;
@@ -1511,7 +1516,7 @@
     };
     vpop.addEventListener('close', () => { vid.pause(); quiet.release(); trailer.close(); });   // the lens starts now (trailer)
     $('.vpop__x', vpop).addEventListener('click', () => vpop.close());
-    vpop.addEventListener('click', (e) => { if (e.target === vpop) vpop.close(); });   // the dimmed backdrop
+    vpop.addEventListener('click', (e) => { if (onBackdrop(vpop, e)) vpop.close(); });   // the dimmed backdrop
     const showWhenFree = () => {
       const busy = $$('dialog[open]').find((d) => d !== vpop);
       if (busy) busy.addEventListener('close', () => setTimeout(showWhenFree, 1500), { once: true }); else open();
@@ -1528,7 +1533,7 @@
   const askedBack = new URLSearchParams(location.search).get('asked') === '1';   // back from the Ask the Book plan's checkout
   const openThanks = () => {
     $$('[data-close]', thanks).forEach((b) => b.addEventListener('click', () => thanks.close()));
-    thanks.addEventListener('click', (e) => { if (e.target === thanks) thanks.close(); });   // a click on the dimmed backdrop
+    thanks.addEventListener('click', (e) => { if (onBackdrop(thanks, e)) thanks.close(); });   // a click on the dimmed backdrop, never on the card
     if (typeof thanks.showModal === 'function') thanks.showModal(); else thanks.setAttribute('open', '');
   };
   const THANKS_WHAT = { ebook: 'the ebook', bundle: 'the ebook and the Master Claims document', audio: 'the audiobook', audiobook: 'the audiobook and the ebook', audiobundle: 'the audiobook, the ebook and the Master Claims document', hardcover: 'the hardcover' };
@@ -1780,7 +1785,7 @@
   if (payDlg) {
     $('#payTerms').addEventListener('change', () => { if ($('#payTerms').checked && /^(Tick the box|The total is now)/.test($('#payMsg').textContent)) $('#payMsg').textContent = ''; syncGo(); });
     $$('[data-pay-close]', payDlg).forEach((b) => b.addEventListener('click', () => { if (!paying) payDlg.close(); }));
-    payDlg.addEventListener('click', (e) => { if (e.target === payDlg && !paying) payDlg.close(); });
+    payDlg.addEventListener('click', (e) => { if (onBackdrop(payDlg, e) && !paying) payDlg.close(); });   // the backdrop only, never the card's empty space
     payDlg.addEventListener('cancel', (e) => { if (paying) e.preventDefault(); });
     $('#payForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
