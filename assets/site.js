@@ -13,14 +13,15 @@
   if (/[?&]diag=1/.test(location.search)) {
     const sid = 'diag-' + Math.random().toString(36).slice(2, 12), buf = [], t0 = performance.now();
     const path = (el) => { const out = []; for (let n = el; n && n.nodeType === 1 && out.length < 5; n = n.parentElement) out.push(n.tagName.toLowerCase() + (n.id ? '#' + n.id : '') + (n.classList && n.classList[0] ? '.' + n.classList[0] : '')); return out.join('<'); };
-    const snap = () => { const d = document.getElementById('paydlg'); return d && d.open ? { top: Math.round(d.scrollTop), max: d.scrollHeight - d.clientHeight, ov: getComputedStyle(d).overflowY } : null; };
+    const snap = () => { const d = document.getElementById('paydlg'); if (!d || !d.open) return null; const ae = document.activeElement, anc = []; for (let n = ae; n && n !== d && anc.length < 6; n = n.parentElement) { const o = getComputedStyle(n).overflowY; if (o !== 'visible') anc.push(n.tagName.toLowerCase() + ':' + o); } return { top: Math.round(d.scrollTop), max: d.scrollHeight - d.clientHeight, ov: getComputedStyle(d).overflowY, style: (d.getAttribute('style') || '').slice(0, 160), cls: d.className.slice(0, 80), attrs: [...d.attributes].map((x) => x.name).filter((x) => !['id', 'class', 'style', 'open', 'aria-labelledby'].includes(x)).join(','), anc: anc.join(' ') }; };
+    const exts = () => [...new Set([...document.querySelectorAll('*')].map((n) => n.tagName.toLowerCase()).filter((t) => t.includes('-')))].join(',').slice(0, 300);
     const push = (o) => { if (buf.length < 5000) buf.push({ t: Math.round(performance.now() - t0), ...o }); };
     let wheels = 0, lastW = 0, scrolls = 0, lastS = 0;
     addEventListener('wheel', (e) => { wheels++; const now = performance.now(); if (now - lastW < 150) return; lastW = now; push({ e: 'wheel', n: wheels, dy: Math.round(e.deltaY), dx: Math.round(e.deltaX), mode: e.deltaMode, c: e.cancelable, at: path(e.target), d: snap(), root: Math.round(document.scrollingElement.scrollTop) }); }, { capture: true, passive: true });
     addEventListener('wheel', (e) => { if (performance.now() - lastW < 5) push({ e: 'wheel-end', prevented: e.defaultPrevented }); }, { passive: true });
     addEventListener('scroll', (e) => { scrolls++; const now = performance.now(); if (now - lastS < 150) return; lastS = now; push({ e: 'scroll', n: scrolls, at: e.target === document ? 'document' : path(e.target), d: snap() }); }, { capture: true, passive: true });
     ['focusin', 'input', 'pointerdown', 'click'].forEach((k) => addEventListener(k, (e) => push({ e: k, at: path(e.target), d: snap() }), { capture: true, passive: true }));
-    setInterval(() => push({ e: 'tick', d: snap(), wheels, scrolls, vv: [Math.round(window.visualViewport ? visualViewport.height : 0), innerHeight], html: document.documentElement.className, active: path(document.activeElement || document.body) }), 2000);
+    setInterval(() => push({ e: 'tick', d: snap(), ext: exts(), wheels, scrolls, vv: [Math.round(window.visualViewport ? visualViewport.height : 0), innerHeight], html: document.documentElement.className, active: path(document.activeElement || document.body) }), 2000);
     const send = () => { if (!buf.length) return; const events = buf.splice(0, 300); fetch('https://pitchzing-haro.pitchzing.workers.dev/public/book-store/diag', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sid, events }), keepalive: true }).catch(() => {}); };
     const iv = setInterval(send, 2000); setTimeout(() => { clearInterval(iv); send(); }, 240000);
     push({ e: 'start', ua: navigator.userAgent.slice(0, 160), v: (document.querySelector('script[src*="site.js"]') || {}).src, w: innerWidth, h: innerHeight, dpr: devicePixelRatio });
@@ -1632,11 +1633,26 @@
   $$('dialog.thanks, dialog.reqd').forEach((dlg) => dlg.addEventListener('wheel', (e) => {
     if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
     const max = dlg.scrollHeight - dlg.clientHeight;
-    if (max <= 0) { e.preventDefault(); return; }
+    if (max <= 0 || getComputedStyle(dlg).overflowY === 'visible') return;
     const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? dlg.clientHeight : 1);
     e.preventDefault();
     dlg.scrollTop = Math.max(0, Math.min(max, dlg.scrollTop + dy));
   }, { passive: false }));
+  // Keep the open windows scrollable (Jason, 2026-11-15: his Mac's checkout froze the moment he clicked the ZIP box; the recorder
+  // showed the window's overflow turned from auto to visible right then, by nothing in this site, so by something in his
+  // browser, such as a password manager unclipping the boxes around a field for its fill-in menu): whenever an open window's
+  // style or class changes, or a field in it takes focus, its scrolling is put back.
+  const keepScroll = (dlg) => {
+    if (!dlg.open || getComputedStyle(dlg).overflowY !== 'visible') return;
+    if (dlg.style.overflow || dlg.style.overflowY) { dlg.style.removeProperty('overflow'); dlg.style.removeProperty('overflow-y'); }
+    if (getComputedStyle(dlg).overflowY === 'visible') dlg.style.setProperty('overflow-y', 'auto', 'important');
+  };
+  $$('dialog.thanks, dialog.reqd').forEach((dlg) => {
+    new MutationObserver(() => keepScroll(dlg)).observe(dlg, { attributes: true, attributeFilter: ['style', 'class'] });
+    dlg.addEventListener('focusin', () => { keepScroll(dlg); setTimeout(() => keepScroll(dlg), 50); setTimeout(() => keepScroll(dlg), 400); });
+    dlg.addEventListener('pointerdown', () => setTimeout(() => keepScroll(dlg), 120));
+  });
+  setInterval(() => $$('dialog.thanks[open], dialog.reqd[open]').forEach(keepScroll), 500);
   const payDlg = $('#paydlg');
   const CK_PREVIEW = /[?&](checkout|onestep)=1/.test(location.search);
   let PAY = null, sqPayments = null, sqCard = null, payReq = null, payQ = null, paying = false;
