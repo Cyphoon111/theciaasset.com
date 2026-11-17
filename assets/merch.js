@@ -88,7 +88,7 @@
     ['back', 'Back', 'The back of the hat: white mesh and the adjustable plastic snapback'],
     ['detail', 'Embroidery', 'Close-up of the front embroidery: JEFFREY EPSTEIN WAS A CIA ASSET, RELEASE THE FILES in white and red thread, theciaasset.com in grey'],
     ['lifestyle', 'Worn', 'The hat worn, seen from the front'],
-  ].map(([k, label, alt]) => ({ src: `assets/hats/r112-${k}.jpg?v=2`, thumb: `assets/hats/r112-${k}-thumb.jpg?v=2`, label, alt }));   // v2: the crisp art (hat-v2)
+  ].map(([k, label, alt]) => ({ src: `assets/hats/r112-${k}.jpg?v=3`, thumb: `assets/hats/r112-${k}-thumb.jpg?v=3`, label, alt }));   // v2: the crisp art (hat-v2); v3: our own clean embroidery renders (see below)
   // the baseball cap (2026-11-17, OTTO 31-069): Printify's renders of the real product per colour — front, both sides with
   // theciaasset.com, back, a close-up of the front embroidery and one of the side — kept on this site
   const CAP_VIEWS = [['front', 'Front'], ['left', 'Left side'], ['right', 'Right side'], ['back', 'Back'], ['detail', 'Embroidery'], ['side', 'Side close-up']];
@@ -96,7 +96,11 @@
     const alt = { front: `The ${n} cap from the front: the design embroidered across the front panel in ${thread} thread`, left: `The ${n} cap from the left: theciaasset.com embroidered in grey on the side`,
       right: `The ${n} cap from the right: theciaasset.com embroidered in grey on the side`, back: `The back of the ${n} cap with its adjustable snapback`,
       detail: `Close-up of the front embroidery on the ${n} cap`, side: `Close-up of theciaasset.com embroidered on the side of the ${n} cap` };
-    return CAP_VIEWS.map(([k, label]) => ({ src: `assets/caps/oc31069-${c}-${k}.jpg?v=3`, thumb: `assets/caps/oc31069-${c}-${k}-thumb.jpg?v=3`, label, alt: alt[k] })); };   // v2: the URL on one line (cap-v2); v3: the side close-up from the right-side render at its actual pixels (the left render's stitch simulation smears small text; both sides are the same file)
+    return CAP_VIEWS.map(([k, label]) => ({ src: `assets/caps/oc31069-${c}-${k}.jpg?v=4`, thumb: `assets/caps/oc31069-${c}-${k}-thumb.jpg?v=4`, label, alt: alt[k] })); };
+  // v4 (2026-11-17, Jason: "improve the preview simulations on my website, because they look like shit!"): the hats and caps are
+  // no longer Printify's stitch simulation but our own clean embroidery render of the production files, wrapped onto Printify's
+  // blank renders of the same products through Printify's own projection (measured with dot grids), so every letter sits where
+  // Printify renders and makes it (PitchZing merch-art/sim)   // v2: the URL on one line (cap-v2); v3: the side close-up from the right-side render at its actual pixels (the left render's stitch simulation smears small text; both sides are the same file)
   const SHOTSETS = { R112: { blackwhite: HAT_SHOTS }, OC31069: { black: capShots('black'), white: capShots('white') } };
   const photoOf = (code, color, fallback) => (SHOTSETS[code] ? (SHOTSETS[code][color] || Object.values(SHOTSETS[code])[0])[0].thumb : SHOTS[code]?.[color] || fallback || null);
   const isHat = (it) => it?.product?.kind === 'hat';
