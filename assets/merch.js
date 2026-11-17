@@ -3,7 +3,7 @@
    the price at checkout, the order and its page. This file shows the products, keeps the cart in this browser, and opens the
    site's own checkout window (site.js, window.TCA.checkout) with the cart: SKUs and quantities only, never a price.
    Hidden while the store is closed; the owner previews it with ?merch=<preview key> (kept for this tab). A family-and-friends
-   link (?wholesale=<key>, made on the owner page, 2026-11-17) shows every shirt at cost, priced and charged by PitchZing.
+   link (?wholesale=<key>, made on the owner page, 2026-11-17) shows every shirt at cost plus a small cushion, priced and charged by PitchZing.
    No dependencies. */
 (() => {
   'use strict';
@@ -190,7 +190,7 @@
       <div class="tee__body">
         <div class="pkg__head">
           <h3 class="pkg__name">${esc(p.label)}</h3>
-          <p class="pkg__price"><b data-price></b><span class="pkg__later">${CAT.wholesale ? 'At cost, shipping included' : 'Free US shipping'}</span></p>
+          <p class="pkg__price"><b data-price></b><span class="pkg__later">${CAT.wholesale ? 'Family price, shipping included' : 'Free US shipping'}</span></p>
         </div>
         <p class="pkg__what">${esc(p.fit)} ${esc(p.fabric)}, ${esc(p.weight)}.</p>
         <div class="tee__group">
@@ -283,12 +283,12 @@
     CAT = c;
     for (const p of c.products) for (const col of p.colors) for (const s of col.sizes) bySku.set(s.sku, { product: p, color: col.color, colorName: col.name, image: photoOf(p.code, col.color, col.image), size: s.size, priceCents: s.priceCents, available: !!s.available });
     if (c.wholesale) {
-      // the family-and-friends prices: from the cheapest shirt to the dearest, at cost
+      // the family-and-friends prices: from the cheapest shirt to the dearest, cost plus the store's small cushion (2026-11-17)
       $('#shirtsPrice').textContent = `From ${usd(c.priceCents)}`;
       $('#shirtsPlus').textContent = c.plusPriceCents > c.priceCents ? `up to ${usd(c.plusPriceCents)}` : '';
-      const ship = $('.shirts__ship'); if (ship) ship.textContent = 'At cost: shipping included.';
-      const fam = $('#shirtsFamily');
-      if (fam) { fam.textContent = `Family & friends price${c.wholesale.label ? ` for ${c.wholesale.label}` : ''}: each shirt at what it costs us. The printer's price, its shipping and the card fee, nothing more. Nevada addresses add Nevada tax at checkout.`; fam.hidden = false; }
+      const ship = $('.shirts__ship'); if (ship) ship.textContent = 'Family price: shipping included.';
+      const fam = $('#shirtsFamily'), cushion = c.wholesale.cushionCents;
+      if (fam) { fam.textContent = `Family & friends price${c.wholesale.label ? ` for ${c.wholesale.label}` : ''}: each shirt at what it costs us (the printer's price, its shipping and the card fee)${cushion ? ` plus ${usd(cushion)} a shirt so the store never comes up short` : ''}. Nevada addresses add Nevada tax at checkout.`; fam.hidden = false; }
     } else {
       $('#shirtsPrice').textContent = usd(c.priceCents);
       $('#shirtsPlus').textContent = c.plusPriceCents > c.priceCents ? `2XL and up ${usd(c.plusPriceCents)}` : '';
