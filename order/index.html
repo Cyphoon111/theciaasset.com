@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your order · The CIA Asset</title>
+<meta name="description" content="Your TheCIAAsset.com shirt order: where it is, its tracking, and cancelling within the first hour.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<!--
+  The buyer's private order page (2026-11-16; assets/order.js): the link in their confirmation email (/order/?t=<48-hex token>)
+  shows the order's stage, its shirts, the ship-to city, the tracking once it ships, and, within the first 60 minutes, a
+  Cancel button (PitchZing cancels the Printify hold, then refunds the card in full). Talks only to PitchZing's shirt store
+  (worker/src/merch-routes.mjs: GET /public/merch/order?t=, POST /public/merch/cancel). No street address is shown.
+-->
+<style>
+  :root { --paper: #ffffff; --paper-2: #f6f5f1; --ink: #0b0b0d; --ink-2: #3b3b42; --muted: #6b6b73; --line: #e6e3da; --red: #e0121c; --red-ink: #b3121a; --gold: #9c7a2c; --ok: #157347; --okbg: #e8f6ee; --errbg: #fdecec; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper-2); color: var(--ink); font: 400 16px/1.55 Inter, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+  .bar { background: var(--paper); border-bottom: 1px solid var(--line); }
+  .bar__in { max-width: 680px; margin: 0 auto; padding: 16px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font: 400 20px/1 Anton, Impact, sans-serif; letter-spacing: .04em; }
+  .brand b { color: var(--red); font-weight: 400; }
+  .brand__mark { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid var(--ink); position: relative; }
+  .brand__mark::after { content: ''; position: absolute; inset: 5px; border-radius: 50%; background: var(--red); }
+  .bar a.back { color: var(--ink-2); font-size: 14px; text-decoration: none; }
+  .bar a.back:hover { color: var(--red); }
+  main { max-width: 680px; margin: 0 auto; padding: 28px 16px 48px; }
+  .card { background: var(--paper); border-radius: 16px; border-top: 4px solid var(--red); padding: 28px 24px; box-shadow: 0 20px 50px -30px rgba(0,0,0,.35); }
+  .k { margin: 0 0 8px; font: 700 11px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+  h1 { margin: 0 0 6px; font: 400 clamp(30px, 7vw, 42px)/1 Anton, Impact, sans-serif; text-transform: uppercase; letter-spacing: .01em; }
+  .placed { margin: 0 0 20px; color: var(--muted); font-size: 14.5px; }
+  .msg { border-radius: 12px; padding: 12px 14px; margin: 0 0 16px; font-size: 15px; }
+  .msg.ok { background: var(--okbg); color: var(--ok); }
+  .msg.err { background: var(--errbg); color: var(--red-ink); }
+  .msg:empty { display: none; }
+  .note { margin: 0 0 18px; padding: 12px 14px; border-left: 3px solid var(--gold); border-radius: 0 10px 10px 0; background: var(--paper-2); color: var(--ink-2); font-size: 15px; }
+  /* the stages, one line each, the current one in red */
+  .steps { display: grid; gap: 0; margin: 4px 0 22px; padding: 0; list-style: none; counter-reset: s; }
+  .steps li { position: relative; display: grid; grid-template-columns: 30px 1fr; align-items: center; gap: 12px; min-height: 44px; color: var(--muted); font-weight: 600; }
+  .steps li::before { counter-increment: s; content: counter(s); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--line); background: #fff; font: 700 13px/1 Inter, sans-serif; color: var(--muted); z-index: 1; }
+  .steps li:not(:last-child)::after { content: ''; position: absolute; left: 14px; top: 34px; bottom: -10px; width: 2px; background: var(--line); }
+  .steps li.done { color: var(--ink-2); }
+  .steps li.done::before { content: '✓'; border-color: var(--ink); background: var(--ink); color: #fff; }
+  .steps li.done::after { background: var(--ink); }
+  .steps li.now { color: var(--ink); font-weight: 800; }
+  .steps li.now::before { border-color: var(--red); background: var(--red); color: #fff; box-shadow: 0 0 0 5px rgba(224, 18, 28, .15); }
+  .steps small { display: block; font-weight: 500; color: var(--muted); font-size: 13.5px; }
+  .ended { margin: 0 0 22px; padding: 14px 16px; border-radius: 12px; background: var(--ink); color: #fff; font-weight: 700; }
+  .ship { margin: 0 0 22px; padding: 16px; border: 1px solid var(--line); border-radius: 12px; }
+  .ship h2, .items h2 { margin: 0 0 10px; font: 700 11px/1.2 'JetBrains Mono', ui-monospace, monospace; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
+  .ship p { margin: 0 0 6px; }
+  .ship a { color: var(--red-ink); font-weight: 700; }
+  .items { margin: 0 0 22px; }
+  .items ul { margin: 0; padding: 0; list-style: none; border: 1px solid var(--line); border-radius: 12px; }
+  .items li { display: flex; justify-content: space-between; gap: 12px; padding: 12px 14px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .items li:last-child { border-bottom: 0; }
+  .items li b { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .items .sum { display: grid; gap: 4px; margin: 10px 0 0; padding: 0 14px; font-size: 15px; color: var(--ink-2); }
+  .items .sum div { display: flex; justify-content: space-between; gap: 12px; }
+  .items .sum .total { padding-top: 6px; border-top: 1px solid var(--line); color: var(--ink); font-weight: 800; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: .5em; min-height: 48px; padding: 0 22px; border: 1.5px solid transparent; border-radius: 999px; font: 700 15px/1 Inter, sans-serif; cursor: pointer; text-decoration: none; }
+  .btn--red { background: var(--red); color: #fff; }
+  .btn--red:hover, .btn--red:focus-visible { background: var(--red-ink); }
+  .btn--ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+  .btn--ghost:hover { border-color: var(--ink-2); }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .cancel { margin: 0 0 6px; padding: 16px; border-radius: 12px; background: var(--paper-2); }
+  .cancel h2 { margin: 0 0 6px; font: 700 18px/1.3 Inter, sans-serif; }
+  .cancel p { margin: 0 0 14px; font-size: 15px; color: var(--ink-2); }
+  .cancel .clock { font-variant-numeric: tabular-nums; font-weight: 800; color: var(--ink); }
+  .fine { margin: 20px 0 0; color: var(--muted); font-size: 13px; }
+  .fine a { color: var(--ink-2); }
+  [hidden] { display: none !important; }
+  @media (max-width: 480px) { .card { padding: 24px 18px; } .row .btn { width: 100%; } }
+</style>
+</head>
+<body>
+<header class="bar"><div class="bar__in">
+  <a class="brand" href="/"><span class="brand__mark" aria-hidden="true"></span><span>THE <b>CIA</b> ASSET</span></a>
+  <a class="back" href="/#shirts">Back to the shirts</a>
+</div></header>
+<main>
+  <div class="card">
+    <p class="k">Your order</p>
+    <h1 id="title">One moment…</h1>
+    <p class="placed" id="placed"></p>
+    <p class="msg" id="msg" role="status" aria-live="polite"></p>
+    <div id="view" hidden>
+      <p class="note" id="note" hidden></p>
+      <p class="ended" id="ended" hidden></p>
+      <ol class="steps" id="steps" aria-label="Where your order is"></ol>
+      <section class="ship" id="ship" hidden aria-labelledby="shipH"><h2 id="shipH">Shipping</h2><div id="shipBody"></div></section>
+      <section class="items" aria-labelledby="itemsH"><h2 id="itemsH">What you ordered</h2><ul id="items"></ul><div class="sum" id="sum"></div></section>
+      <section class="cancel" id="cancel" hidden aria-labelledby="cancelH">
+        <h2 id="cancelH">Need to cancel?</h2>
+        <p id="cancelText">You can cancel for <span class="clock" id="clock"></span> more, before your order is made. Your card is refunded in full.</p>
+        <div class="row" id="cancelRow"><button class="btn btn--ghost" type="button" id="cancelBtn">Cancel this order</button></div>
+        <div id="sure" hidden>
+          <p><b>Cancel this order and refund <span id="sureAmt"></span> to your card?</b> This can’t be undone.</p>
+          <div class="row"><button class="btn btn--red" type="button" id="sureYes">Yes, cancel my order</button><button class="btn btn--ghost" type="button" id="sureNo">Keep my order</button></div>
+        </div>
+      </section>
+    </div>
+    <p class="fine">Questions about your order? Write to <a href="mailto:books@theciaasset.com">books@theciaasset.com</a> with your order number. If a shirt arrives damaged or misprinted, write within 30 days of delivery with a photo and we’ll replace it free. This page is private to you: anyone with its link can see it, so please don’t share it.</p>
+  </div>
+</main>
+<script src="/assets/order.js?v=1" defer></script>
+</body>
+</html>

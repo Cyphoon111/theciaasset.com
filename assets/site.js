@@ -1640,9 +1640,10 @@
   setInterval(() => $$('dialog.thanks[open], dialog.reqd[open]').forEach(keepScroll), 500);
   const payDlg = $('#paydlg');
   const CK_PREVIEW = /[?&](checkout|onestep)=1/.test(location.search);
-  let PAY = null, sqPayments = null, sqCard = null, payReq = null, payQ = null, paying = false, payAttempt = '';
+  let PAY = null, sqPayments = null, sqCard = null, payReq = null, payQ = null, paying = false, payAttempt = '', payPress = 0;
   // one id per opened window, sent with Pay: pressing Pay again after a lost answer finds the payment already taken, never a
-  // second charge (PitchZing storePay derives Square's idempotency keys from it)
+  // second charge (PitchZing storePay derives Square's idempotency keys from it). Since 2026-11-16 it goes as `checkoutId`
+  // with `attemptNo`, the press within the window (each press is a new card token), and as `attempt` for an older PitchZing.
   const newAttempt = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}${Math.random().toString(36).slice(2)}`);
   const usd2 = (c) => `$${(c / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   function ckOn() { return !!(payDlg && PAY && PAY.applicationId && PAY.locationId && (PAY.enabled || CK_PREVIEW)); }
@@ -1676,7 +1677,7 @@
   let addrKey = '', addrTimer = 0, countyZip = '';
   const shipAddr = () => ({ state: $('#shipState').value.trim().toUpperCase(), postal: $('#shipPostal').value.trim() });
   async function requote() {
-    if (!payReq || payReq.kind !== 'hardcover') return;
+    if (!payReq || (payReq.kind !== 'hardcover' && payReq.kind !== 'merch')) return;   // what ships: the hardcover and the shirts
     // the ZIP code alone decides the tax (Jason, 2026-11-15: "We don't need this warning popping up on any customers"); the
     // state box follows the ZIP code's state from the quote, so an earlier ZIP code's state is put right, never reported
     const a = shipAddr();
@@ -1709,8 +1710,10 @@
   $('#shipCounty')?.addEventListener('change', () => requote());
   async function openCheckout(req) {
     if (paying) return;
-    payReq = req; payQ = null; addrKey = ''; countyZip = ''; payAttempt = newAttempt();
+    payReq = req; payQ = null; addrKey = ''; countyZip = ''; payAttempt = newAttempt(); payPress = 0;
     if ($('#shipCountyRow')) { $('#shipCountyRow').hidden = true; $('#shipCounty').value = ''; }
+    const emailLabel = $('#payEmail')?.closest('label')?.querySelector('span');
+    if (emailLabel) emailLabel.textContent = req.kind === 'merch' ? 'Email for your order updates and receipt' : 'Email for your copy and receipt';
     const msg = $('#payMsg'); msg.textContent = '';
     $('#payTitle').textContent = 'One moment…'; $('#payLines').innerHTML = ''; $('#payToday').textContent = ''; $('#payNote').hidden = true;
     $('#payTermsText').textContent = ''; $('#payTerms').checked = false; $('#payGo').textContent = 'Pay'; $('#payShip').hidden = true;
@@ -1757,7 +1760,19 @@
     const ask = $('#thanksAsk'); if (ask) ask.hidden = true;
     const openBox = $('#thanksOpen'); if (openBox) openBox.hidden = true;
     clearTimeout(copyPoll);
-    if (req.kind === 'hardcover') {
+    const openA = $('#thanksOpenA');
+    if (openA) openA.innerHTML = 'Open your copy now <span aria-hidden="true">→</span>';
+    if (req.kind === 'merch') {
+      // the shirt order (2026-11-16): its number, the confirmation, and the private order page (track it, or cancel within
+      // the window); the cart empties (assets/merch.js listens)
+      const m = j.merch || {};
+      $('#thanksTitle').textContent = 'Thank you for your order.';
+      $('#thanksSent').textContent = m.number ? `Your order number is ${m.number}. Your confirmation is on its way to ${j.email || 'your email'}.` : `Your order is in. Your confirmation is on its way to ${j.email || 'your email'}.`;
+      const mins = m.cancelDeadline ? Math.max(1, Math.round((Date.parse(m.cancelDeadline) - Date.now()) / 60e3)) : 60;
+      $('#thanksHow').textContent = `Each shirt is printed for you and ships free; most orders arrive in 5–10 business days. Changed your mind? You can cancel from your order page for the next ${mins} minutes, before it is made.`;
+      if (m.statusUrl && openBox && openA) { openA.innerHTML = 'View your order <span aria-hidden="true">→</span>'; openA.href = m.statusUrl; openA.hidden = false; $('#thanksWait').hidden = true; openBox.hidden = false; }
+      document.dispatchEvent(new CustomEvent('tca:merch-paid', { detail: { number: m.number || null } }));
+    } else if (req.kind === 'hardcover') {
       $('#thanksTitle').textContent = 'Thank you for your pre-order.';
       $('#thanksSent').textContent = 'Your first-edition hardcover is reserved. Your confirmation is on its way to the email you used at checkout.';
       $('#thanksHow').textContent = 'It will be printed and mailed to the address you entered, by the ship-by date in your confirmation.';
@@ -1845,7 +1860,8 @@
         const contact = { email, ...(givenName ? { givenName } : {}), ...(familyName ? { familyName } : {}), ...(ship ? { addressLines: [ship.line1, ship.line2].filter(Boolean), city: ship.city, state: ship.state, postalCode: ship.postal, countryCode: 'US' } : {}) };
         const t = await sqCard.tokenize({ amount: (q.today / 100).toFixed(2), currencyCode: 'USD', intent: q.monthly ? 'CHARGE_AND_STORE' : 'CHARGE', customerInitiated: true, sellerKeyedIn: false, billingContact: contact });
         if (!t || t.status !== 'OK') throw new Error((t && t.errors && t.errors[0] && t.errors[0].message) || 'Please check your card details.');
-        const r = await fetch(`${STORE_API}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, email, givenName, familyName, phone: q.shipping ? $('#shipPhone').value.trim() : '', ship, ...(q.shipping && $('#shipCounty').value ? { county: $('#shipCounty').value } : {}), expect: q.today, sourceId: t.token, consent: true, attempt: payAttempt }) });
+        payPress++;
+        const r = await fetch(`${STORE_API}/pay`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...payReq, email, givenName, familyName, phone: q.shipping ? $('#shipPhone').value.trim() : '', ship, ...(q.shipping && $('#shipCounty').value ? { county: $('#shipCounty').value } : {}), expect: q.today, sourceId: t.token, consent: true, attempt: payAttempt, checkoutId: payAttempt, attemptNo: payPress }) });
         const j = await r.json().catch(() => ({}));
         // the total moved (another address, say): shown again for the buyer to agree to; nothing was charged
         if (r.status === 409 && j.quote) { payQ = { ...payQ, ...j.quote }; showQuote(payQ); $('#payTerms').checked = false; addrKey = ''; throw new Error(j.error); }
@@ -1856,6 +1872,13 @@
       finally { paying = false; syncGo(); }
     });
   }
+
+  // the shirt store (assets/merch.js) opens the same checkout window with its cart: { kind: 'merch', cart, preview? }.
+  // false when the checkout is not ready yet (its settings still loading), so the cart can say so.
+  window.TCA = Object.freeze({
+    checkout: (req) => { if (!ckOn()) return false; openCheckout(req); return true; },
+    toast, onBackdrop, storeApi: STORE_API,
+  });
 
   /* ---------- links from earlier emails ---------- */
   const qp = new URLSearchParams(location.search);
