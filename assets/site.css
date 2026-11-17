@@ -1178,6 +1178,10 @@ html:has(.zoom[open]) { overflow: hidden; }
 .tee__shot { margin: 0; display: grid; place-items: center; aspect-ratio: 1 / 1; padding: 6%; background: radial-gradient(70% 60% at 50% 42%, #fff, var(--paper-2) 70%, var(--paper-3)); }
 .tee__shot img { width: 100%; height: 100%; object-fit: contain; }
 .tee__svg { width: 92%; height: auto; filter: drop-shadow(0 22px 22px rgba(0, 0, 0, .18)); }
+/* the true-to-size photos: whole, uncropped, on their own dark backdrop, labelled with the size they show and its print width */
+.tee__shot--photo { position: relative; aspect-ratio: 11 / 12; padding: 0; background: #111113; }
+.tee__shot--photo img { width: 100%; height: 100%; object-fit: cover; }
+.tee__shown { position: absolute; left: 12px; bottom: 12px; padding: 7px 11px 6px; border-radius: 8px; background: rgba(11, 11, 13, .78); color: #f3f1ea; font: 700 11px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 .tee__body { padding: 20px 22px 22px; }
 .tee__group { display: grid; gap: 9px; margin-top: 18px; }
 .tee .hc__label small { display: inline; margin: 0 0 0 8px; color: var(--ink-2); font-weight: 700; }
@@ -1219,7 +1223,7 @@ html:has(.zoom[open]) { overflow: hidden; }
 .cart__line.is-gone { background: #fdecec; border-color: #f2c4c6; }
 .cart__thumb { grid-area: thumb; width: 64px; height: 64px; display: grid; place-items: center; border-radius: 10px; background: var(--paper-2); overflow: hidden; }
 .cart__thumb .tee__svg { width: 90%; filter: none; }
-.cart__thumb img { width: 100%; height: 100%; object-fit: cover; }
+.cart__thumb img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 35%; }
 .cart__what { grid-area: what; display: grid; gap: 2px; min-width: 0; }
 .cart__what b { font: 400 18px/1.1 var(--display); letter-spacing: .02em; text-transform: uppercase; }
 .cart__what span { font-size: 14.5px; font-weight: 600; color: var(--ink-2); }
@@ -1245,3 +1249,4 @@ html:has(.zoom[open]) { overflow: hidden; }
 .size__table thead th { font: 700 11px/1.2 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
 .size__table tbody th { font: 400 20px/1 var(--display); }
 .size__note { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); }
+.size__table .size__print { color: var(--red-ink); font-weight: 700; }

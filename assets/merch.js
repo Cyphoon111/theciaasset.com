@@ -56,6 +56,15 @@
     </svg>`;
   }
 
+  // ---- the photos (2026-11-16, Jason: "THE PRODUCT WE PROVIDE MUST ABSOLUTELY REPRESENT WHAT WE ARE ADVERTISING"): Printify's
+  // own render of the real print file on each shirt, at the true size and position for size L (the women's art enlarged to
+  // its real width, which Printify's template draws too small), cut out onto a dark backdrop. Built in the scratchpad art lab
+  // (photos.html); rebuild them whenever the art, the printer or the placement changes.
+  const SHOTS = { NL3600: { black: 'assets/shirts/unisex-black-L.jpg', white: 'assets/shirts/unisex-white-L.jpg' }, BC6004: { black: 'assets/shirts/womens-black-L.jpg', white: 'assets/shirts/womens-white-L.jpg' } };
+  const SHOWN = 'L';
+  const photoOf = (code, color, fallback) => SHOTS[code]?.[color] || fallback || null;
+  const inches = (n) => `${Number(n).toFixed(1)}\u2033`;
+
   // ---- the catalog --------------------------------------------------------------------------------------------------
   let CAT = null;
   const bySku = new Map();   // sku → { product, color, size, priceCents, available }
@@ -147,7 +156,7 @@
   function openSizes(p) {
     if (!sizeDlg) return;
     $('#sizeKicker').textContent = p.label;
-    $('#sizeRows').innerHTML = p.sizeGuide.rows.map((r) => `<tr><th scope="row">${esc(r.size)}</th><td>${r.width ?? ''} in</td><td>${r.length ?? ''} in</td></tr>`).join('');
+    $('#sizeRows').innerHTML = p.sizeGuide.rows.map((r) => `<tr><th scope="row">${esc(r.size)}</th><td>${r.width ?? ''} in</td><td>${r.length ?? ''} in</td><td class="size__print">${r.printWidth != null ? `${Number(r.printWidth).toFixed(1)} in` : ''}</td></tr>`).join('');
     const fit = $('#sizeFit'); fit.textContent = p.fitNote || ''; fit.hidden = !p.fitNote;
     sizeDlg.showModal(); track('size_guide');
   }
@@ -195,18 +204,24 @@
         <p class="tee__msg" data-msg role="status" aria-live="polite"></p>
       </div>`;
     const colorOf = () => p.colors.find((c) => c.color === st.color);
+    // the design's printed width on each size (PitchZing: the main printer's width, the one the shop advertises)
+    const printOf = (size) => p.sizeGuide?.rows?.find((r) => r.size === size)?.printWidth ?? null;
     const sizeOf = () => colorOf().sizes.find((s) => s.size === st.size) || null;
     function draw() {
       const c = colorOf();
       $$('[data-color]', el).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.color === st.color)));
       $('[data-colorname]', el).textContent = c.name;
       const shot = $('[data-shot]', el);
-      shot.innerHTML = c.image ? `<img src="${esc(c.image)}" alt="${esc(`${p.label} in ${c.name}, with the cover of the book on the front`)}" loading="lazy" width="760" height="760">` : teeSvg(fit, c.color, `${p.label} in ${c.name}, with the cover of the book on the front`);
+      const photo = photoOf(p.code, c.color, c.image), shownW = printOf(SHOWN);
+      const alt = `${p.label} in ${c.name}, size ${SHOWN}, with the Release the Files design${shownW ? ` printed ${inches(shownW)} wide` : ''} across the front`;
+      shot.classList.toggle('tee__shot--photo', !!SHOTS[p.code]?.[c.color]);
+      shot.innerHTML = photo ? `<img src="${esc(photo)}" alt="${esc(alt)}" loading="lazy" decoding="async">${SHOTS[p.code]?.[c.color] ? `<figcaption class="tee__shown">Shown: size ${SHOWN}${shownW ? ` · print ${inches(shownW)} wide` : ''}</figcaption>` : ''}` : teeSvg(fit, c.color, alt);
       if (st.size && !c.sizes.some((s) => s.size === st.size && s.available)) st.size = null;   // that size is out in this colour
       $('[data-sizes]', el).innerHTML = c.sizes.map((s) => `<button type="button" class="tee__size" role="radio" aria-checked="${s.size === st.size}" data-size="${esc(s.size)}"${s.available ? '' : ' disabled aria-disabled="true" title="Sold out in this colour"'}>${esc(s.size)}${s.available ? '' : '<span class="sr"> (sold out)</span>'}</button>`).join('');
       const z = sizeOf();
       $('[data-price]', el).textContent = usd(z ? z.priceCents : CAT.priceCents);
-      $('[data-sizehint]', el).textContent = z ? (z.priceCents > CAT.priceCents ? `${z.size} · ${usd(z.priceCents)}` : z.size) : 'Choose your size';
+      const pw = z ? printOf(z.size) : null;
+      $('[data-sizehint]', el).textContent = z ? [z.size, z.priceCents > CAT.priceCents ? usd(z.priceCents) : null, pw ? `print ${inches(pw)} wide` : null].filter(Boolean).join(' · ') : 'Choose your size';
       $('[data-qn]', el).textContent = String(st.qty);
       $('[data-q="-1"]', el).disabled = st.qty <= 1; $('[data-q="1"]', el).disabled = st.qty >= MAX_QTY;
       const none = !c.sizes.some((s) => s.available);
@@ -233,6 +248,7 @@
       const opts = $$('button:not([disabled])', g), i = opts.indexOf(e.target); if (i < 0) return;
       e.preventDefault(); const n = opts[(i + (e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1) + opts.length) % opts.length]; n.click(); n.focus();
     });
+    for (const col of p.colors) { const src = photoOf(p.code, col.color, col.image); if (src) { const im = new Image(); im.src = src; } }   // both colours ready
     draw();
     return el;
   }
@@ -241,7 +257,7 @@
   fetch(`${API}/catalog${preview ? `?preview=${encodeURIComponent(preview)}` : ''}`).then((r) => (r.ok ? r.json() : null)).then((c) => {
     if (!c || !Array.isArray(c.products) || !(c.open || c.preview)) { renderCart(); return; }
     CAT = c;
-    for (const p of c.products) for (const col of p.colors) for (const s of col.sizes) bySku.set(s.sku, { product: p, color: col.color, colorName: col.name, image: col.image || null, size: s.size, priceCents: s.priceCents, available: !!s.available });
+    for (const p of c.products) for (const col of p.colors) for (const s of col.sizes) bySku.set(s.sku, { product: p, color: col.color, colorName: col.name, image: photoOf(p.code, col.color, col.image), size: s.size, priceCents: s.priceCents, available: !!s.available });
     $('#shirtsPrice').textContent = usd(c.priceCents);
     $('#shirtsPlus').textContent = c.plusPriceCents > c.priceCents ? `2XL and up ${usd(c.plusPriceCents)}` : '';
     $('#shirtsPreview').hidden = !!c.open;
