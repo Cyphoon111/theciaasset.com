@@ -2,7 +2,9 @@
    or white. Everything that matters is PitchZing's (worker/src/merch-*.mjs): the catalog (sizes, prices, what is in stock),
    the price at checkout, the order and its page. This file shows the products, keeps the cart in this browser, and opens the
    site's own checkout window (site.js, window.TCA.checkout) with the cart: SKUs and quantities only, never a price.
-   Hidden while the store is closed; the owner previews it with ?merch=<preview key> (kept for this tab). No dependencies. */
+   Hidden while the store is closed; the owner previews it with ?merch=<preview key> (kept for this tab). A family-and-friends
+   link (?wholesale=<key>, made on the owner page, 2026-11-17) shows every shirt at cost, priced and charged by PitchZing.
+   No dependencies. */
 (() => {
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
@@ -27,6 +29,13 @@
     qp.delete('merch'); qp.delete('shirts'); history.replaceState(null, '', `${location.pathname}${qp.toString() ? `?${qp}` : ''}${location.hash || '#shirts'}`);
   }
   if (!/^[A-Za-z0-9_-]{16,128}$/.test(preview)) preview = '';
+  // a family-and-friends link: the same, kept for this tab (prices and the checkout are PitchZing's, for that link only)
+  let wholesale = qp.get('wholesale') || tab.get('tca-wholesale') || '';
+  if (qp.has('wholesale')) {
+    if (wholesale) tab.set('tca-wholesale', wholesale);
+    qp.delete('wholesale'); history.replaceState(null, '', `${location.pathname}${qp.toString() ? `?${qp}` : ''}${location.hash || '#shirts'}`);
+  }
+  if (!/^[a-f0-9]{32}$/.test(wholesale)) wholesale = '';
 
   // ---- analytics (counts only: PitchZing merch_stats) ----------------------------------------------------------------
   const track = (event, sku) => { try { fetch(`${API}/track`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ event, ...(sku ? { sku } : {}) }), keepalive: true }).catch(() => {}); } catch { /* never in the way */ } };
@@ -145,7 +154,7 @@
       const gone = cart.filter((l) => !bySku.get(l.sku)?.available);
       if (gone.length) { msg.textContent = 'Remove the shirts that are no longer available, then continue.'; return; }
       if (!cart.length) return;
-      const req = { kind: 'merch', cart: cart.map((l) => ({ sku: l.sku, qty: l.qty })), ...(preview ? { preview } : {}) };
+      const req = { kind: 'merch', cart: cart.map((l) => ({ sku: l.sku, qty: l.qty })), ...(preview ? { preview } : {}), ...(wholesale ? { wholesale } : {}) };
       if (!TCA.checkout) { msg.textContent = 'The checkout did not load. Please refresh the page and try again.'; return; }
       cartDlg.close();
       if (!TCA.checkout(req)) { cartDlg.showModal(); msg.textContent = 'The secure checkout is still loading. Please try again in a moment.'; return; }
@@ -181,7 +190,7 @@
       <div class="tee__body">
         <div class="pkg__head">
           <h3 class="pkg__name">${esc(p.label)}</h3>
-          <p class="pkg__price"><b data-price></b><span class="pkg__later">Free US shipping</span></p>
+          <p class="pkg__price"><b data-price></b><span class="pkg__later">${CAT.wholesale ? 'At cost, shipping included' : 'Free US shipping'}</span></p>
         </div>
         <p class="pkg__what">${esc(p.fit)} ${esc(p.fabric)}, ${esc(p.weight)}.</p>
         <div class="tee__group">
@@ -225,7 +234,9 @@
       if (st.size && !c.sizes.some((s) => s.size === st.size && s.available)) st.size = null;   // that size is out in this colour
       $('[data-sizes]', el).innerHTML = c.sizes.map((s) => `<button type="button" class="tee__size" role="radio" aria-checked="${s.size === st.size}" data-size="${esc(s.size)}"${s.available ? '' : ' disabled aria-disabled="true" title="Sold out in this colour"'}>${esc(s.size)}${s.available ? '' : '<span class="sr"> (sold out)</span>'}</button>`).join('');
       const z = sizeOf();
-      $('[data-price]', el).textContent = usd(z ? z.priceCents : CAT.priceCents);
+      // at cost each shirt has its own price: before a size is chosen, the card shows its own lowest one
+      const own = CAT.wholesale ? Math.min(...p.colors.flatMap((cc) => cc.sizes.map((x) => x.priceCents)).filter((x) => x != null)) : null;
+      $('[data-price]', el).textContent = z ? usd(z.priceCents) : CAT.wholesale ? `From ${usd(own)}` : usd(CAT.priceCents);
       const pw = z ? printOf(z.size) : null;
       $('[data-sizehint]', el).textContent = z ? [z.size, z.priceCents > CAT.priceCents ? usd(z.priceCents) : null, pw ? `print ${inches(pw)} wide` : null].filter(Boolean).join(' · ') : 'Choose your size';
       $('[data-qn]', el).textContent = String(st.qty);
@@ -260,13 +271,29 @@
   }
 
   // ---- load ---------------------------------------------------------------------------------------------------------
-  fetch(`${API}/catalog${preview ? `?preview=${encodeURIComponent(preview)}` : ''}`).then((r) => (r.ok ? r.json() : null)).then((c) => {
+  const catalogUrl = (w) => `${API}/catalog?${new URLSearchParams({ ...(preview ? { preview } : {}), ...(w ? { wholesale: w } : {}) })}`;
+  const loadCatalog = () => fetch(catalogUrl(wholesale)).then(async (r) => {
+    const j = await r.json().catch(() => null);
+    // a link that has been switched off: say so once, then show the shop as everyone sees it
+    if (wholesale && j && j.wholesaleOff) { wholesale = ''; tab.set('tca-wholesale', ''); say(j.error); return fetch(catalogUrl('')).then((x) => (x.ok ? x.json() : null)); }
+    return r.ok ? j : null;
+  });
+  loadCatalog().then((c) => {
     if (!c || !Array.isArray(c.products) || !(c.open || c.preview)) { renderCart(); return; }
     CAT = c;
     for (const p of c.products) for (const col of p.colors) for (const s of col.sizes) bySku.set(s.sku, { product: p, color: col.color, colorName: col.name, image: photoOf(p.code, col.color, col.image), size: s.size, priceCents: s.priceCents, available: !!s.available });
-    $('#shirtsPrice').textContent = usd(c.priceCents);
-    $('#shirtsPlus').textContent = c.plusPriceCents > c.priceCents ? `2XL and up ${usd(c.plusPriceCents)}` : '';
-    $('#shirtsPreview').hidden = !!c.open;
+    if (c.wholesale) {
+      // the family-and-friends prices: from the cheapest shirt to the dearest, at cost
+      $('#shirtsPrice').textContent = `From ${usd(c.priceCents)}`;
+      $('#shirtsPlus').textContent = c.plusPriceCents > c.priceCents ? `up to ${usd(c.plusPriceCents)}` : '';
+      const ship = $('.shirts__ship'); if (ship) ship.textContent = 'At cost: shipping included.';
+      const fam = $('#shirtsFamily');
+      if (fam) { fam.textContent = `Family & friends price${c.wholesale.label ? ` for ${c.wholesale.label}` : ''}: each shirt at what it costs us. The printer's price, its shipping and the card fee, nothing more. Nevada addresses add Nevada tax at checkout.`; fam.hidden = false; }
+    } else {
+      $('#shirtsPrice').textContent = usd(c.priceCents);
+      $('#shirtsPlus').textContent = c.plusPriceCents > c.priceCents ? `2XL and up ${usd(c.plusPriceCents)}` : '';
+    }
+    $('#shirtsPreview').hidden = !!(c.open || c.wholesale);
     const grid = $('#shirtsGrid'); grid.textContent = '';
     for (const p of c.products) grid.append(card(p));
     $$('[data-merch]').forEach((x) => { x.hidden = false; });

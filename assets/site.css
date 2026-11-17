@@ -1170,6 +1170,9 @@ html:has(.zoom[open]) { overflow: hidden; }
 .shirts__plus:empty { display: none; }
 .shirts__ship { display: block; margin-top: 6px; font-weight: 700; color: var(--ink); }
 .shirts__preview { margin: 0 0 18px; padding: 10px 14px; border-radius: 10px; background: var(--ink); color: var(--gold); font: 700 12px/1.4 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
+/* a family-and-friends link (assets/merch.js): whose link it is and what the price is */
+.shirts__family { margin: 0 0 18px; padding: 12px 16px; border-radius: 12px; border-left: 4px solid var(--gold); background: var(--ink); color: #fff; font-weight: 600; }
+.shirts__family[hidden] { display: none; }
 .shirts__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr)); gap: 26px; }
 .shirts__fine { margin: 22px 0 0; max-width: 900px; font-size: 13.5px; color: var(--muted); }
 .shirts__fine a { color: var(--ink-2); }
