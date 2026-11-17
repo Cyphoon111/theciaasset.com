@@ -96,7 +96,7 @@
     const alt = { front: `The ${n} cap from the front: the design embroidered across the front panel in ${thread} thread`, left: `The ${n} cap from the left: theciaasset.com embroidered in grey on the side`,
       right: `The ${n} cap from the right: theciaasset.com embroidered in grey on the side`, back: `The back of the ${n} cap with its adjustable snapback`,
       detail: `Close-up of the front embroidery on the ${n} cap`, side: `Close-up of theciaasset.com embroidered on the side of the ${n} cap` };
-    return CAP_VIEWS.map(([k, label]) => ({ src: `assets/caps/oc31069-${c}-${k}.jpg?v=1`, thumb: `assets/caps/oc31069-${c}-${k}-thumb.jpg?v=1`, label, alt: alt[k] })); };
+    return CAP_VIEWS.map(([k, label]) => ({ src: `assets/caps/oc31069-${c}-${k}.jpg?v=2`, thumb: `assets/caps/oc31069-${c}-${k}-thumb.jpg?v=2`, label, alt: alt[k] })); };   // v2: the URL on one line (cap-v2)
   const SHOTSETS = { R112: { blackwhite: HAT_SHOTS }, OC31069: { black: capShots('black'), white: capShots('white') } };
   const photoOf = (code, color, fallback) => (SHOTSETS[code] ? (SHOTSETS[code][color] || Object.values(SHOTSETS[code])[0])[0].thumb : SHOTS[code]?.[color] || fallback || null);
   const isHat = (it) => it?.product?.kind === 'hat';
