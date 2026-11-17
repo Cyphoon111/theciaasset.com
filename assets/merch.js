@@ -82,13 +82,13 @@
   // real size and place (front, three-quarter and side on a person, back, a close-up of the front, worn), kept on this site
   const HAT = 'TCA-R112-BW';
   const HAT_SHOTS = [
-    ['front', 'Front', 'The hat from the front: black front panels and visor, white mesh sides, the white and red embroidery centred on the front'],
+    ['front', 'Front', 'The hat from the front: black front panels and visor, white mesh sides, the white and red embroidery centred on the front with theciaasset.com in grey beneath it'],
     ['three-quarter', 'Three-quarter', 'The hat worn, seen from the front at an angle, the embroidery on the black front and the white mesh at the side'],
     ['side', 'Side and mesh', 'The hat worn, seen from the side and back: the white mesh panels and the snapback'],
     ['back', 'Back', 'The back of the hat: white mesh and the adjustable plastic snapback'],
-    ['detail', 'Embroidery', 'Close-up of the front embroidery: JEFFREY EPSTEIN WAS A CIA ASSET, RELEASE THE FILES in white and red thread'],
+    ['detail', 'Embroidery', 'Close-up of the front embroidery: JEFFREY EPSTEIN WAS A CIA ASSET, RELEASE THE FILES in white and red thread, theciaasset.com in grey'],
     ['lifestyle', 'Worn', 'The hat worn, seen from the front'],
-  ].map(([k, label, alt]) => ({ src: `assets/hats/r112-${k}.jpg?v=1`, thumb: `assets/hats/r112-${k}-thumb.jpg?v=1`, label, alt }));
+  ].map(([k, label, alt]) => ({ src: `assets/hats/r112-${k}.jpg?v=2`, thumb: `assets/hats/r112-${k}-thumb.jpg?v=2`, label, alt }));   // v2: the crisp art (hat-v2)
   const photoOf = (code, color, fallback) => (code === 'R112' ? HAT_SHOTS[0].thumb : SHOTS[code]?.[color] || fallback || null);
   const isHat = (it) => it?.product?.kind === 'hat';
   const inches = (n) => `${Number(n).toFixed(1)}\u2033`;
@@ -340,7 +340,7 @@
           <div><dt>Colour</dt><dd>${esc(c.name.replace(' / ', ' front / '))} mesh</dd></div>
           <div><dt>Fit</dt><dd>${esc(p.fit || '')}</dd></div>
           <div><dt>Materials</dt><dd>${esc(p.fabric || '')}</dd></div>
-          <div><dt>Embroidery</dt><dd>White and red thread on the front${pw ? `, ${inches(pw)} wide` : ''}.</dd></div>
+          <div><dt>Embroidery</dt><dd>White and red thread on the front${pw ? `, the design ${inches(pw)} wide` : ''}, with theciaasset.com in grey beneath it.</dd></div>
           <div><dt>Delivery</dt><dd>Embroidered for you when you order; most orders arrive in 5–10 business days. With shirts in the same order it can arrive in its own package.</dd></div>
           <div><dt>Returns</dt><dd>If it arrives damaged, with an embroidery defect or not as ordered, write to <a href="mailto:books@theciaasset.com">books@theciaasset.com</a> within 30 days of delivery with a photo and we’ll replace it free. One size and adjustable, so there is no size to exchange.</dd></div>
         </dl>
