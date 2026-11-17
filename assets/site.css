@@ -1179,8 +1179,8 @@ html:has(.zoom[open]) { overflow: hidden; }
 .tee__shot img { width: 100%; height: 100%; object-fit: contain; }
 .tee__svg { width: 92%; height: auto; filter: drop-shadow(0 22px 22px rgba(0, 0, 0, .18)); }
 /* the true-to-size photos: whole, uncropped, on their own dark backdrop, labelled with the size they show and its print width */
-.tee__shot--photo { position: relative; aspect-ratio: 11 / 12; padding: 0; background: #111113; }
-.tee__shot--photo img { width: 100%; height: 100%; object-fit: cover; }
+.tee__shot--photo { position: relative; aspect-ratio: auto; padding: 0; background: #111113; }
+.tee__shot--photo img { width: 100%; height: auto; }
 .tee__shown { position: absolute; left: 12px; bottom: 12px; padding: 7px 11px 6px; border-radius: 8px; background: rgba(11, 11, 13, .78); color: #f3f1ea; font: 700 11px/1.2 var(--mono); letter-spacing: .1em; text-transform: uppercase; }
 .tee__body { padding: 20px 22px 22px; }
 .tee__group { display: grid; gap: 9px; margin-top: 18px; }

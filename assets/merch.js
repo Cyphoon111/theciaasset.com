@@ -56,11 +56,14 @@
     </svg>`;
   }
 
-  // ---- the photos (2026-11-16, Jason: "THE PRODUCT WE PROVIDE MUST ABSOLUTELY REPRESENT WHAT WE ARE ADVERTISING"): Printify's
-  // own render of the real print file on each shirt, at the true size and position for size L (the women's art enlarged to
-  // its real width, which Printify's template draws too small), cut out onto a dark backdrop. Built in the scratchpad art lab
-  // (photos.html); rebuild them whenever the art, the printer or the placement changes.
-  const SHOTS = { NL3600: { black: 'assets/shirts/unisex-black-L.jpg', white: 'assets/shirts/unisex-white-L.jpg' }, BC6004: { black: 'assets/shirts/womens-black-L.jpg', white: 'assets/shirts/womens-white-L.jpg' } };
+  // ---- the photos (2026-11-16, Jason: "THESE ARE THE IMAGE I EXPECT TO BE PRESENTED ON MY WEBSITE. AND THE PRODUCT THAT WE
+  // DELIVER ... MUST ABSOLUTELY REPRESENT PRECISELY WHAT WE ARE REPRESENTING"): Jason's own four example photos. Each shirt now
+  // prints the design taken from his photo of that shirt; in each photo the design is re-placed at the size and position the
+  // printer really prints it on size L (width and top below the collar, as shares of the chest, from Printify's render of the
+  // real product), the shirt where it used to reach filled with that shirt's own fabric. Built in the scratchpad art lab
+  // (extract.html → the print files, truesize.html → these photos); rebuild them whenever the art, the printer or the
+  // placement changes.
+  const SHOTS = { NL3600: { black: 'assets/shirts/unisex-black-L.jpg?v=3', white: 'assets/shirts/unisex-white-L.jpg?v=3' }, BC6004: { black: 'assets/shirts/womens-black-L.jpg?v=3', white: 'assets/shirts/womens-white-L.jpg?v=3' } };
   const SHOWN = 'L';
   const photoOf = (code, color, fallback) => SHOTS[code]?.[color] || fallback || null;
   const inches = (n) => `${Number(n).toFixed(1)}\u2033`;
@@ -204,8 +207,9 @@
         <p class="tee__msg" data-msg role="status" aria-live="polite"></p>
       </div>`;
     const colorOf = () => p.colors.find((c) => c.color === st.color);
-    // the design's printed width on each size (PitchZing: the main printer's width, the one the shop advertises)
-    const printOf = (size) => p.sizeGuide?.rows?.find((r) => r.size === size)?.printWidth ?? null;
+    // the design's printed width on each size in the chosen colour (PitchZing: the main printer's width, the one the shop
+    // advertises; each colour's print file is its own photo's design, so white can print a little wider than black)
+    const printOf = (size) => colorOf()?.sizes.find((s) => s.size === size)?.printWidth ?? p.sizeGuide?.rows?.find((r) => r.size === size)?.printWidth ?? null;
     const sizeOf = () => colorOf().sizes.find((s) => s.size === st.size) || null;
     function draw() {
       const c = colorOf();
