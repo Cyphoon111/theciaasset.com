@@ -89,7 +89,16 @@
     ['detail', 'Embroidery', 'Close-up of the front embroidery: JEFFREY EPSTEIN WAS A CIA ASSET, RELEASE THE FILES in white and red thread, theciaasset.com in grey'],
     ['lifestyle', 'Worn', 'The hat worn, seen from the front'],
   ].map(([k, label, alt]) => ({ src: `assets/hats/r112-${k}.jpg?v=2`, thumb: `assets/hats/r112-${k}-thumb.jpg?v=2`, label, alt }));   // v2: the crisp art (hat-v2)
-  const photoOf = (code, color, fallback) => (code === 'R112' ? HAT_SHOTS[0].thumb : SHOTS[code]?.[color] || fallback || null);
+  // the baseball cap (2026-11-17, OTTO 31-069): Printify's renders of the real product per colour — front, both sides with
+  // theciaasset.com, back, a close-up of the front embroidery and one of the side — kept on this site
+  const CAP_VIEWS = [['front', 'Front'], ['left', 'Left side'], ['right', 'Right side'], ['back', 'Back'], ['detail', 'Embroidery'], ['side', 'Side close-up']];
+  const capShots = (c) => { const n = c === 'black' ? 'black' : 'white', thread = c === 'black' ? 'white and red' : 'black and red';
+    const alt = { front: `The ${n} cap from the front: the design embroidered across the front panel in ${thread} thread`, left: `The ${n} cap from the left: theciaasset.com embroidered in grey on the side`,
+      right: `The ${n} cap from the right: theciaasset.com embroidered in grey on the side`, back: `The back of the ${n} cap with its adjustable snapback`,
+      detail: `Close-up of the front embroidery on the ${n} cap`, side: `Close-up of theciaasset.com embroidered on the side of the ${n} cap` };
+    return CAP_VIEWS.map(([k, label]) => ({ src: `assets/caps/oc31069-${c}-${k}.jpg?v=1`, thumb: `assets/caps/oc31069-${c}-${k}-thumb.jpg?v=1`, label, alt: alt[k] })); };
+  const SHOTSETS = { R112: { blackwhite: HAT_SHOTS }, OC31069: { black: capShots('black'), white: capShots('white') } };
+  const photoOf = (code, color, fallback) => (SHOTSETS[code] ? (SHOTSETS[code][color] || Object.values(SHOTSETS[code])[0])[0].thumb : SHOTS[code]?.[color] || fallback || null);
   const isHat = (it) => it?.product?.kind === 'hat';
   const inches = (n) => `${Number(n).toFixed(1)}\u2033`;
 
@@ -315,32 +324,40 @@
   // ---- the hat card: a gallery, the copy, one size, quantity, and the shirts to wear it with ------------------------------
   function hatCard(p) {
     const el = document.createElement('article');
-    el.className = 'hat'; el.id = 'hat';
-    const c = p.colors[0], s = c.sizes[0], st = { qty: 1, shot: 0 };
-    const pw = s.printWidth;
+    el.className = 'hat'; el.id = p.code === 'R112' ? 'hat' : `hat-${p.code.toLowerCase()}`; el.dataset.code = p.code;
+    // (2026-11-17: the cap comes in black and white — a colour choice, each colour its own photos and SKU)
+    const st = { qty: 1, shot: 0, color: (p.colors.find((cc) => cc.sizes.some((z) => z.available)) || p.colors[0]).color };
+    const colorOf = () => p.colors.find((cc) => cc.color === st.color), sizeOf = () => colorOf().sizes[0];
+    const shots = () => SHOTSETS[p.code]?.[st.color] || [];
     const shirts = CAT.products.filter((x) => x.kind !== 'hat');
     const pairPrice = (x) => { const ps = x.colors.flatMap((cc) => cc.sizes.filter((z) => z.available).map((z) => z.priceCents)).filter((v) => v != null); return ps.length ? Math.min(...ps) : null; };
+    const what = p.product === 'cap' ? 'cap' : 'hat';
+    const colourText = (cc) => (cc.name.includes(' / ') ? `${cc.name.replace(' / ', ' front / ')} mesh` : cc.name);
     el.innerHTML = `
       <div class="hat__gallery">
-        <figure class="hat__shot"><img data-hatimg src="${esc(HAT_SHOTS[0].src)}" alt="${esc(HAT_SHOTS[0].alt)}" decoding="async"><figcaption class="tee__shown" data-hatcap>${esc(HAT_SHOTS[0].label)}${pw ? ` · embroidery ${inches(pw)} wide` : ''}</figcaption></figure>
-        <div class="hat__thumbs" role="group" aria-label="Views of the hat">
-          ${HAT_SHOTS.map((x, i) => `<button type="button" class="hat__thumb" data-shotn="${i}" aria-pressed="${i === 0}" aria-label="${esc(x.label)}"><img src="${esc(x.thumb)}" alt="" loading="lazy" width="64" height="64"></button>`).join('')}
-        </div>
+        <figure class="hat__shot"><img data-hatimg alt="" decoding="async"><figcaption class="tee__shown" data-hatcap></figcaption></figure>
+        <div class="hat__thumbs" role="group" aria-label="Views of the ${what}" data-thumbs></div>
       </div>
       <div class="hat__body">
-        <p class="hat__kicker">${p.onSale === false ? 'Owner’s preview · not on sale yet' : 'New · The official hat'}</p>
+        <p class="hat__kicker">${p.onSale === false ? 'Owner’s preview · not on sale yet' : `New · The official ${what}`}</p>
         <div class="pkg__head">
           <h3 class="pkg__name">${esc(p.label)}</h3>
           <p class="pkg__price"><b data-price></b><span class="pkg__later">${CAT.wholesale ? 'Family price, shipping included' : 'Free US shipping'}</span></p>
         </div>
         <p class="hat__desc">${esc(p.description || '')}</p>
         <ul class="hat__specs">${(p.specs || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+        ${p.colors.length > 1 ? `<div class="tee__group hat__colorgroup">
+          <p class="hc__label" id="${p.code}-cl">Colour <small data-colorname></small></p>
+          <div class="tee__colors" role="radiogroup" aria-labelledby="${p.code}-cl">
+            ${p.colors.map((cc) => `<button type="button" class="tee__color tee__color--${cc.color}" role="radio" aria-checked="false" data-color="${cc.color}"><i aria-hidden="true"></i>${esc(cc.name)}</button>`).join('')}
+          </div>
+        </div>` : ''}
         <p class="tee__fit">${esc(p.fitNote || '')}</p>
         <dl class="hat__facts">
-          <div><dt>Colour</dt><dd>${esc(c.name.replace(' / ', ' front / '))} mesh</dd></div>
+          <div><dt>Colour</dt><dd data-colourfact></dd></div>
           <div><dt>Fit</dt><dd>${esc(p.fit || '')}</dd></div>
           <div><dt>Materials</dt><dd>${esc(p.fabric || '')}</dd></div>
-          <div><dt>Embroidery</dt><dd>White and red thread on the front${pw ? `, the design ${inches(pw)} wide` : ''}, with theciaasset.com in grey beneath it.</dd></div>
+          <div><dt>Embroidery</dt><dd data-embfact></dd></div>
           <div><dt>Delivery</dt><dd>Embroidered for you when you order; most orders arrive in 5–10 business days. With shirts in the same order it can arrive in its own package.</dd></div>
           <div><dt>Returns</dt><dd>If it arrives damaged, with an embroidery defect or not as ordered, write to <a href="mailto:books@theciaasset.com">books@theciaasset.com</a> within 30 days of delivery with a photo and we’ll replace it free. One size and adjustable, so there is no size to exchange.</dd></div>
         </dl>
@@ -356,29 +373,43 @@
         ${shirts.length ? `<div class="hat__pair"><p class="hc__label">Wear it with the shirt</p><div class="hat__pairs">${shirts.map((x) => { const col = x.colors[0]; const img = photoOf(x.code, col.color, col.image); const from = pairPrice(x);
           return `<button type="button" class="hat__pairbtn" data-pair="${esc(x.code)}">${img ? `<img src="${esc(img)}" alt="" loading="lazy" width="56" height="56">` : ''}<span><b>${esc(x.label)}</b><small>${from != null ? `${CAT.wholesale ? 'from ' : ''}${usd(from)}` : ''}${CAT.wholesale ? '' : ' · free US shipping'}</small></span></button>`; }).join('')}</div></div>` : ''}
       </div>`;
+    let thumbsFor = null;
     function draw() {
-      const shot = HAT_SHOTS[st.shot];
-      const img = $('[data-hatimg]', el); img.src = shot.src; img.alt = shot.alt;
-      $('[data-hatcap]', el).textContent = `${shot.label}${pw && st.shot === 0 ? ` · embroidery ${inches(pw)} wide` : ''}`;
+      const cc = colorOf(), s = sizeOf(), list = shots(), shot = list[st.shot] || list[0], pw = s.printWidth;
+      if (thumbsFor !== st.color) {   // the views of the chosen colour
+        $('[data-thumbs]', el).innerHTML = list.map((x, i) => `<button type="button" class="hat__thumb" data-shotn="${i}" aria-pressed="false" aria-label="${esc(x.label)}"><img src="${esc(x.thumb)}" alt="" loading="lazy" width="64" height="64"></button>`).join('');
+        thumbsFor = st.color; for (const x of list) { const im = new Image(); im.src = x.src; }
+      }
+      if (shot) { const img = $('[data-hatimg]', el); img.src = shot.src; img.alt = shot.alt; $('[data-hatcap]', el).textContent = `${shot.label}${pw && st.shot === 0 ? ` · embroidery ${inches(pw)} wide` : ''}`; }
       $$('[data-shotn]', el).forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.shotn) === st.shot)));
+      $$('[data-color]', el).forEach((b) => b.setAttribute('aria-checked', String(b.dataset.color === st.color)));
+      const cn = $('[data-colorname]', el); if (cn) cn.textContent = cc.name;
+      $('[data-colourfact]', el).textContent = colourText(cc);
+      $('[data-embfact]', el).textContent = p.embroidery || `White and red thread on the front${pw ? `, the design ${inches(pw)} wide` : ''}, with theciaasset.com in grey beneath it.`;
       $('[data-price]', el).textContent = s.priceCents != null ? usd(s.priceCents) : '';
       $('[data-qn]', el).textContent = String(st.qty);
       $('[data-q="-1"]', el).disabled = st.qty <= 1; $('[data-q="1"]', el).disabled = st.qty >= MAX_QTY;
       $('[data-add]', el).disabled = !s.available;
-      if (!s.available) $('[data-msg]', el).textContent = 'The hat is not available right now.';
+      $('[data-msg]', el).textContent = s.available ? ($('[data-msg]', el).dataset.keep ? $('[data-msg]', el).textContent : '') : `${p.colors.length > 1 ? cc.name : 'This ' + what} is not available right now.`;
     }
     el.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b || b.disabled) return;
       const msg = $('[data-msg]', el);
+      if (b.dataset.color) { st.color = b.dataset.color; st.shot = 0; delete msg.dataset.keep; draw(); return; }
       if (b.dataset.shotn) { st.shot = Number(b.dataset.shotn); draw(); return; }
       if (b.dataset.q) { st.qty = Math.min(MAX_QTY, Math.max(1, st.qty + Number(b.dataset.q))); draw(); return; }
       if (b.dataset.pair) { const card = $(`.tee[data-code="${CSS.escape(b.dataset.pair)}"]`); if (card) { card.scrollIntoView({ block: 'start', behavior: 'smooth' }); $('.tee__size:not([disabled])', card)?.focus({ preventScroll: true }); } return; }
-      if (b.hasAttribute('data-add')) { if (addToCart(s.sku, st.qty)) { msg.innerHTML = `Added to your cart: the hat${st.qty > 1 ? ` × ${st.qty}` : ''}. <button type="button" class="tee__view">View cart</button>`; st.qty = 1; draw(); } return; }
+      if (b.hasAttribute('data-add')) { const s = sizeOf(); if (addToCart(s.sku, st.qty)) { msg.dataset.keep = '1'; msg.innerHTML = `Added to your cart: the ${what}${p.colors.length > 1 ? `, ${esc(colorOf().name)}` : ''}${st.qty > 1 ? ` × ${st.qty}` : ''}. <button type="button" class="tee__view">View cart</button>`; st.qty = 1; draw(); } return; }
       if (b.classList.contains('tee__view')) cartBtn?.click();
     });
-    for (const x of HAT_SHOTS) { const im = new Image(); im.src = x.src; }   // every view ready
+    // arrow keys move within the colour choice, like radio buttons
+    el.addEventListener('keydown', (e) => {
+      const g = e.target.closest('[role="radiogroup"]'); if (!g || !['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+      const opts = $$('button:not([disabled])', g), i = opts.indexOf(e.target); if (i < 0) return;
+      e.preventDefault(); const n = opts[(i + (e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? -1 : 1) + opts.length) % opts.length]; n.click(); n.focus();
+    });
     draw();
-    if ('IntersectionObserver' in window) new IntersectionObserver((es, io) => { if (es.some((x) => x.isIntersecting)) { io.disconnect(); track('hat_view', s.sku); } }, { threshold: 0.35 }).observe(el);
+    if ('IntersectionObserver' in window) new IntersectionObserver((es, io) => { if (es.some((x) => x.isIntersecting)) { io.disconnect(); track('hat_view', sizeOf().sku); } }, { threshold: 0.35 }).observe(el);
     return el;
   }
 
@@ -409,11 +440,13 @@
     const grid = $('#shirtsGrid'); grid.textContent = '';
     for (const p of c.products.filter((x) => x.kind !== 'hat')) grid.append(card(p));
     // the hat, when PitchZing shows it (on sale, or the owner's preview): its own wide card after the shirts
-    const hat = c.products.find((x) => x.kind === 'hat');
-    if (hat) {
-      grid.append(hatCard(hat));
-      const k = $('.shirts__head .kicker'); if (k) k.textContent = 'The official shirt and hat';
-      const fine = $('.shirts__fine'); if (fine && !fine.dataset.hat) { fine.dataset.hat = '1'; fine.insertAdjacentText('beforeend', ' The hat is embroidered for you when you order and ships free too; if it arrives damaged or with an embroidery defect, the same 30-day replacement applies.'); }
+    // every hat PitchZing lists (on sale, or the owner's preview): its own wide card after the shirts (the trucker, the cap)
+    const hats = c.products.filter((x) => x.kind === 'hat');
+    for (const h of hats) grid.append(hatCard(h));
+    if (hats.length) {
+      const words = hats.some((h) => h.product === 'cap') ? (hats.some((h) => h.product === 'hat') ? ['shirt, hat and cap', 'hat and cap are'] : ['shirt and cap', 'cap is']) : ['shirt and hat', 'hat is'];
+      const k = $('.shirts__head .kicker'); if (k) k.textContent = `The official ${words[0]}`;
+      const fine = $('.shirts__fine'); if (fine && !fine.dataset.hat) { fine.dataset.hat = '1'; fine.insertAdjacentText('beforeend', ` The ${words[1]} embroidered for you when you order and ship${words[1].endsWith('are') ? '' : 's'} free too; if it arrives damaged or with an embroidery defect, the same 30-day replacement applies.`); }
     }
     $$('[data-merch]').forEach((x) => { x.hidden = false; });
     renderCart();

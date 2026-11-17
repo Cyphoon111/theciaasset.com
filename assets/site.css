@@ -1245,6 +1245,8 @@ html:has(.zoom[open]) { overflow: hidden; }
 @media (max-width: 900px) { .hat { grid-template-columns: 1fr; } .hat__gallery { border-right: 0; border-bottom: 1px solid var(--line); } }
 @media (max-width: 560px) { .hat__gallery { padding: 12px; } .hat__thumbs { gap: 6px; } .hat__body { padding: 18px 16px 20px; } .hat__facts div { grid-template-columns: 1fr; gap: 2px; } .hat .tee__buy .hc__qty { width: 100%; justify-content: center; } }
 
+.hat__colorgroup { margin: 4px 0 14px; }
+
 /* complete the set: the hat offered in the cart and after a shirt is added — a quiet row, never a pop-up */
 .upsell { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto; align-items: center; gap: 12px; margin: 0 0 16px; padding: 10px 12px; border: 1px dashed #cfc8b8; border-radius: 12px; background: var(--paper-2); }
 .upsell__img { width: 56px; height: 56px; border-radius: 8px; object-fit: cover; background: #fff; }
