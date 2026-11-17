@@ -3,13 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<script>/* a refresh opens at the very top, never where the reader left off */ if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-/* the opening screen: the visitor enters an email to open the file, and that tap or key press turns the sound on.
-   A donor sent back from Square (?donated=…) skips it: the thank-you pop-up opens instead. A visitor who has entered an
-   email before gets it with no email to type (gate-back, Jason, 2026-10-17): "Welcome back" and one tap, which opens the
-   file and turns the shutter sound on (a browser plays sound only after a tap). This browser remembers them, or else
-   site.js asks PitchZing whether this network and browser signed up (gate-ask keeps the form out of sight meanwhile). */
-if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(localStorage.getItem('cia_in') || localStorage.getItem('cia_email')); } catch (e) {} document.documentElement.classList.add('gate-on', seen ? 'gate-back' : 'gate-ask'); }</script>
+<!-- Content Security Policy (2026-11-16): only these sources may run or load here; no inline scripts. Square's card field
+     and its bank check, Cloudflare's human check, Google Fonts, PitchZing (the store), Unleashed's videos. Frames may come from
+     any https page because a card's bank shows its check from its own domain (Square's advice for payment pages). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://*.squarecdn.com https://*.cardinalcommerce.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.squarecdn.com; font-src 'self' data: https://fonts.gstatic.com https://*.squarecdn.com https://d1g145x70srn7h.cloudfront.net; img-src 'self' data: blob: https:; media-src 'self' blob: https://videos.unleashed.news; connect-src 'self' https://pitchzing-haro.pitchzing.workers.dev https://*.squarecdn.com https://*.squareup.com https://o160250.ingest.sentry.io https://*.cardinalcommerce.com https://challenges.cloudflare.com; frame-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
+<script src="assets/boot.js?v=1"></script>
 <title>Jeffrey Epstein Was A CIA Asset: The Book by Jason Sullivan | The CIA Asset</title>
 <meta name="description" content="Jeffrey Epstein Was A CIA Asset, the new book by Jason Sullivan, is available now for early review: the documented story of the intelligence apparatus that made Jeffrey Epstein.">
 <link rel="canonical" href="https://theciaasset.com/">

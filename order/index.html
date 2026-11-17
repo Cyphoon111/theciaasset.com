@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Content Security Policy (2026-11-16): only these sources may run or load here; no inline scripts. Square's card field
+     and its bank check, Cloudflare's human check, Google Fonts, PitchZing (the store), Unleashed's videos. Frames may come from
+     any https page because a card's bank shows its check from its own domain (Square's advice for payment pages). -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://*.squarecdn.com https://*.cardinalcommerce.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.squarecdn.com; font-src 'self' data: https://fonts.gstatic.com https://*.squarecdn.com https://d1g145x70srn7h.cloudfront.net; img-src 'self' data: blob: https:; media-src 'self' blob: https://videos.unleashed.news; connect-src 'self' https://pitchzing-haro.pitchzing.workers.dev https://*.squarecdn.com https://*.squareup.com https://o160250.ingest.sentry.io https://*.cardinalcommerce.com https://challenges.cloudflare.com; frame-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
 <title>Your order · The CIA Asset</title>
 <meta name="description" content="Your TheCIAAsset.com shirt order: where it is, its tracking, and cancelling within the first hour.">
 <meta name="robots" content="noindex, nofollow">
