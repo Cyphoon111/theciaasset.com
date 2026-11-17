@@ -1769,7 +1769,7 @@
       $('#thanksTitle').textContent = 'Thank you for your order.';
       $('#thanksSent').textContent = m.number ? `Your order number is ${m.number}. Your confirmation is on its way to ${j.email || 'your email'}.` : `Your order is in. Your confirmation is on its way to ${j.email || 'your email'}.`;
       const mins = m.cancelDeadline ? Math.max(1, Math.round((Date.parse(m.cancelDeadline) - Date.now()) / 60e3)) : 60;
-      $('#thanksHow').textContent = `Each shirt is printed for you and ships free; most orders arrive in 5–10 business days. Changed your mind? You can cancel from your order page for the next ${mins} minutes, before it is made.`;
+      $('#thanksHow').textContent = `Each shirt is printed for you and ${req.wholesale ? 'its shipping is included in the price' : 'ships free'}; most orders arrive in 5–10 business days. Changed your mind? You can cancel from your order page for the next ${mins} minutes, before it is made.`;
       if (m.statusUrl && openBox && openA) { openA.innerHTML = 'View your order <span aria-hidden="true">→</span>'; openA.href = m.statusUrl; openA.hidden = false; $('#thanksWait').hidden = true; openBox.hidden = false; }
       document.dispatchEvent(new CustomEvent('tca:merch-paid', { detail: { number: m.number || null } }));
     } else if (req.kind === 'hardcover') {

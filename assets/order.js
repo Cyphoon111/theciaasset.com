@@ -26,12 +26,12 @@
     $('#steps').innerHTML = (o.stages || []).map(([k, label], i) => `<li class="${i < at || (k === 'delivered' && o.stage === 'delivered') ? 'done' : i === at ? 'now' : ''}"${i === at ? ' aria-current="step"' : ''}><span>${esc(label)}${i === at && STAGE_HINT[k] ? `<small>${esc(STAGE_HINT[k])}</small>` : ''}</span></li>`).join('');
     const s = o.shipment, ship = $('#ship');
     if (s || o.shipTo) {
-      const to = o.shipTo ? `<p>To ${esc(o.shipTo.name || '')}${o.shipTo.city ? `, ${esc(o.shipTo.city)}` : ''}${o.shipTo.state ? `, ${esc(o.shipTo.state)}` : ''}. Free shipping.</p>` : '';
+      const to = o.shipTo ? `<p>To ${esc(o.shipTo.name || '')}${o.shipTo.city ? `, ${esc(o.shipTo.city)}` : ''}${o.shipTo.state ? `, ${esc(o.shipTo.state)}` : ''}. ${o.freeShipping === false ? 'Shipping included in the price.' : 'Free shipping.'}</p>` : '';
       const track = s ? `<p>${esc(CARRIER[String(s.carrier || '').toLowerCase()] || s.carrier || 'Carrier')} tracking: ${s.url && /^https:\/\//.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.number)}</a>` : `<b>${esc(s.number)}</b>`}</p>${s.shippedAt ? `<p>Shipped ${esc(day(s.shippedAt))}${s.deliveredAt ? ` · delivered ${esc(day(s.deliveredAt))}` : ''}</p>` : ''}` : '';
       $('#shipBody').innerHTML = track + to; ship.hidden = false;
     } else ship.hidden = true;
     $('#items').innerHTML = (o.items || []).map((i) => `<li><span>${esc(i.name)}${i.quantity > 1 ? ` × ${i.quantity}` : ''}</span><b>${usd(i.unitCents * i.quantity)}</b></li>`).join('');
-    $('#sum').innerHTML = `<div><span>Subtotal</span><span>${usd(o.subtotalCents)}</span></div>${o.taxCents ? `<div><span>Nevada sales tax</span><span>${usd(o.taxCents)}</span></div>` : ''}<div><span>Shipping</span><span>Free</span></div><div class="total"><span>Total</span><span>${usd(o.totalCents)}</span></div>${o.refundedCents ? `<div><span>Refunded</span><span>${usd(o.refundedCents)}</span></div>` : ''}`;
+    $('#sum').innerHTML = `<div><span>Subtotal</span><span>${usd(o.subtotalCents)}</span></div>${o.taxCents ? `<div><span>Nevada sales tax</span><span>${usd(o.taxCents)}</span></div>` : ''}<div><span>Shipping</span><span>${o.freeShipping === false ? 'Included' : 'Free'}</span></div><div class="total"><span>Total</span><span>${usd(o.totalCents)}</span></div>${o.refundedCents ? `<div><span>Refunded</span><span>${usd(o.refundedCents)}</span></div>` : ''}`;
     $('#cancel').hidden = !o.canCancel;
     $('#sureAmt').textContent = usd(o.totalCents - (o.refundedCents || 0));
     clearInterval(tick);
