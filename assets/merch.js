@@ -4,6 +4,8 @@
    site's own checkout window (site.js, window.TCA.checkout) with the cart: SKUs and quantities only, never a price.
    Hidden while the store is closed; the owner previews it with ?merch=<preview key> (kept for this tab). A family-and-friends
    link (?wholesale=<key>, made on the owner page, 2026-11-17) shows every shirt at cost plus a small cushion, priced and charged by PitchZing.
+   The Richardson 112 hat (2026-11-17) shows only when PitchZing lists it (HAT_OPEN, or the owner's preview): its own card with a
+   gallery, one size, the shirts to wear it with; the cart offers it once a shirt is in and it is not ("Complete the set").
    No dependencies. */
 (() => {
   'use strict';
@@ -76,7 +78,19 @@
   // placement changes.
   const SHOTS = { NL3600: { black: 'assets/shirts/unisex-black-L.jpg?v=4', white: 'assets/shirts/unisex-white-L.jpg?v=4' }, BC6004: { black: 'assets/shirts/womens-black-L.jpg?v=4', white: 'assets/shirts/womens-white-L.jpg?v=4' } };
   const SHOWN = 'L';
-  const photoOf = (code, color, fallback) => SHOTS[code]?.[color] || fallback || null;
+  // the hat (2026-11-17, the Richardson 112): Printify's renders of the real product with the production embroidery file at its
+  // real size and place (front, three-quarter and side on a person, back, a close-up of the front, worn), kept on this site
+  const HAT = 'TCA-R112-BW';
+  const HAT_SHOTS = [
+    ['front', 'Front', 'The hat from the front: black front panels and visor, white mesh sides, the white and red embroidery centred on the front'],
+    ['three-quarter', 'Three-quarter', 'The hat worn, seen from the front at an angle, the embroidery on the black front and the white mesh at the side'],
+    ['side', 'Side and mesh', 'The hat worn, seen from the side and back: the white mesh panels and the snapback'],
+    ['back', 'Back', 'The back of the hat: white mesh and the adjustable plastic snapback'],
+    ['detail', 'Embroidery', 'Close-up of the front embroidery: JEFFREY EPSTEIN WAS A CIA ASSET, RELEASE THE FILES in white and red thread'],
+    ['lifestyle', 'Worn', 'The hat worn, seen from the front'],
+  ].map(([k, label, alt]) => ({ src: `assets/hats/r112-${k}.jpg?v=1`, thumb: `assets/hats/r112-${k}-thumb.jpg?v=1`, label, alt }));
+  const photoOf = (code, color, fallback) => (code === 'R112' ? HAT_SHOTS[0].thumb : SHOTS[code]?.[color] || fallback || null);
+  const isHat = (it) => it?.product?.kind === 'hat';
   const inches = (n) => `${Number(n).toFixed(1)}\u2033`;
 
   // ---- the catalog --------------------------------------------------------------------------------------------------
@@ -95,13 +109,13 @@
 
   function addToCart(sku, qty) {
     const it = bySku.get(sku);
-    if (!it || !it.available) { say('That size is not available right now.'); return false; }
+    if (!it || !it.available) { say(isHat(it) ? 'The hat is not available right now.' : 'That size is not available right now.'); return false; }
     const line = cart.find((l) => l.sku === sku);
     if (line) {
-      if (line.qty >= MAX_QTY) { say(`At most ${MAX_QTY} of one shirt per order.`); return false; }
+      if (line.qty >= MAX_QTY) { say(`At most ${MAX_QTY} of one item per order.`); return false; }
       line.qty = Math.min(MAX_QTY, line.qty + qty);
     } else {
-      if (cart.length >= MAX_LINES) { say(`At most ${MAX_LINES} different shirts per order.`); return false; }
+      if (cart.length >= MAX_LINES) { say(`At most ${MAX_LINES} different items per order.`); return false; }
       cart.push({ sku, qty: Math.min(MAX_QTY, qty) });
     }
     saveCart(); track('add_to_cart', sku);
@@ -111,13 +125,13 @@
 
   function renderCart() {
     const n = units();
-    if (cartBtn) { cartBtn.hidden = !n || !CAT; $('#cartCount').textContent = String(n); cartBtn.setAttribute('aria-label', `Cart, ${n} ${n === 1 ? 'shirt' : 'shirts'}`); }
+    if (cartBtn) { cartBtn.hidden = !n || !CAT; $('#cartCount').textContent = String(n); cartBtn.setAttribute('aria-label', `Cart, ${n} ${n === 1 ? 'item' : 'items'}`); }
     if (!cartDlg) return;
     const list = $('#cartLines');
     list.innerHTML = cart.map((l, i) => {
       const it = bySku.get(l.sku);
-      const name = it ? `${it.product.label}` : 'This shirt';
-      const what = it ? `${it.colorName} · ${it.size}` : 'No longer available';
+      const name = it ? `${it.product.label}` : 'This item';
+      const what = it ? (it.product.oneSize ? it.colorName : `${it.colorName} · ${it.size}`) : 'No longer available';   // the hat: one size
       const price = it ? usd(it.priceCents * l.qty) : '';
       return `<li class="cart__line${it && it.available ? '' : ' is-gone'}" data-i="${i}">
         <div class="cart__thumb" aria-hidden="true">${it ? (it.image ? `<img src="${esc(it.image)}" alt="" loading="lazy">` : teeSvg(FIT[it.product.code], it.color, '')) : ''}</div>
@@ -137,31 +151,54 @@
     $('#cartSum').hidden = !cart.length;
     $('#cartGo').hidden = !cart.length;
     $('#cartGo').innerHTML = `Secure checkout · ${usd(sub)} <span aria-hidden="true">→</span>`;   // short enough for a small phone
+    renderUpsell();
   }
+
+  // ---- complete the set (2026-11-17): the hat offered once there is a shirt in the cart and no hat; never a pop-up ----------
+  const hatItem = () => { const h = bySku.get(HAT); return h && h.available ? h : null; };
+  const wantsHat = () => !!hatItem() && cart.some((l) => !isHat(bySku.get(l.sku))) && !cart.some((l) => l.sku === HAT);
+  let upsellSeen = false;
+  const seenUpsell = () => { if (!upsellSeen) { upsellSeen = true; track('upsell_view', HAT); } };
+  function upsellHtml(kind) {
+    const h = hatItem(); if (!h) return '';
+    return `<div class="upsell upsell--${kind}"><img class="upsell__img" src="${esc(HAT_SHOTS[0].thumb)}" alt="" loading="lazy" width="64" height="64">
+      <div class="upsell__what"><b>Complete the set</b><span>${esc(h.product.label)} · ${esc(h.colorName)}</span><small>${usd(h.priceCents)}${CAT?.wholesale ? ' · family price' : ' · free US shipping'}</small></div>
+      <button type="button" class="btn btn--ghost upsell__add" data-upsell>Add the hat</button></div>`;
+  }
+  function renderUpsell() {
+    if (!cartDlg) return;
+    let box = $('#cartUpsell');
+    if (!box) { box = document.createElement('div'); box.id = 'cartUpsell'; $('#cartSum')?.before(box); }
+    box.innerHTML = wantsHat() ? upsellHtml('cart') : '';
+    if (box.innerHTML && cartDlg.open) seenUpsell();
+  }
+  const addHatFromUpsell = () => { if (addToCart(HAT, 1)) { track('upsell_add', HAT); say('The hat is in your cart.'); } };
 
   if (cartDlg) {
     $('#cartLines').addEventListener('click', (e) => {
       const li = e.target.closest('.cart__line'); if (!li) return;
       const i = Number(li.dataset.i), line = cart[i]; if (!line) return;
+      if (e.target.closest('[data-upsell]')) return;
       const step = e.target.closest('[data-step]');
       if (step) { line.qty = Math.min(MAX_QTY, Math.max(1, line.qty + Number(step.dataset.step))); saveCart(); $(`.cart__line[data-i="${i}"] [data-step="${step.dataset.step}"]`)?.focus(); return; }
       if (e.target.closest('[data-rm]')) { cart.splice(i, 1); saveCart(); if (!cart.length) $('[data-close]', cartDlg)?.focus(); }
     });
     $$('[data-close]', cartDlg).forEach((b) => b.addEventListener('click', () => cartDlg.close()));
-    cartDlg.addEventListener('click', (e) => { if (TCA.onBackdrop && TCA.onBackdrop(cartDlg, e)) cartDlg.close(); });
+    cartDlg.addEventListener('click', (e) => { if (e.target.closest('#cartUpsell [data-upsell]')) { addHatFromUpsell(); return; } if (TCA.onBackdrop && TCA.onBackdrop(cartDlg, e)) cartDlg.close(); });
     $('#cartGo').addEventListener('click', () => {
       const msg = $('#cartMsg'); msg.textContent = '';
       const gone = cart.filter((l) => !bySku.get(l.sku)?.available);
-      if (gone.length) { msg.textContent = 'Remove the shirts that are no longer available, then continue.'; return; }
+      if (gone.length) { msg.textContent = 'Remove the items that are no longer available, then continue.'; return; }
       if (!cart.length) return;
       const req = { kind: 'merch', cart: cart.map((l) => ({ sku: l.sku, qty: l.qty })), ...(preview ? { preview } : {}), ...(wholesale ? { wholesale } : {}) };
       if (!TCA.checkout) { msg.textContent = 'The checkout did not load. Please refresh the page and try again.'; return; }
       cartDlg.close();
       if (!TCA.checkout(req)) { cartDlg.showModal(); msg.textContent = 'The secure checkout is still loading. Please try again in a moment.'; return; }
       track('checkout_started');
+      if (cart.some((l) => l.sku === HAT)) track('checkout_hat', HAT);
     });
   }
-  cartBtn?.addEventListener('click', () => { renderCart(); $('#cartMsg').textContent = ''; cartDlg.showModal(); });
+  cartBtn?.addEventListener('click', () => { renderCart(); $('#cartMsg').textContent = ''; cartDlg.showModal(); if ($('#cartUpsell')?.innerHTML) seenUpsell(); });
   // a paid order empties the cart (site.js payThanks)
   document.addEventListener('tca:merch-paid', () => { cart = []; saveCart(); });
 
@@ -183,7 +220,7 @@
   function card(p) {
     const el = document.createElement('article');
     const fit = FIT[p.code] || 'unisex';
-    el.className = `tee tee--${fit}`;
+    el.className = `tee tee--${fit}`; el.dataset.code = p.code;
     const st = { color: (p.colors.find((c) => c.sizes.some((s) => s.available)) || p.colors[0]).color, size: null, qty: 1 };
     el.innerHTML = `
       <figure class="tee__shot" data-shot></figure>
@@ -255,8 +292,13 @@
       if (b.hasAttribute('data-add')) {
         const z = sizeOf();
         if (!z) { msg.textContent = 'Choose your size first.'; $('.tee__size:not([disabled])', el)?.focus(); return; }
-        if (addToCart(z.sku, st.qty)) { msg.innerHTML = `Added to your cart: ${esc(colorOf().name)}, ${esc(z.size)}${st.qty > 1 ? ` × ${st.qty}` : ''}. <button type="button" class="tee__view">View cart</button>`; st.qty = 1; draw(); }
+        if (addToCart(z.sku, st.qty)) {
+          msg.innerHTML = `Added to your cart: ${esc(colorOf().name)}, ${esc(z.size)}${st.qty > 1 ? ` × ${st.qty}` : ''}. <button type="button" class="tee__view">View cart</button>${wantsHat() ? upsellHtml('card') : ''}`;
+          if (wantsHat()) seenUpsell();
+          st.qty = 1; draw();
+        }
       }
+      if (b.hasAttribute('data-upsell')) { addHatFromUpsell(); msg.innerHTML = `The hat is in your cart too. <button type="button" class="tee__view">View cart</button>`; return; }
       if (b.classList.contains('tee__view')) cartBtn?.click();
     });
     // arrow keys move within the colour and size choices, like radio buttons
@@ -267,6 +309,76 @@
     });
     for (const col of p.colors) { const src = photoOf(p.code, col.color, col.image); if (src) { const im = new Image(); im.src = src; } }   // both colours ready
     draw();
+    return el;
+  }
+
+  // ---- the hat card: a gallery, the copy, one size, quantity, and the shirts to wear it with ------------------------------
+  function hatCard(p) {
+    const el = document.createElement('article');
+    el.className = 'hat'; el.id = 'hat';
+    const c = p.colors[0], s = c.sizes[0], st = { qty: 1, shot: 0 };
+    const pw = s.printWidth;
+    const shirts = CAT.products.filter((x) => x.kind !== 'hat');
+    const pairPrice = (x) => { const ps = x.colors.flatMap((cc) => cc.sizes.filter((z) => z.available).map((z) => z.priceCents)).filter((v) => v != null); return ps.length ? Math.min(...ps) : null; };
+    el.innerHTML = `
+      <div class="hat__gallery">
+        <figure class="hat__shot"><img data-hatimg src="${esc(HAT_SHOTS[0].src)}" alt="${esc(HAT_SHOTS[0].alt)}" decoding="async"><figcaption class="tee__shown" data-hatcap>${esc(HAT_SHOTS[0].label)}${pw ? ` · embroidery ${inches(pw)} wide` : ''}</figcaption></figure>
+        <div class="hat__thumbs" role="group" aria-label="Views of the hat">
+          ${HAT_SHOTS.map((x, i) => `<button type="button" class="hat__thumb" data-shotn="${i}" aria-pressed="${i === 0}" aria-label="${esc(x.label)}"><img src="${esc(x.thumb)}" alt="" loading="lazy" width="64" height="64"></button>`).join('')}
+        </div>
+      </div>
+      <div class="hat__body">
+        <p class="hat__kicker">${p.onSale === false ? 'Owner’s preview · not on sale yet' : 'New · The official hat'}</p>
+        <div class="pkg__head">
+          <h3 class="pkg__name">${esc(p.label)}</h3>
+          <p class="pkg__price"><b data-price></b><span class="pkg__later">${CAT.wholesale ? 'Family price, shipping included' : 'Free US shipping'}</span></p>
+        </div>
+        <p class="hat__desc">${esc(p.description || '')}</p>
+        <ul class="hat__specs">${(p.specs || []).map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+        <p class="tee__fit">${esc(p.fitNote || '')}</p>
+        <dl class="hat__facts">
+          <div><dt>Colour</dt><dd>${esc(c.name.replace(' / ', ' front / '))} mesh</dd></div>
+          <div><dt>Fit</dt><dd>${esc(p.fit || '')}</dd></div>
+          <div><dt>Materials</dt><dd>${esc(p.fabric || '')}</dd></div>
+          <div><dt>Embroidery</dt><dd>White and red thread on the front${pw ? `, ${inches(pw)} wide` : ''}.</dd></div>
+          <div><dt>Delivery</dt><dd>Embroidered for you when you order; most orders arrive in 5–10 business days. With shirts in the same order it can arrive in its own package.</dd></div>
+          <div><dt>Returns</dt><dd>If it arrives damaged, with an embroidery defect or not as ordered, write to <a href="mailto:books@theciaasset.com">books@theciaasset.com</a> within 30 days of delivery with a photo and we’ll replace it free. One size and adjustable, so there is no size to exchange.</dd></div>
+        </dl>
+        <div class="tee__buy">
+          <div class="hc__qty" role="group" aria-label="Quantity">
+            <button type="button" class="hc__step" data-q="-1" aria-label="One fewer">−</button>
+            <output class="hc__n" data-qn aria-live="polite">1</output>
+            <button type="button" class="hc__step" data-q="1" aria-label="One more">+</button>
+          </div>
+          <button type="button" class="btn btn--red btn--lg tee__add" data-add>Add to cart <span aria-hidden="true">→</span></button>
+        </div>
+        <p class="tee__msg" data-msg role="status" aria-live="polite"></p>
+        ${shirts.length ? `<div class="hat__pair"><p class="hc__label">Wear it with the shirt</p><div class="hat__pairs">${shirts.map((x) => { const col = x.colors[0]; const img = photoOf(x.code, col.color, col.image); const from = pairPrice(x);
+          return `<button type="button" class="hat__pairbtn" data-pair="${esc(x.code)}">${img ? `<img src="${esc(img)}" alt="" loading="lazy" width="56" height="56">` : ''}<span><b>${esc(x.label)}</b><small>${from != null ? `${CAT.wholesale ? 'from ' : ''}${usd(from)}` : ''}${CAT.wholesale ? '' : ' · free US shipping'}</small></span></button>`; }).join('')}</div></div>` : ''}
+      </div>`;
+    function draw() {
+      const shot = HAT_SHOTS[st.shot];
+      const img = $('[data-hatimg]', el); img.src = shot.src; img.alt = shot.alt;
+      $('[data-hatcap]', el).textContent = `${shot.label}${pw && st.shot === 0 ? ` · embroidery ${inches(pw)} wide` : ''}`;
+      $$('[data-shotn]', el).forEach((b) => b.setAttribute('aria-pressed', String(Number(b.dataset.shotn) === st.shot)));
+      $('[data-price]', el).textContent = s.priceCents != null ? usd(s.priceCents) : '';
+      $('[data-qn]', el).textContent = String(st.qty);
+      $('[data-q="-1"]', el).disabled = st.qty <= 1; $('[data-q="1"]', el).disabled = st.qty >= MAX_QTY;
+      $('[data-add]', el).disabled = !s.available;
+      if (!s.available) $('[data-msg]', el).textContent = 'The hat is not available right now.';
+    }
+    el.addEventListener('click', (e) => {
+      const b = e.target.closest('button'); if (!b || b.disabled) return;
+      const msg = $('[data-msg]', el);
+      if (b.dataset.shotn) { st.shot = Number(b.dataset.shotn); draw(); return; }
+      if (b.dataset.q) { st.qty = Math.min(MAX_QTY, Math.max(1, st.qty + Number(b.dataset.q))); draw(); return; }
+      if (b.dataset.pair) { const card = $(`.tee[data-code="${CSS.escape(b.dataset.pair)}"]`); if (card) { card.scrollIntoView({ block: 'start', behavior: 'smooth' }); $('.tee__size:not([disabled])', card)?.focus({ preventScroll: true }); } return; }
+      if (b.hasAttribute('data-add')) { if (addToCart(s.sku, st.qty)) { msg.innerHTML = `Added to your cart: the hat${st.qty > 1 ? ` × ${st.qty}` : ''}. <button type="button" class="tee__view">View cart</button>`; st.qty = 1; draw(); } return; }
+      if (b.classList.contains('tee__view')) cartBtn?.click();
+    });
+    for (const x of HAT_SHOTS) { const im = new Image(); im.src = x.src; }   // every view ready
+    draw();
+    if ('IntersectionObserver' in window) new IntersectionObserver((es, io) => { if (es.some((x) => x.isIntersecting)) { io.disconnect(); track('hat_view', s.sku); } }, { threshold: 0.35 }).observe(el);
     return el;
   }
 
@@ -295,7 +407,14 @@
     }
     $('#shirtsPreview').hidden = !!(c.open || c.wholesale);
     const grid = $('#shirtsGrid'); grid.textContent = '';
-    for (const p of c.products) grid.append(card(p));
+    for (const p of c.products.filter((x) => x.kind !== 'hat')) grid.append(card(p));
+    // the hat, when PitchZing shows it (on sale, or the owner's preview): its own wide card after the shirts
+    const hat = c.products.find((x) => x.kind === 'hat');
+    if (hat) {
+      grid.append(hatCard(hat));
+      const k = $('.shirts__head .kicker'); if (k) k.textContent = 'The official shirt and hat';
+      const fine = $('.shirts__fine'); if (fine && !fine.dataset.hat) { fine.dataset.hat = '1'; fine.insertAdjacentText('beforeend', ' The hat is embroidered for you when you order and ships free too; if it arrives damaged or with an embroidery defect, the same 30-day replacement applies.'); }
+    }
     $$('[data-merch]').forEach((x) => { x.hidden = false; });
     renderCart();
     // a view is counted once, when the section is first seen

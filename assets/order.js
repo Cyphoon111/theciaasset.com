@@ -12,10 +12,14 @@
   let O = null, tick = 0;
 
   const STAGE_HINT = { received: 'We have your order. It is made after the first hour.', preparing: 'Your order is being prepared for printing.', printing: 'Your shirt is being printed.', shipped: 'On its way to you.', delivered: '' };
+  // an order with the hat (2026-11-17): embroidered, not printed, and it can come in more than one package
+  const HAT_HINT = { preparing: 'Your order is being prepared for production.', printing: 'Your order is being made.', partially_shipped: 'Part of your order is on its way.' };
   const CARRIER = { usps: 'USPS', ups: 'UPS', fedex: 'FedEx', dhl: 'DHL', dhl_ecommerce: 'DHL eCommerce' };
 
   function render(o) {
     O = o;
+    const hasHat = (o.items || []).some((i) => /Trucker Hat/.test(i.name || ''));
+    const hint = (k) => (hasHat && HAT_HINT[k] != null ? HAT_HINT[k] : hint(k));
     $('#title').textContent = `Order ${o.number}`;
     $('#placed').textContent = o.placedAt ? `Placed ${day(o.placedAt)}` : '';
     const note = $('#note'); note.textContent = o.note || ''; note.hidden = !o.note;
@@ -23,12 +27,17 @@
     $('#ended').hidden = !ended || !!o.note; $('#ended').textContent = ended && !o.note ? (o.stage === 'canceled' ? 'This order was canceled.' : 'This order was refunded.') : '';   // the note already says it
     const keys = (o.stages || []).map((s) => s[0]), at = keys.indexOf(o.stage);
     $('#steps').hidden = ended;
-    $('#steps').innerHTML = (o.stages || []).map(([k, label], i) => `<li class="${i < at || (k === 'delivered' && o.stage === 'delivered') ? 'done' : i === at ? 'now' : ''}"${i === at ? ' aria-current="step"' : ''}><span>${esc(label)}${i === at && STAGE_HINT[k] ? `<small>${esc(STAGE_HINT[k])}</small>` : ''}</span></li>`).join('');
+    $('#steps').innerHTML = (o.stages || []).map(([k, label], i) => `<li class="${i < at || (k === 'delivered' && o.stage === 'delivered') ? 'done' : i === at ? 'now' : ''}"${i === at ? ' aria-current="step"' : ''}><span>${esc(label)}${i === at && hint(k) ? `<small>${esc(hint(k))}</small>` : ''}</span></li>`).join('');
     const s = o.shipment, ship = $('#ship');
-    if (s || o.shipTo) {
+    // every package (an order with a hat and shirts can ship as two), each with its tracking and what is in it
+    const parcels = Array.isArray(o.shipments) && o.shipments.length ? o.shipments : s ? [s] : [];
+    const trackOf = (p) => `${esc(CARRIER[String(p.carrier || '').toLowerCase()] || p.carrier || 'Carrier')} tracking: ${p.url && /^https:\/\//.test(p.url) ? `<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${esc(p.number)}</a>` : `<b>${esc(p.number)}</b>`}`;
+    const when = (p) => (p.shippedAt ? `Shipped ${esc(day(p.shippedAt))}${p.deliveredAt ? ` · delivered ${esc(day(p.deliveredAt))}` : ''}` : '');
+    if (parcels.length > 1 || o.shipTo) {
       const to = o.shipTo ? `<p>To ${esc(o.shipTo.name || '')}${o.shipTo.city ? `, ${esc(o.shipTo.city)}` : ''}${o.shipTo.state ? `, ${esc(o.shipTo.state)}` : ''}. ${o.freeShipping === false ? 'Shipping included in the price.' : 'Free shipping.'}</p>` : '';
       const track = s ? `<p>${esc(CARRIER[String(s.carrier || '').toLowerCase()] || s.carrier || 'Carrier')} tracking: ${s.url && /^https:\/\//.test(s.url) ? `<a href="${esc(s.url)}" target="_blank" rel="noopener noreferrer">${esc(s.number)}</a>` : `<b>${esc(s.number)}</b>`}</p>${s.shippedAt ? `<p>Shipped ${esc(day(s.shippedAt))}${s.deliveredAt ? ` · delivered ${esc(day(s.deliveredAt))}` : ''}</p>` : ''}` : '';
-      $('#shipBody').innerHTML = track + to; ship.hidden = false;
+      const many = parcels.length > 1 ? parcels.map((p, n) => `<div class="parcel"><p><b>Package ${n + 1} of ${parcels.length}</b>${p.items?.length ? ` · ${esc(p.items.join(', '))}` : ''}</p><p>${trackOf(p)}</p>${when(p) ? `<p>${when(p)}</p>` : ''}</div>`).join('') : null;
+      $('#shipBody').innerHTML = (many ?? track) + to; ship.hidden = false;
     } else ship.hidden = true;
     $('#items').innerHTML = (o.items || []).map((i) => `<li><span>${esc(i.name)}${i.quantity > 1 ? ` × ${i.quantity}` : ''}</span><b>${usd(i.unitCents * i.quantity)}</b></li>`).join('');
     $('#sum').innerHTML = `<div><span>Subtotal</span><span>${usd(o.subtotalCents)}</span></div>${o.taxCents ? `<div><span>Nevada sales tax</span><span>${usd(o.taxCents)}</span></div>` : ''}<div><span>Shipping</span><span>${o.freeShipping === false ? 'Included' : 'Free'}</span></div><div class="total"><span>Total</span><span>${usd(o.totalCents)}</span></div>${o.refundedCents ? `<div><span>Refunded</span><span>${usd(o.refundedCents)}</span></div>` : ''}`;
