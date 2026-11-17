@@ -60,10 +60,12 @@
   // DELIVER ... MUST ABSOLUTELY REPRESENT PRECISELY WHAT WE ARE REPRESENTING"): Jason's own four example photos. Each shirt now
   // prints the design taken from his photo of that shirt; in each photo the design is re-placed at the size and position the
   // printer really prints it on size L (width and top below the collar, as shares of the chest, from Printify's render of the
-  // real product), the shirt where it used to reach filled with that shirt's own fabric. Built in the scratchpad art lab
+  // real product), the shirt where it used to reach filled with that shirt's own fabric. Since v4 (Jason: "Yes, trim it") the
+  // design's outer smoke and drips are trimmed so its face and lettering print at his examples' own size on the unisex tee
+  // (92 % on the women's, the most its printers allow). Built in the scratchpad art lab
   // (extract.html → the print files, truesize.html → these photos); rebuild them whenever the art, the printer or the
   // placement changes.
-  const SHOTS = { NL3600: { black: 'assets/shirts/unisex-black-L.jpg?v=3', white: 'assets/shirts/unisex-white-L.jpg?v=3' }, BC6004: { black: 'assets/shirts/womens-black-L.jpg?v=3', white: 'assets/shirts/womens-white-L.jpg?v=3' } };
+  const SHOTS = { NL3600: { black: 'assets/shirts/unisex-black-L.jpg?v=4', white: 'assets/shirts/unisex-white-L.jpg?v=4' }, BC6004: { black: 'assets/shirts/womens-black-L.jpg?v=4', white: 'assets/shirts/womens-white-L.jpg?v=4' } };
   const SHOWN = 'L';
   const photoOf = (code, color, fallback) => SHOTS[code]?.[color] || fallback || null;
   const inches = (n) => `${Number(n).toFixed(1)}\u2033`;
