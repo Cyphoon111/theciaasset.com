@@ -443,8 +443,8 @@
     $('#shirtsPreview').hidden = !!(c.open || c.wholesale);
     const grid = $('#shirtsGrid'); grid.textContent = '';
     for (const p of c.products.filter((x) => x.kind !== 'hat')) grid.append(card(p));
-    // the hat, when PitchZing shows it (on sale, or the owner's preview): its own wide card after the shirts
-    // every hat PitchZing lists (on sale, or the owner's preview): its own wide card after the shirts (the trucker, the cap)
+    // every hat PitchZing lists (on sale, or the owner's preview): a card the size of a shirt card, side by side right under
+    // the two shirts (the trucker, the cap; 2026-11-17)
     const hats = c.products.filter((x) => x.kind === 'hat');
     for (const h of hats) grid.append(hatCard(h));
     if (hats.length) {
