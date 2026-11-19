@@ -38,7 +38,7 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=110">
+<link rel="stylesheet" href="assets/site.css?v=111">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Jeffrey Epstein Was A CIA Asset, the new book by Jason Sullivan, is available now for early review: the documented story of the intelligence apparatus that made Jeffrey Epstein.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"bookFormat":"https://schema.org/EBook","genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/"}]}
 </script>
@@ -662,17 +662,28 @@
         <h2 class="h-display">Request <span class="red">access.</span></h2>
         <p class="sec-sub">For journalists, producers, podcast hosts, book reviewers, books desks and literary agents.</p>
       </header>
-      <div class="prcontact reveal">
-        <a class="prcontact__logo" href="https://www.truthpr.com" target="_blank" rel="noopener"><img src="assets/truthpr-logo.png" alt="TruthPR" width="828" height="231" loading="lazy"></a>
-        <div class="prcontact__body">
-          <p class="prcontact__k">Media contact</p>
-          <h3 class="prcontact__name">Jackie Jones <span>TruthPR</span></h3>
-          <dl class="prcontact__list">
-            <div><dt>Phone</dt><dd><a href="tel:+13166449538">316-644-9538</a></dd></div>
-            <div><dt>Email</dt><dd><a href="mailto:jackie@truthpr.com?subject=Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">jackie@truthpr.com</a></dd></div>
-            <div><dt>Website</dt><dd><a href="https://www.truthpr.com" target="_blank" rel="noopener">www.truthpr.com</a></dd></div>
-          </dl>
+      <!-- PR requests (Jason, 2026-11-19: "replace that with a form for PR requests", in the place of the old media
+           contact). Sent like the request pop-ups (site.js, POST /public/book-site/request, kind "pr") and emailed by
+           PitchZing to the addresses in BOOK_SITE_REQUEST_TO, Reply-To the requester. -->
+      <div class="prform reveal" id="pr">
+        <div class="prform__head">
+          <p class="prform__k">PR requests</p>
+          <h3 class="prform__title">Send a PR request</h3>
+          <p class="prform__sub">Publicity, press and media inquiries: tell us who you are, what you need and how to reach you. Every request gets a reply.</p>
         </div>
+        <form class="reqd__form prform__form" data-kind="pr" novalidate>
+          <label class="reqd__field"><span>Full name <i>*</i></span><input name="name" autocomplete="name" maxlength="120" required></label>
+          <label class="reqd__field"><span>You are with a <i>*</i></span><select name="org_type" required><option value="">Choose one</option><option>Media publication</option><option>TV show</option><option>Radio show</option><option>Podcast</option><option>Newspaper</option><option>Magazine</option><option>Journalist</option><option>Writer</option><option>Book reviewer</option><option>Event or speaking</option><option>Business or brand</option><option>Other</option></select></label>
+          <label class="reqd__field"><span>Publication, show or organization <i>*</i></span><input name="org_name" autocomplete="organization" maxlength="160" placeholder="Freelance? Write “Freelance”" required></label>
+          <label class="reqd__field"><span>Website</span><input type="url" name="website" autocomplete="url" inputmode="url" autocapitalize="off" spellcheck="false" maxlength="500" placeholder="https://"></label>
+          <label class="reqd__field"><span>Email <i>*</i></span><input type="email" name="email" autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false" maxlength="254" placeholder="you@example.com" required></label>
+          <label class="reqd__field"><span>Phone <i>*</i></span><input type="tel" name="phone" autocomplete="tel" inputmode="tel" maxlength="40" required></label>
+          <label class="reqd__field prform__wide"><span>Your request <i>*</i></span><textarea name="message" rows="4" maxlength="2000" placeholder="What you need, by when, and any details" required></textarea></label>
+          <div class="trap" aria-hidden="true"><label>Leave this empty <input name="hp" tabindex="-1" autocomplete="off"></label></div>
+          <div class="human prform__wide"></div>
+          <button class="btn btn--red btn--lg reqd__send" type="submit">Send PR request <span aria-hidden="true">→</span></button>
+          <p class="reqd__msg prform__wide" role="status" aria-live="polite"></p>
+        </form>
       </div>
       <div class="press__grid">
         <a class="pcard reveal" data-request="interview" href="mailto:jsullivan@legalbrains.com?subject=Interview%20request%3A%20Jeffrey%20Epstein%20Was%20A%20CIA%20Asset">
@@ -948,7 +959,7 @@
   <p class="size__note" id="sizeNote">Measured flat, in inches (±0.5 in). Chest width is measured 1 inch below the armholes; double it for the full chest. Length is from the highest point of the shoulder to the hem. Print width is how wide the design prints across the front of that size (where the two colours differ, the narrower); the photos show size L.</p>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=104" defer></script>
+<script src="assets/site.js?v=105" defer></script>
 <script src="assets/merch.js?v=14" defer></script>
 </body>
 </html>

@@ -1100,39 +1100,43 @@
       if (e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom) d.close();
     });
   });
+  // the same form in the Press section itself (the PR request form, data-kind "pr"; Jason, 2026-11-19): its human check
+  // loads when the visitor starts filling it in, and the thank-you takes its place (no Close button)
   $$('.reqd__form').forEach((f) => {
     const msg = $('.reqd__msg', f), btn = $('.reqd__send', f), box = $('.human', f);
-    const checks = {
+    const checks = Object.fromEntries(Object.entries({
       name: (v) => v.length >= 2,
       org_type: (v) => !!v,
       org_name: (v) => v.length >= 2,
       email: (v) => /^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(v),
       phone: (v) => { const d = v.replace(/\D/g, ''); return d.length >= 7 && d.length <= 15 && !/[^\d\s()+.\-]/.test(v); },
       website: (v) => /^(https?:\/\/)?[^\s/]+\.[^\s]{2,}/i.test(v),
-    };
+      message: (v) => v.replace(/\s+/g, ' ').length >= 10,   // a PR request's own words (worker MESSAGE_MIN)
+    }).filter(([n]) => f.elements[n]));
+    if (!f.closest('dialog')) f.addEventListener('focusin', () => human.mount(box), { once: true });
     f.addEventListener('input', (e) => { const fld = e.target.closest('.reqd__field'); if (fld) fld.classList.remove('is-bad'); });
     f.addEventListener('submit', async (e) => {
       e.preventDefault();
       const v = (n) => String(f.elements[n].value || '').trim();
       // a field without `required` (the website on an interview request) may be left blank, but one that is filled in must be valid
       const bad = Object.keys(checks).filter((n) => (v(n) || f.elements[n].required) && !checks[n](v(n)));
-      $$('.reqd__field', f).forEach((fld) => fld.classList.toggle('is-bad', bad.includes(($('input, select', fld) || {}).name)));
+      $$('.reqd__field', f).forEach((fld) => fld.classList.toggle('is-bad', bad.includes(($('input, select, textarea', fld) || {}).name)));
       msg.classList.remove('is-err');
       if (bad.length) {
-        msg.textContent = bad.some((n) => f.elements[n].required) ? 'Please fill in every field marked *.' : 'Please check the website address, or leave it blank.';
+        msg.textContent = bad.some((n) => f.elements[n].required && !(n === 'message' && v(n))) ? 'Please fill in every field marked *.' : bad.includes('message') ? 'Please say a little more about your request.' : 'Please check the website address, or leave it blank.';
         msg.classList.add('is-err'); f.elements[bad[0]].focus(); return;
       }
       const label = btn.innerHTML;
       btn.disabled = true; btn.textContent = 'Sending…'; msg.textContent = '';
       try {
         const token = await human.token(box, 6000, () => { msg.textContent = 'Tick the box to confirm you are human.'; });
-        const body = { kind: f.dataset.kind, name: v('name'), org_type: v('org_type'), org_name: v('org_name'), email: v('email'), phone: v('phone'), website: v('website'), hp: v('hp'), human: token, site: 'theciaasset.com', page: location.href };
+        const body = { kind: f.dataset.kind, name: v('name'), org_type: v('org_type'), org_name: v('org_name'), email: v('email'), phone: v('phone'), website: v('website'), message: f.elements.message ? v('message') : undefined, hp: v('hp'), human: token, site: 'theciaasset.com', page: location.href };
         const r = await fetch(REQUEST_URL, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) throw new Error(j.error || `The request could not be sent (${r.status}). Please try again.`);
-        const first = v('name').split(/\s+/)[0];
-        f.outerHTML = `<p class="reqd__done"><strong>Thank you${first ? `, ${first.replace(/[<>&"]/g, '')}` : ''}.</strong> Your ${f.dataset.kind === 'rights' ? 'inquiry' : 'request'} has been sent, and you will hear back by email or phone.</p><button class="btn btn--ghost btn--sm" type="button" data-close>Close</button>`;
-        $$('[data-close]', $(`#req-${body.kind}`)).forEach((b) => b.addEventListener('click', () => $(`#req-${body.kind}`).close()));
+        const first = v('name').split(/\s+/)[0], dlg = f.closest('dialog');
+        f.outerHTML = `<p class="reqd__done"><strong>Thank you${first ? `, ${first.replace(/[<>&"]/g, '')}` : ''}.</strong> Your ${f.dataset.kind === 'rights' ? 'inquiry' : f.dataset.kind === 'pr' ? 'PR request' : 'request'} has been sent, and you will hear back by email or phone.</p>${dlg ? '<button class="btn btn--ghost btn--sm" type="button" data-close>Close</button>' : ''}`;
+        if (dlg) $$('[data-close]', dlg).forEach((b) => b.addEventListener('click', () => dlg.close()));
       } catch (err) {
         msg.textContent = err && err.message && !/Failed to fetch|NetworkError|Load failed/i.test(err.message) ? err.message : 'The request could not be sent. Check your connection and try again.';
         msg.classList.add('is-err');
