@@ -1846,6 +1846,19 @@
       if (m !== bankEl) { bankObs.disconnect(); bankEl = m; if (m) bankObs.observe(m, { attributes: true, attributeFilter: ['class', 'style'] }); }
       bankWatch();
     }).observe(document.body, { childList: true });
+    // an address that cannot receive mail: said in the window with the likely fix one tap away (nothing was charged)
+    let emailOkFor = '';
+    const emailProblem = (text, suggest) => {
+      const msg = $('#payMsg'), box = $('#payEmail');
+      msg.textContent = text || 'Please check your email address.';
+      if (suggest) {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'paydlg__fix'; b.textContent = `Use ${suggest}`;
+        b.addEventListener('click', () => { box.value = suggest; emailOkFor = ''; msg.textContent = 'Fixed. Press Pay when you are ready.'; box.focus(); });
+        msg.append(' ', b);
+      }
+      box.focus(); box.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    };
+    $('#payEmail')?.addEventListener('input', () => { emailOkFor = ''; });
     $('#payForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
       if (paying || !sqCard || !payQ) return;
@@ -1854,6 +1867,16 @@
       const msg = $('#payMsg'), go = $('#payGo'), q = payQ;
       if (!$('#payTerms').checked) { msg.textContent = 'Tick the box above to agree to the terms, then press Pay.'; $('#payTerms').closest('label').scrollIntoView({ block: 'center', behavior: 'smooth' }); $('#payTerms').focus({ preventScroll: true }); return; }
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.textContent = 'Enter the email address your copy should go to.'; $('#payEmail').focus(); return; }
+      // can the address receive mail (PitchZing emailcheck.mjs; 2026-11-19, a pre-order came in as "…@hotmail.co" and its
+      // confirmation went nowhere)? Asked before the card is tokenized, so a typo is fixed before any bank check; when the
+      // check cannot be reached the payment goes on (the store refuses an undeliverable address again by itself)
+      if (emailOkFor !== email.toLowerCase()) {
+        paying = true; go.disabled = true; go.textContent = 'Checking…';
+        const c = await fetch(`${STORE_API}/email-check`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ email }), signal: AbortSignal.timeout ? AbortSignal.timeout(5000) : undefined }).then((r) => r.json()).catch(() => null);
+        paying = false; go.textContent = `Pay ${usd2(q.today)}`; syncGo();
+        if (c && c.ok === false) { emailProblem(c.error, c.suggest); return; }
+        emailOkFor = email.toLowerCase();
+      }
       let ship = null;
       if (q.shipping) {
         ship = { name: $('#shipName').value.trim(), line1: $('#shipLine1').value.trim(), line2: $('#shipLine2').value.trim(), city: $('#shipCity').value.trim(), state: $('#shipState').value.trim().toUpperCase(), postal: $('#shipPostal').value.trim() };
@@ -1870,6 +1893,7 @@
         const j = await r.json().catch(() => ({}));
         // the total moved (another address, say): shown again for the buyer to agree to; nothing was charged
         if (r.status === 409 && j.quote) { payQ = { ...payQ, ...j.quote }; showQuote(payQ); $('#payTerms').checked = false; addrKey = ''; throw new Error(j.error); }
+        if (r.status === 400 && j.field === 'email') { emailOkFor = ''; go.textContent = `Pay ${usd2(q.today)}`; emailProblem(j.error, j.emailSuggest || null); return; }
         if (!r.ok || !j.ok) throw new Error(j.error || 'The payment did not go through. Nothing was charged. Please try again.');
         paying = false; payDlg.close();
         payThanks(payReq, j);

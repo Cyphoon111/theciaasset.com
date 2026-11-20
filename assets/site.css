@@ -710,6 +710,9 @@ html.kb-open .thanks .paydlg__foot { position: static; box-shadow: none; }
 .paydlg__go:disabled { opacity: .45; cursor: not-allowed; }
 .thanks .paydlg__msg { margin: 10px 0 0; font-size: 14px; font-weight: 600; color: var(--red-ink); }
 .paydlg__msg:empty { display: none; }
+.paydlg__fix { display: inline-block; margin: 6px 0 0; padding: 6px 13px; border: 2px solid var(--red); border-radius: 999px; background: #fff; color: var(--red-ink); font: inherit; font-size: 14px; font-weight: 800; cursor: pointer; overflow-wrap: anywhere; text-align: left; }
+.paydlg__fix:hover { background: #fdf0f0; }
+.paydlg__fix:focus-visible { outline: 3px solid currentColor; outline-offset: 2px; }
 .thanks .paydlg__fine { margin: 12px 0 0; font-size: 12px; line-height: 1.45; color: var(--muted); }
 /* Square's badge at the window's foot, with clear space around it (Square's brand guidelines: unaltered, clear space) */
 .thanks .paydlg__sq { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 18px 0 0; padding: 16px 0 4px; border-top: 1px solid var(--line); text-align: center; }
