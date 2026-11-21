@@ -1512,16 +1512,25 @@
     });
     const fsChange = () => { vid.controls = (document.fullscreenElement || document.webkitFullscreenElement) === vid; };
     document.addEventListener('fullscreenchange', fsChange); document.addEventListener('webkitfullscreenchange', fsChange);
+    // the viewers' comments reel beside it (Jason, 2026-11-21: "a side pop that play at the same time. We can mute the music on
+    // it"): silent, on a loop, from the moment the pop-up appears (a muted video may start by itself, an iPhone's too), paused
+    // when it closes; it starts with the interview as well, should a browser have held it back. Not on a data-saver connection,
+    // where its poster stays until the interview is played.
+    const side = $('.vpop__sidevid', vpop);
+    const sidePlay = () => { if (!side || !vpop.open) return; side.muted = true; side.preload = 'auto'; if (side.paused) side.play().catch(() => {}); };
+    const saveData = !!(navigator.connection && navigator.connection.saveData);
+    if (side) vid.addEventListener('play', sidePlay);
     const open = () => {
       if (vpop.open) return;
       quiet.hold();
       vid.preload = 'auto';
       vpop.showModal();
+      if (!saveData) sidePlay();
       document.documentElement.classList.add('is-slam'); setTimeout(() => document.documentElement.classList.remove('is-slam'), 900);   // the page jolts at the hit
       playBtn.focus({ preventScroll: true });
       paint();
     };
-    vpop.addEventListener('close', () => { vid.pause(); quiet.release(); trailer.close(); });   // the lens starts now (trailer)
+    vpop.addEventListener('close', () => { vid.pause(); if (side) side.pause(); quiet.release(); trailer.close(); });   // the lens starts now (trailer)
     $('.vpop__x', vpop).addEventListener('click', () => vpop.close());
     vpop.addEventListener('click', (e) => { if (onBackdrop(vpop, e)) vpop.close(); });   // the dimmed backdrop
     const showWhenFree = () => {

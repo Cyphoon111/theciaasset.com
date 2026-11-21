@@ -38,7 +38,7 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=112">
+<link rel="stylesheet" href="assets/site.css?v=114">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Who made Jeffrey Epstein? Following a chain of records from 1964 to 2019, investigator Jason Sullivan documents the covert U.S. intelligence and financial apparatus that spotted, recruited and deployed him.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/","workExample":[{"@type":"Book","@id":"https://theciaasset.com/#hardcover","name":"Jeffrey Epstein Was A CIA Asset","bookFormat":"https://schema.org/Hardcover","isbn":"9798234309655","numberOfPages":1054,"bookEdition":"First edition","datePublished":"2026-12-15","publisher":{"@type":"Organization","name":"Jason Sullivan"},"author":{"@type":"Person","name":"Jason Sullivan"},"offers":{"@type":"Offer","price":"49.99","priceCurrency":"USD","availability":"https://schema.org/PreOrder","url":"https://theciaasset.com/"}},{"@type":"Book","@id":"https://theciaasset.com/#ebook","name":"Jeffrey Epstein Was A CIA Asset","bookFormat":"https://schema.org/EBook","author":{"@type":"Person","name":"Jason Sullivan"},"offers":{"@type":"Offer","price":"14.99","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://theciaasset.com/"}},{"@type":"Book","@id":"https://theciaasset.com/#audiobook","name":"Jeffrey Epstein Was A CIA Asset","bookFormat":"https://schema.org/AudiobookFormat","author":{"@type":"Person","name":"Jason Sullivan"},"offers":{"@type":"Offer","price":"19.99","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://theciaasset.com/"}}]}]}
 </script>
@@ -853,14 +853,22 @@
 <!-- the trailer pop-up (Jason, 2026-11-04): 2 s after the opening screen, on every visit; site.js. Its reels play one after
      another, in the order of data-reels (Jason, 2026-11-12): the interview sizzle reel first (on videos.unleashed.news: five
      minutes, too large for this site), then the book's sizzle reel. Both are levelled to -14 LUFS so the second does not jump. -->
+<!-- beside it, the viewers' comments reel (Jason, 2026-11-21: "add this video as a side pop that play at the same time. We can
+     mute the music on it. It should compliment Michael's intro video"): a silent 720x1280 copy of his reel, playing on a loop
+     from the moment the pop-up appears; to the right on a wide screen, under the interview on a tall one (site.css vpop__side). -->
 <dialog class="vpop" id="vpop" aria-label="The interview and the book's trailer">
   <button class="vpop__x" type="button" aria-label="Close the video">×</button>
+  <div class="vpop__stage">
   <div class="vpop__frame">
     <video class="vpop__video" src="https://videos.unleashed.news/theciaasset/franzese-history-opener.mp4" poster="https://videos.unleashed.news/theciaasset/franzese-history-opener.jpg" preload="none" playsinline width="1920" height="1080"
       data-reels='[{"src":"https://videos.unleashed.news/theciaasset/franzese-history-opener.mp4","poster":"https://videos.unleashed.news/theciaasset/franzese-history-opener.jpg","label":"the interview"},{"src":"assets/trailer.mp4?v=4","poster":"assets/trailer-poster.jpg?v=3","label":"the book&#39;s trailer"}]'></video>
     <button class="vpop__play" type="button" aria-label="Play the video"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg></button>
     <button class="vpop__fs" type="button" aria-label="Watch full screen" title="Full screen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     <div class="vpop__bar" aria-hidden="true"><i></i></div>
+  </div>
+  <div class="vpop__side">
+    <video class="vpop__sidevid" src="assets/comments-reel.mp4?v=1" poster="assets/comments-reel-poster.jpg?v=1" muted loop playsinline preload="none" width="720" height="1280" disablepictureinpicture disableremoteplayback aria-label="What viewers are saying: comments on Jason Sullivan's interview with Michael Franzese"></video>
+  </div>
   </div>
 </dialog>
 
@@ -959,7 +967,7 @@
   <p class="size__note" id="sizeNote">Measured flat, in inches (±0.5 in). Chest width is measured 1 inch below the armholes; double it for the full chest. Length is from the highest point of the shoulder to the hem. Print width is how wide the design prints across the front of that size (where the two colours differ, the narrower); the photos show size L.</p>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=107" defer></script>
+<script src="assets/site.js?v=108" defer></script>
 <script src="assets/merch.js?v=14" defer></script>
 </body>
 </html>
