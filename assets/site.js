@@ -26,8 +26,6 @@
   }
   addEventListener('pageshow', (e) => { if (e.persisted) toTop(); });
 
-  window.__ciaReady = true;
-
   /* ---------- human check: Cloudflare Turnstile, invisible to most visitors; it shows one box to tick only when it is unsure.
      The site key lives in <meta name="turnstile-sitekey">; empty turns the check off. A sign-up whose check cannot run
      (a blocked script) is still sent, and the list stores it marked for review. ---------- */
@@ -175,6 +173,8 @@
     });
   }
   const whenGateOpen = (fn) => { if (gateOpen) fn(); else onGateOpen.push(fn); };
+  // the opening screen is wired: boot.js's safety net stands down (without this flag it opens the site itself)
+  window.__ciaReady = true;
 
   /* ---------- toast ---------- */
   const toastEl = $('#toast');
@@ -820,7 +820,8 @@
     const open = (img) => {
       const small = img.currentSrc || img.src, full = fullOf(small);
       zImg.src = small; zImg.alt = img.alt;
-      zCap.innerHTML = img.closest('figure')?.querySelector('figcaption')?.innerHTML || '';
+      const zFig = img.closest('figure'), zFc = zFig && zFig.querySelector('figcaption');
+      zCap.innerHTML = (zFc && zFc.innerHTML) || '';
       want = full;
       if (full !== small) {   // swap once the big one is loaded and decoded (so the frame never flashes empty), waiting at most 0.4 s on the decode
         const pre = new Image();
@@ -974,11 +975,11 @@
     $$('[data-bio]', bioCard).forEach((btn) => btn.addEventListener('click', async () => {
       const isFull = btn.dataset.bio === 'full';
       const text = isFull ? fullParas.join('\n\n') : short.textContent.trim();
-      const copying = copyNow(text) ? Promise.resolve() : navigator.clipboard?.writeText(text);
+      const copying = copyNow(text) ? Promise.resolve() : (navigator.clipboard && navigator.clipboard.writeText(text));
       const at = bioCard.getBoundingClientRect().top + scrollY;   // the card's place on the page (nothing above it changes)
       short.hidden = isFull; full.hidden = !isFull; title.textContent = isFull ? 'Full bio' : 'Short bio';
       // the browser keeps the buttons where they were, so the new text can start above the screen: bring its heading back
-      requestAnimationFrame(() => { const navH = $('.nav')?.offsetHeight || 0; if (at - scrollY < navH) scrollTo({ top: at - navH - 12, behavior: 'smooth' }); });
+      requestAnimationFrame(() => { const navEl = $('.nav'), navH = (navEl && navEl.offsetHeight) || 0; if (at - scrollY < navH) scrollTo({ top: at - navH - 12, behavior: 'smooth' }); });
       try { if (!copying) throw 0; await copying; toast(isFull ? 'Full bio copied.' : 'Short bio copied.'); }
       catch { const r = document.createRange(); r.selectNodeContents(isFull ? full : short); const s = getSelection(); s.removeAllRanges(); s.addRange(r); toast('Bio selected. Press Copy.'); }
     }));
@@ -1008,7 +1009,7 @@
     };
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      if (file && navigator.canShare?.({ files: [file] })) navigator.share({ files: [file] }).catch((err) => { if (err?.name !== 'AbortError') pressAndHold(); });
+      if (file && navigator.canShare && navigator.canShare({ files: [file] })) navigator.share({ files: [file] }).catch((err) => { if (!(err && err.name === 'AbortError')) pressAndHold(); });
       else pressAndHold();
     });
   });
@@ -1204,7 +1205,8 @@
   });
   $$('[data-freq-to]').forEach((b) => b.addEventListener('click', () => {
     setFreq(b.dataset.freqTo);
-    freqOpts.find((o) => o.dataset.freq === b.dataset.freqTo)?.focus({ preventScroll: true });   // the upsell itself is now hidden
+    const toOpt = freqOpts.find((o) => o.dataset.freq === b.dataset.freqTo);
+    if (toOpt) toOpt.focus({ preventScroll: true });   // the upsell itself is now hidden
   }));
   if (freqOpts.length) setFreq('monthly');
 
@@ -1255,7 +1257,8 @@
     });
     $$('[data-amount]').forEach((b) => b.addEventListener('click', () => {
       product = KINDS[b.dataset.amount] ? b.dataset.amount : 'bundle'; K = KINDS[product];
-      monthly = $('.freq__opt[data-freq="monthly"]')?.getAttribute('aria-checked') === 'true';
+      const monthOpt = $('.freq__opt[data-freq="monthly"]');
+      monthly = !!monthOpt && monthOpt.getAttribute('aria-checked') === 'true';
       // from Election Day the ebook's button opens this window only for Monthly, from $10 (Jason, 2026-10-28)
       if (Date.now() >= FULL_AT && product === 'ebook' && monthly) K = { ...K, min: 1000, start: 1000 };
       // monthly from Nov 4 the audiobook's options start lower (Jason, 2026-11-04: $14.99, $19.99, $24.99 a month)
@@ -1296,7 +1299,7 @@
      tap, then the price in that product section should adjust accordingly"): the round button on the ebook's and the bundle's
      cards marks the card (data-addon-on), and site.css shows "+ $10 a month", the add-on's button and the two-checkout line
      in place of the plain Square link. Under Monthly the tab says Included, with a gold FREE seal, instead. ---------- */
-  const addonSync = () => $$('[data-addon]').forEach((cb) => cb.closest('[data-addon-card]')?.toggleAttribute('data-addon-on', cb.checked));
+  const addonSync = () => $$('[data-addon]').forEach((cb) => { const addonCard = cb.closest('[data-addon-card]'); if (addonCard) addonCard.toggleAttribute('data-addon-on', cb.checked); });
   $$('[data-addon]').forEach((cb) => cb.addEventListener('change', addonSync));
   addonSync(); addEventListener('pageshow', addonSync);   // a browser that restores the choice on the way back
   // and the audiobook's one-time options (2026-11-13: "It's a ONE TIME PURCHASE"): data-buy, at its price (data-cents), the same way;
@@ -1710,13 +1713,13 @@
     } catch { addrKey = ''; msg.textContent = 'The total could not be checked. Please try again.'; }
     syncGo();
   }
-  $('#shipPostal')?.addEventListener('input', () => { clearTimeout(addrTimer); addrTimer = setTimeout(requote, 350); });
-  $('#shipCounty')?.addEventListener('change', () => requote());
+  if ($('#shipPostal')) $('#shipPostal').addEventListener('input', () => { clearTimeout(addrTimer); addrTimer = setTimeout(requote, 350); });
+  if ($('#shipCounty')) $('#shipCounty').addEventListener('change', () => requote());
   async function openCheckout(req) {
     if (paying) return;
     payReq = req; payQ = null; addrKey = ''; countyZip = ''; payAttempt = newAttempt(); payPress = 0;
     if ($('#shipCountyRow')) { $('#shipCountyRow').hidden = true; $('#shipCounty').value = ''; }
-    const emailLabel = $('#payEmail')?.closest('label')?.querySelector('span');
+    const payLabel = $('#payEmail') && $('#payEmail').closest('label'), emailLabel = payLabel && payLabel.querySelector('span');
     if (emailLabel) emailLabel.textContent = req.kind === 'merch' ? 'Email for your order updates and receipt' : 'Email for your copy and receipt';
     const msg = $('#payMsg'); msg.textContent = '';
     $('#payTitle').textContent = 'One moment…'; $('#payLines').innerHTML = ''; $('#payToday').textContent = ''; $('#payNote').hidden = true;
@@ -1858,7 +1861,7 @@
       }
       box.focus(); box.scrollIntoView({ block: 'center', behavior: 'smooth' });
     };
-    $('#payEmail')?.addEventListener('input', () => { emailOkFor = ''; });
+    if ($('#payEmail')) $('#payEmail').addEventListener('input', () => { emailOkFor = ''; });
     $('#payForm').addEventListener('submit', async (ev) => {
       ev.preventDefault();
       if (paying || !sqCard || !payQ) return;
@@ -1911,7 +1914,7 @@
 
   /* ---------- links from earlier emails ---------- */
   const qp = new URLSearchParams(location.search);
-  if (fresh && (qp.has('amount') || qp.has('section'))) setTimeout(() => $('#notify')?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }), 600);
+  if (fresh && (qp.has('amount') || qp.has('section'))) setTimeout(() => { const notifyEl = $('#notify'); if (notifyEl) notifyEl.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' }); }, 600);
   if (qp.get('payment') === 'success') setTimeout(() => toast('Thank you for supporting the book.'), 800);
 
   const yr = $('#year'); if (yr) yr.textContent = String(new Date().getFullYear());
