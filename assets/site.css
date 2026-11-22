@@ -818,14 +818,15 @@ dialog::backdrop { overflow: hidden; overscroll-behavior: contain; }
 .vpop__stage { display: flex; align-items: flex-start; gap: var(--g); }
 .vpop__frame { flex: none; width: var(--w); }
 .vpop__side { flex: none; position: relative; width: calc(var(--w) * .31640625); aspect-ratio: 9 / 16; background: #0b0b0d; border-radius: 12px; overflow: hidden; box-shadow: 0 40px 110px -30px rgba(0, 0, 0, .9), 0 0 0 1px rgba(255, 255, 255, .08); }
-.vpop__sidevid { display: block; width: 100%; height: 100%; object-fit: cover; background: #0b0b0d; }
+/* the video fills its card without lending the card its own 720px width (Safari sized the pop-up by it, 2026-11-21) */
+.vpop__sidevid { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: cover; background: #0b0b0d; }
 .vpop[open] .vpop__side { animation: vpopSide .75s .5s cubic-bezier(.16, .84, .3, 1) both, vpopHit .7s 1.1s ease-out both; }
 @keyframes vpopSide { 0% { opacity: 0; transform: translate(var(--sx), var(--sy)) scale(.94); } 100% { opacity: 1; transform: none; } }
 /* a tall screen (a phone, an iPad held upright): the reel under the interview, centred, the interview at most half the height */
 @media (max-aspect-ratio: 11/10) {
-  .vpop { --avail: calc(var(--vh) * 100 - 150px); --w: min(94vw, 1120px, calc(var(--avail) * .5 * 16 / 9)); --sx: 0px; --sy: 40px; }
+  .vpop { --avail: calc(var(--vh) * 100 - 150px); --w: min(94vw, 1120px, calc(var(--avail) * .5 * 16 / 9)); --hs: min(calc(var(--avail) - var(--w) * .5625 - var(--g)), calc(var(--vh) * 50)); --sx: 0px; --sy: 40px; }
   .vpop__stage { flex-direction: column; align-items: center; }
-  .vpop__side { width: auto; height: min(calc(var(--avail) - var(--w) * .5625 - var(--g)), calc(var(--vh) * 50)); }
+  .vpop__side { width: calc(var(--hs) * .5625); height: var(--hs); }
   .vpop .vpop__x { top: -56px; right: 0; }
 }
 .vpop::backdrop { background: rgba(6, 6, 8, .84); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
