@@ -174,6 +174,21 @@ html:not(.gate-on) .byline__n::after { animation: underline .9s var(--ease-out) 
 .hero__stage .hero__book { width: calc(var(--stage-h) * .6); }
 .hero__stage .lens { width: calc(var(--stage-h) * 1180 / 1364); }
 .hero__cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px 16px; margin-top: clamp(36px, 4vw, 52px); }
+/* "As seen on Michael Franzese" under the buttons (Jason, 2026-11-23): one pill linking to the interview on YouTube; on a phone
+   it wraps to two centred lines. Hover: a glow in its own red. */
+.asseen { display: flex; justify-content: center; margin-top: clamp(20px, 2.4vw, 28px); }
+.asseen__link { display: inline-flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 16px; max-width: 100%; padding: 12px 22px; border: 1px solid var(--line); border-radius: 999px; background: var(--paper); color: var(--ink); text-decoration: none; box-shadow: 0 10px 26px -18px rgba(0, 0, 0, .35); transition: border-color .25s, box-shadow .25s, transform .25s var(--ease); }
+.asseen__link:hover, .asseen__link:focus-visible { border-color: rgba(224, 18, 28, .45); box-shadow: 0 0 0 4px rgba(224, 18, 28, .1), 0 16px 34px -14px var(--red-glow); transform: translateY(-2px); }
+.asseen__link:focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
+.asseen__k { font: 700 12px/1 var(--caps); letter-spacing: .26em; text-transform: uppercase; color: var(--gold-ink); }
+.asseen__n { display: inline-flex; align-items: center; gap: 9px; font: 400 21px/1 var(--display); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+.asseen__play { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: var(--red); color: #fff; flex: none; }
+.asseen__play svg { width: 18px; height: 18px; fill: currentColor; }
+.asseen__cta { font: 700 15px/1 var(--body); color: var(--red); white-space: nowrap; }
+.asseen__cta span { display: inline-block; transition: transform .25s var(--ease); }
+.asseen__link:hover .asseen__cta span { transform: translateX(3px); }
+.asseen__v { font: 600 12px/1 var(--mono); letter-spacing: .04em; color: var(--muted); white-space: nowrap; }
+@media (max-width: 560px) { .asseen__link { gap: 10px 14px; padding: 14px 18px; border-radius: 22px; } .asseen__k { flex-basis: 100%; text-align: center; } }
 
 /* 3D book */
 .hero__book { position: relative; display: flex; flex-direction: column; align-items: center; perspective: 1600px; }
