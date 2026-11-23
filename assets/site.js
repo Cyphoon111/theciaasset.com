@@ -1474,24 +1474,121 @@
      loads into the same video element and plays at once, with sound: the visitor's tap on the first is what lets a browser
      (an iPhone too) go on playing that element with sound; should a browser refuse anyway, the big play button comes back on
      the next reel's poster. After the last, the play button starts the whole series again. ---------- */
+  /* the controls under each video (Jason, 2026-11-22: "End users need to be able to have access to player controls that allow
+     them to forward or reverse the promotional videos that pop up"): a timeline whose knob is dragged, or tapped anywhere to
+     jump there (a finger on an iPhone too: a home-made slider, since Safari's own range input only moves by its knob), back and
+     forward 10 seconds, play/pause and the time as 00:00 / 05:04. The interview's forward button carries on into the book's
+     trailer at its end and its back button, at the trailer's start, returns to the interview's last seconds, so the two reels
+     run as one programme; the comments reel goes round its loop. In the pop-up the arrow keys move 10 seconds and the space
+     bar plays or pauses (the video whose controls hold the focus, else the interview); on the timeline the arrows move 5. */
+  const mmss = (s) => {
+    s = Math.max(0, Math.floor(Number.isFinite(s) ? s : 0));
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = String(s % 60).padStart(2, '0');
+    return h ? `${h}:${String(m).padStart(2, '0')}:${x}` : `${String(m).padStart(2, '0')}:${x}`;
+  };
+  const playerBar = (ctl, v, act) => {
+    if (!ctl) return null;
+    const seek = $('.vpop__seek', ctl), fill = $('.vpop__fill', ctl), knob = $('.vpop__knob', ctl);
+    const tEl = $('[data-t]', ctl), dEl = $('[data-d]', ctl);
+    let drag = false, dragF = 0, lastSeek = 0, shownT = -1, shownD = -1;
+    const dur = () => (Number.isFinite(v.duration) && v.duration > 0 ? v.duration : 0);
+    const draw = (f) => { fill.style.transform = `scaleX(${f})`; knob.style.left = `${f * 100}%`; };
+    const label = (t, d) => {
+      const ti = Math.floor(t), di = Math.floor(d);
+      if (ti === shownT && di === shownD) return;
+      shownT = ti; shownD = di;
+      if (tEl) tEl.textContent = mmss(t); if (dEl) dEl.textContent = mmss(d);
+      seek.setAttribute('aria-valuemax', String(di)); seek.setAttribute('aria-valuenow', String(Math.min(ti, di)));
+      seek.setAttribute('aria-valuetext', `${mmss(t)} of ${mmss(d)}`);
+    };
+    const update = () => {
+      if (drag) return;
+      const d = dur(), t = v.currentTime || 0;
+      draw(d ? Math.min(1, t / d) : 0); label(t, d);
+    };
+    const to = (t, quick) => {
+      const d = dur(); if (!d) return;
+      t = Math.min(Math.max(0, t), Math.max(0, d - 0.1));
+      if (quick && typeof v.fastSeek === 'function') v.fastSeek(t); else v.currentTime = t;
+    };
+    const at = (e) => { const r = seek.getBoundingClientRect(); return r.width ? Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) : 0; };
+    const move = (e) => {
+      dragF = at(e); draw(dragF); label(dragF * dur(), dur());
+      const now = performance.now();
+      if (now - lastSeek > 90) { lastSeek = now; to(dragF * dur(), true); }   // the picture follows the finger
+    };
+    const stop = () => { if (!drag) return; drag = false; seek.classList.remove('is-drag'); to(dragF * dur()); };
+    seek.addEventListener('pointerdown', (e) => {
+      if (e.button > 0 || !dur()) return;
+      // a mouse gives the timeline the focus (its arrow keys then move 5 s); a finger does not, so no outline stays behind
+      e.preventDefault(); if (e.pointerType === 'mouse') seek.focus({ preventScroll: true, focusVisible: false });
+      drag = true; seek.classList.add('is-drag');
+      try { seek.setPointerCapture(e.pointerId); } catch { /* an old browser: the moves still reach it while over it */ }
+      move(e);
+    });
+    seek.addEventListener('pointermove', (e) => { if (drag) move(e); });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => seek.addEventListener(ev, stop));
+    seek.addEventListener('keydown', (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const k = { ArrowLeft: -5, ArrowDown: -5, ArrowRight: 5, ArrowUp: 5, PageDown: -30, PageUp: 30 }[e.key];
+      if (k != null) act.skip(k);
+      else if (e.key === 'Home') to(0);
+      else if (e.key === 'End') to(dur());
+      else if (e.key === ' ' || e.key === 'Enter') act.toggle();
+      else return;
+      e.preventDefault(); e.stopPropagation();
+    });
+    $('[data-act="back"]', ctl).addEventListener('click', () => act.skip(-10));
+    $('[data-act="fwd"]', ctl).addEventListener('click', () => act.skip(10));
+    $('[data-act="pp"]', ctl).addEventListener('click', () => act.toggle());
+    ['loadedmetadata', 'durationchange', 'seeked', 'emptied'].forEach((ev) => v.addEventListener(ev, () => { shownT = -1; update(); }));
+    return { update, to, skip: act.skip, toggle: act.toggle };
+  };
+
   const vpop = $('#vpop');
   if (vpop && typeof vpop.showModal === 'function') {
-    const vid = $('.vpop__video', vpop), playBtn = $('.vpop__play', vpop), fsBtn = $('.vpop__fs', vpop), barEl = $('.vpop__bar i', vpop);
+    const vid = $('.vpop__video', vpop), playBtn = $('.vpop__play', vpop), fsBtn = $('.vpop__fs', vpop);
+    const ppMain = $('.vpop__frame .vpop__pp', vpop);
     let reels = []; try { reels = JSON.parse(vid.dataset.reels || '[]'); } catch { reels = []; }
     if (!reels.length) reels = [{ src: vid.getAttribute('src'), poster: vid.getAttribute('poster'), label: 'the video' }];
     let reel = 0, advancing = false;
-    const load = (n) => { reel = n; vid.poster = reels[n].poster || ''; vid.src = reels[n].src; barEl.style.width = '0%'; };
+    // a reel into the video; `from` = where it starts, negative = that many seconds before its end
+    const load = (n, from) => {
+      reel = n; vid.poster = reels[n].poster || ''; vid.src = reels[n].src;
+      if (from) vid.addEventListener('loadedmetadata', () => { const d = vid.duration || 0; vid.currentTime = from < 0 ? Math.max(0, d + from) : Math.min(from, Math.max(0, d - 0.1)); }, { once: true });
+      const seekEl = $('.vpop__frame .vpop__seek', vpop); if (seekEl) seekEl.setAttribute('aria-label', `Move through ${(reels[n].label || 'the video').replace(/&#39;/g, "'")}`);
+    };
     const paint = () => {
       // a reel that has reached its end with another to come counts as playing (a browser says "pause" just before "ended")
       const on = (!vid.paused && !vid.ended) || advancing || (vid.ended && reel < reels.length - 1);
       vpop.classList.toggle('is-playing', on);
       playBtn.setAttribute('aria-label', vid.ended ? 'Play again from the start' : `Play ${reels[reel].label || 'the video'}`);
+      if (ppMain) { const w = on ? 'Pause' : (vid.ended ? 'Play again from the start' : 'Play'); ppMain.setAttribute('aria-label', w); ppMain.title = w; }
     };
     const play = () => {
       vid.muted = false; vid.volume = 1;
       if (vid.ended) { if (reels.length > 1) load(0); else vid.currentTime = 0; }
       vid.play().then(paint, paint);
     };
+    // to another reel by the forward/back buttons, playing on if it was playing (the earlier tap still lets it play with sound)
+    const goReel = (n, from) => {
+      const going = (!vid.paused && !vid.ended) || advancing;
+      load(n, from);
+      if (!going) { paint(); return; }
+      advancing = true; vid.muted = false;
+      const done = () => { advancing = false; if (!vpop.open) vid.pause(); paint(); };
+      vid.play().then(done, done);
+    };
+    const mainBar = playerBar($('.vpop__frame .vpop__ctl', vpop), vid, {
+      skip: (s) => {
+        const d = Number.isFinite(vid.duration) ? vid.duration : 0, t = vid.currentTime || 0;
+        if (!d) return;
+        if (s > 0 && t + s >= d - 0.3 && reel < reels.length - 1) return goReel(reel + 1);
+        if (s < 0 && t < 2 && reel > 0) return goReel(reel - 1, s);   // at a reel's very start: the last seconds of the one before
+        mainBar.to(t + s);
+      },
+      toggle: () => { if (vid.paused || vid.ended) play(); else vid.pause(); },
+    });
     playBtn.addEventListener('click', play);
     vid.addEventListener('click', () => { if (vid.paused || vid.ended) play(); else vid.pause(); });
     // the next reel, the moment one ends (registered before paint, so the play button never flashes up in between)
@@ -1502,7 +1599,6 @@
       vid.play().then(done, done);
     });
     ['play', 'playing', 'pause', 'ended'].forEach((ev) => vid.addEventListener(ev, paint));
-    vid.addEventListener('timeupdate', () => { barEl.style.width = `${vid.duration ? (vid.currentTime / vid.duration) * 100 : 0}%`; });
     // full screen: the video element itself (an iPhone can only do that, with webkitEnterFullscreen); the browser shows its
     // own controls there and the picture keeps playing where it was
     fsBtn.addEventListener('click', () => {
@@ -1516,21 +1612,60 @@
     // it"): silent, on a loop, from the moment the pop-up appears (a muted video may start by itself, an iPhone's too), paused
     // when it closes; it starts with the interview as well, should a browser have held it back. Not on a data-saver connection,
     // where its poster stays until the interview is played.
-    const side = $('.vpop__sidevid', vpop);
-    const sidePlay = () => { if (!side || !vpop.open) return; side.muted = true; side.preload = 'auto'; if (side.paused) side.play().catch(() => {}); };
+    // Its own controls (playerBar above): once the visitor pauses it, it stays paused (sideHeld) until they play it again.
+    const side = $('.vpop__sidevid', vpop), sideCard = $('.vpop__side', vpop);
+    let sideHeld = false;
+    const sidePlay = () => { if (!side || !vpop.open || sideHeld) return; side.muted = true; side.preload = 'auto'; if (side.paused) side.play().catch(() => {}); };
     const saveData = !!(navigator.connection && navigator.connection.saveData);
     if (side) vid.addEventListener('play', sidePlay);
+    let sideBar = null;
+    if (side && sideCard) {
+      const sidePaint = () => {
+        const on = !side.paused;
+        sideCard.classList.toggle('is-playing', on);
+        const pp = $('.vpop__pp', sideCard);
+        if (pp) { pp.setAttribute('aria-label', `${on ? 'Pause' : 'Play'} the viewers' comments`); pp.title = on ? 'Pause' : 'Play'; }
+      };
+      ['play', 'playing', 'pause'].forEach((ev) => side.addEventListener(ev, sidePaint));
+      sideBar = playerBar($('.vpop__ctl', sideCard), side, {
+        skip: (s) => {
+          if (side.preload !== 'auto') side.preload = 'auto';
+          const d = Number.isFinite(side.duration) ? side.duration : 0; if (!d) return;
+          let t = (side.currentTime || 0) + s;
+          if (t >= d) t -= d;   // round the loop
+          sideBar.to(t);
+        },
+        toggle: () => {
+          if (side.paused) { sideHeld = false; side.muted = true; side.preload = 'auto'; side.play().catch(() => {}); }
+          else { sideHeld = true; side.pause(); }
+        },
+      });
+      sidePaint();
+    }
+    // the timelines move smoothly while the pop-up is open (one frame loop for both, stopped when it closes)
+    let raf = 0;
+    const tick = () => { if (mainBar) mainBar.update(); if (sideBar) sideBar.update(); raf = vpop.open ? requestAnimationFrame(tick) : 0; };
+    // the keys, in the pop-up: arrows 10 seconds, space or K play/pause (the timeline handles its own keys first)
+    vpop.addEventListener('keydown', (e) => {
+      if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
+      const bar = e.target.closest && e.target.closest('.vpop__side') ? sideBar : mainBar;
+      if (!bar) return;
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); bar.skip(e.key === 'ArrowLeft' ? -10 : 10); }
+      else if ((e.key === ' ' || e.key === 'k' || e.key === 'K') && !(e.target.closest && e.target.closest('button'))) { e.preventDefault(); bar.toggle(); }
+    });
     const open = () => {
       if (vpop.open) return;
       quiet.hold();
       vid.preload = 'auto';
+      sideHeld = false;
       vpop.showModal();
       if (!saveData) sidePlay();
       document.documentElement.classList.add('is-slam'); setTimeout(() => document.documentElement.classList.remove('is-slam'), 900);   // the page jolts at the hit
       playBtn.focus({ preventScroll: true });
       paint();
+      if (!raf) raf = requestAnimationFrame(tick);
     };
-    vpop.addEventListener('close', () => { vid.pause(); if (side) side.pause(); quiet.release(); trailer.close(); });   // the lens starts now (trailer)
+    vpop.addEventListener('close', () => { vid.pause(); if (side) side.pause(); if (raf) { cancelAnimationFrame(raf); raf = 0; } quiet.release(); trailer.close(); });   // the lens starts now (trailer)
     $('.vpop__x', vpop).addEventListener('click', () => vpop.close());
     vpop.addEventListener('click', (e) => { if (onBackdrop(vpop, e)) vpop.close(); });   // the dimmed backdrop
     const showWhenFree = () => {
