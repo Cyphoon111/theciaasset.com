@@ -25,6 +25,9 @@
     addEventListener('load', () => { if (!moved) toTop(); }, { once: true });
   }
   addEventListener('pageshow', (e) => { if (e.persisted) toTop(); });
+  // the direct pre-order link, theciaasset.com/?preorder=1 (2026-11-23, for emails to readers: one of them wrote that the pre-order
+  // button did not work): no opening screen (boot.js), no video pop-up, and the hardcover's pre-order window opens by itself
+  const PREORDER_LINK = /[?&]preorder=/.test(location.search);
 
   /* ---------- human check: Cloudflare Turnstile, invisible to most visitors; it shows one box to tick only when it is unsure.
      The site key lives in <meta name="turnstile-sitekey">; empty turns the check off. A sign-up whose check cannot run
@@ -1379,10 +1382,26 @@
         const st = e.target.closest('[data-hc-step]');
         if (st) { n = Math.min(s.maxQty, Math.max(1, n + Number(st.dataset.hcStep))); paint(); }
       });
-      $$('[data-hc-open]').forEach((b) => b.addEventListener('click', () => {
+      const hcShow = () => {
+        if (hc.open) return;
         say(''); paint();
         if (typeof hc.showModal === 'function') hc.showModal(); else hc.setAttribute('open', '');
+      };
+      $$('[data-hc-open]').forEach((b) => b.addEventListener('click', hcShow));
+      // the "Pre-Order Now" stamp on the cover opens it too (2026-11-23: a reader wrote that the pre-order button did not work;
+      // the stamp looked like a button and did nothing), by keyboard as well
+      $$('[data-hc-open][role="button"]').forEach((b) => b.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hcShow(); }
       }));
+      // the direct pre-order link: the page shows the pre-order, its window opens, and the address loses ?preorder= (a refresh
+      // then opens the site as usual)
+      if (PREORDER_LINK) {
+        const box = $('#preorder');
+        if (box) box.scrollIntoView({ block: 'start' });
+        hcShow();
+        const q = new URLSearchParams(location.search); q.delete('preorder');
+        history.replaceState(null, '', location.pathname + (q.toString() ? `?${q}` : '') + location.hash);
+      }
       // the site's own checkout: these copies, then the address (and any Nevada tax from its ZIP code) and the card there
       $('#hcForm').addEventListener('submit', (e) => { e.preventDefault(); hc.close(); openCheckout({ kind: 'hardcover', qty: n }); });
       paint();
@@ -1672,7 +1691,7 @@
       const busy = $$('dialog[open]').find((d) => d !== vpop);
       if (busy) busy.addEventListener('close', () => setTimeout(showWhenFree, 1500), { once: true }); else open();
     };
-    whenGateOpen(() => setTimeout(showWhenFree, 2000));
+    if (!PREORDER_LINK) whenGateOpen(() => setTimeout(showWhenFree, 2000));   // a reader sent to the pre-order is not interrupted
   }
 
   /* ---------- thank-you pop-up: Square sends a donor back here (?donated=ebook|bundle|audio|audiobook|audiobundle; the opening screen is skipped).

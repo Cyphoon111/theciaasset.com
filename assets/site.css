@@ -566,6 +566,12 @@ a.unl:hover, a.unl:focus-visible { color: var(--red); text-decoration-color: var
 /* "Early Release", stamped above the book (Jason, 2026-10-28); the stamp's look is .stamp span's */
 .early { display: flex; justify-content: center; margin: 0 -40px 34px; transform: rotate(-5deg); }
 .early span { white-space: nowrap; text-transform: uppercase; font-size: clamp(22px, 2.4vw, 31px); }
+/* the "Pre-Order Now" stamp opens the pre-order window (2026-11-23: a reader wrote that the pre-order button did not work; the
+   stamp looked like a button and did nothing): a hand cursor, and a red glow under the stamp on hover and keyboard focus */
+.early--btn { cursor: pointer; }
+.early--btn span { transition: background-color .2s, box-shadow .2s; }
+.early--btn:hover span, .early--btn:focus-visible span { background: rgba(224,18,28,.10); box-shadow: 0 0 22px rgba(224,18,28,.35); }
+.early--btn:focus-visible { outline: none; }
 .preorder__cover img { width: 100%; aspect-ratio: 1100 / 1650; object-fit: cover; border-radius: 2px 6px 6px 2px; box-shadow: 0 30px 50px -24px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.18); transform: rotate(-3deg); transition: transform .4s var(--ease); }
 .preorder__box:hover .preorder__cover img { transform: rotate(0deg) translateY(-4px); }
 /* the hardcover first (Jason, 2026-11-13): the copy column in three (the intro, the hardcover card, then the switch, Ask the

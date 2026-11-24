@@ -4,7 +4,8 @@
    email before gets it with no email to type (gate-back, Jason, 2026-10-17): "Welcome back" and one tap, which opens the
    file and turns the shutter sound on (a browser plays sound only after a tap). This browser remembers them, or else
    site.js asks PitchZing whether this network and browser signed up (gate-ask keeps the form out of sight meanwhile). */
-if (!/[?&]donated=/.test(location.search)) { var seen = false; try { seen = !!(localStorage.getItem('cia_in') || localStorage.getItem('cia_email')); } catch (e) {} document.documentElement.classList.add('gate-on', seen ? 'gate-back' : 'gate-ask'); }
+/* The direct pre-order link (?preorder=1, 2026-11-23, sent to readers by email) skips it too: the pre-order window opens. */
+if (!/[?&](donated|preorder)=/.test(location.search)) { var seen = false; try { seen = !!(localStorage.getItem('cia_in') || localStorage.getItem('cia_email')); } catch (e) {} document.documentElement.classList.add('gate-on', seen ? 'gate-back' : 'gate-ask'); }
 /* the safety net (2026-11-21): only site.js shows the opening screen's form and lets the visitor in. If site.js never runs
    (a download that failed or stalled, or a browser too old to read it), a first-time visitor was left on a blank dark
    screen with no way in; YouTube viewers reported exactly that ("When you click the link to buy it the screen goes blank").
