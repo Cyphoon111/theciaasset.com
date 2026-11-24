@@ -595,8 +595,21 @@ a.unl:hover, a.unl:focus-visible { color: var(--red); text-decoration-color: var
 .preorder__fine { margin: 14px 0 0; font-size: 13.5px; color: var(--muted); }
 /* giveaway until Nov 4 ([data-giveaway]), then the same packages for sale ([data-paid]); site.js flips them on the minute */
 .preorder [hidden] { display: none !important; }
-/* what shows under one option of the One-time / Monthly switch only (site.js sets the section's data-freq) */
-.preorder[data-freq="once"] [data-freq-show="monthly"], .preorder[data-freq="monthly"] [data-freq-show="once"] { display: none !important; }
+/* what shows under one option of a card's One-time / Monthly choice only (site.js sets the card's data-freq; until 2026-11-23
+   one switch set it on the whole section) */
+.preorder [data-freq="once"] [data-freq-show="monthly"], .preorder [data-freq="monthly"] [data-freq-show="once"] { display: none !important; }
+/* each digital product's own choice (Jason, 2026-11-23: "make it easier to choose a one-time purchase vs the monthly on each
+   digital product"): two large buttons side by side, the choice in bold over its price, the chosen one filled in black; a red
+   glow on hover */
+.pfreq { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 14px 0 4px; }
+.pfreq__opt { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-height: 58px; padding: 10px 16px; border: 2px solid var(--line); border-radius: 12px; background: #fff; color: var(--ink); text-align: left; cursor: pointer; transition: background .2s, color .2s, border-color .2s, box-shadow .2s; }
+.pfreq__opt b { font: 800 13px/1 var(--body); letter-spacing: .1em; text-transform: uppercase; }
+.pfreq__opt span { font: 600 14.5px/1.2 var(--body); color: var(--ink-2); }
+.pfreq__opt:hover { border-color: var(--red); box-shadow: 0 0 0 3px rgba(224, 18, 28, .14), 0 10px 22px -14px rgba(224, 18, 28, .6); }
+.pfreq__opt[aria-checked="true"] { border-color: var(--ink); background: var(--ink); color: #fff; }
+.pfreq__opt[aria-checked="true"] span { color: #e8e8ec; }
+.pfreq__opt:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+@media (max-width: 560px) { .pfreq__opt { padding: 9px 12px; } .pfreq__opt b { font-size: 12px; } .pfreq__opt span { font-size: 13.5px; } }
 /* one-time / monthly switch above the packages (one-time on every visit) */
 .freq-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 24px 0 0; }
 .freq-line { display: inline-flex; align-items: center; gap: 8px; }

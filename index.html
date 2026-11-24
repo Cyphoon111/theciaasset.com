@@ -7,7 +7,7 @@
      and its bank check, Cloudflare's human check, Google Fonts, PitchZing (the store), Unleashed's videos. Frames may come from
      any https page because a card's bank shows its check from its own domain (Square's advice for payment pages). -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://*.squarecdn.com https://*.cardinalcommerce.com https://challenges.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://*.squarecdn.com; font-src 'self' data: https://fonts.gstatic.com https://*.squarecdn.com https://d1g145x70srn7h.cloudfront.net; img-src 'self' data: blob: https:; media-src 'self' blob: https://videos.unleashed.news; connect-src 'self' https://pitchzing-haro.pitchzing.workers.dev https://*.squarecdn.com https://*.squareup.com https://o160250.ingest.sentry.io https://*.cardinalcommerce.com https://challenges.cloudflare.com; frame-src 'self' https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; upgrade-insecure-requests">
-<script src="assets/boot.js?v=3"></script>
+<script src="assets/boot.js?v=4"></script>
 <title>Jeffrey Epstein Was A CIA Asset: The Book by Jason Sullivan | The CIA Asset</title>
 <meta name="description" content="Jeffrey Epstein Was A CIA Asset by Jason Sullivan: the documented story of the intelligence apparatus that made Epstein. Ebook, audiobook, hardcover pre-order.">
 <link rel="canonical" href="https://theciaasset.com/">
@@ -38,7 +38,7 @@
 <link rel="preload" as="image" href="assets/cover.jpg">
 <link rel="preload" as="image" href="assets/jason-federal-court.jpg">
 <meta name="turnstile-sitekey" content="0x4AAAAAAFW8xroLmVpmYKc-">
-<link rel="stylesheet" href="assets/site.css?v=119">
+<link rel="stylesheet" href="assets/site.css?v=120">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://theciaasset.com/#website","name":"The CIA Asset","alternateName":["TheCIAAsset.com","Jeffrey Epstein Was A CIA Asset","Jeffrey Epstein Was A CIA Asset by Jason Sullivan"],"url":"https://theciaasset.com/","inLanguage":"en","about":{"@id":"https://theciaasset.com/#book"},"author":{"@type":"Person","name":"Jason Sullivan"}},{"@type":"Book","@id":"https://theciaasset.com/#book","name":"Jeffrey Epstein Was A CIA Asset","alternativeHeadline":"The highly anticipated full story of the intelligence apparatus that made Jeffrey Epstein","description":"Who made Jeffrey Epstein? Following a chain of records from 1964 to 2019, investigator Jason Sullivan documents the covert U.S. intelligence and financial apparatus that spotted, recruited and deployed him.","author":{"@type":"Person","name":"Jason Sullivan","jobTitle":"Chief Investigator","worksFor":{"@type":"Organization","name":"The Ticktin Law Group","url":"https://www.legalbrains.com"}},"genre":"Non-fiction","inLanguage":"en","image":"https://theciaasset.com/assets/cover.jpg","url":"https://theciaasset.com/","mainEntityOfPage":"https://theciaasset.com/","workExample":[{"@type":"Book","@id":"https://theciaasset.com/#hardcover","name":"Jeffrey Epstein Was A CIA Asset","bookFormat":"https://schema.org/Hardcover","isbn":"9798234309655","numberOfPages":1054,"bookEdition":"First edition","datePublished":"2026-12-15","publisher":{"@type":"Organization","name":"Jason Sullivan"},"author":{"@type":"Person","name":"Jason Sullivan"},"offers":{"@type":"Offer","price":"49.99","priceCurrency":"USD","availability":"https://schema.org/PreOrder","url":"https://theciaasset.com/"}},{"@type":"Book","@id":"https://theciaasset.com/#ebook","name":"Jeffrey Epstein Was A CIA Asset","bookFormat":"https://schema.org/EBook","author":{"@type":"Person","name":"Jason Sullivan"},"offers":{"@type":"Offer","price":"14.99","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://theciaasset.com/"}},{"@type":"Book","@id":"https://theciaasset.com/#audiobook","name":"Jeffrey Epstein Was A CIA Asset","bookFormat":"https://schema.org/AudiobookFormat","author":{"@type":"Person","name":"Jason Sullivan"},"offers":{"@type":"Offer","price":"19.99","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://theciaasset.com/"}}]}]}
 </script>
@@ -418,7 +418,7 @@
   </section>
 
   <!-- ============ PRE-ORDER ============ -->
-  <section class="section preorder" id="preorder" data-freq="monthly">
+  <section class="section preorder" id="preorder">
     <div class="wrap preorder__box reveal">
       <!-- "Early Release" above the book (Jason, 2026-10-28), a stamp like the hero's CLASSIFIED, while the giveaway lasts -->
       <!-- "Pre-Order Now", the same stamp, above the book while hardcover pre-orders are open; the book sits left of the hardcover
@@ -455,18 +455,10 @@
       </div>
       <div class="preorder__copy preorder__rest">
         <div class="preorder__row">
-          <!-- the switch stays after Election Day (Jason, 2026-10-28): one-time purchases, or monthly (the ebook from $10, the
-               ebook plus the entire Master Claims document as a $14.99 subscription with Ask the Book) -->
-          <div class="freq-row">
-            <div class="freq-line">
-              <div class="freq" role="radiogroup" aria-label="One-time or monthly">
-                <button class="freq__opt" type="button" role="radio" aria-checked="false" data-freq="once">One-time</button>
-                <button class="freq__opt" type="button" role="radio" aria-checked="true" data-freq="monthly" aria-describedby="freqNote">Monthly</button>
-              </div>
-              <svg class="freq__arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5.5m0 0 6.5-6.5M5.5 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <p class="freq__note" id="freqNote">Continue to support this author’s work. <a href="/cancel/">Cancel anytime</a>.</p>
-          </div>
+          <!-- the one One-time / Monthly switch that stood here (2026-10-17 to 2026-11-23) is now on each product's own card (.pfreq,
+               Jason, 2026-11-23: "make it easier to choose a one-time purchase vs the monthly on each digital product"); its row
+               stays, empty and hidden, so the Ask the Book card keeps its place -->
+          <div class="freq-row" hidden></div>
           <!-- Ask the Book, featured beside the switch (Jason, 2026-10-28) -->
           <aside class="askcard" aria-labelledby="askTitle">
             <p class="askcard__kicker"><svg class="askcard__spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 4.6 2.4 7.9 7.4 9.4.6.2.6.5 0 .7-5 1.5-6.9 4.8-7.4 9.4-.5-4.6-2.4-7.9-7.4-9.4-.6-.2-.6-.5 0-.7 5-1.5 6.9-4.8 7.4-9.4Z"/></svg>A Super Intelligence Book</p>
@@ -484,10 +476,14 @@
                round button above the tab adds it (site.js [data-addon]): the price shows "+ $10 a month", the Square link gives way
                to the add-on's button (data-buy + data-ask: PitchZing sells the copy, then the thank-you opens the Ask plan's
                checkout, Square taking a purchase or a subscription but not both), and the two-checkout line shows. -->
-          <article class="pkg" data-addon-card>
+          <article data-freq="monthly" class="pkg" data-addon-card>
             <div class="pkg__head">
               <h3 class="pkg__name">The ebook</h3>
               <p class="pkg__price"><b data-giveaway>From $1</b><span class="pkg__later" data-giveaway data-freq-show="once">$14.99 from Nov 4</span><span class="pkg__later" data-giveaway data-freq-show="monthly">$10 minimum from Nov 4</span><b data-paid hidden data-freq-show="once">$14.99</b><span class="pkg__addon" data-paid hidden data-freq-show="once" data-addon-show>+ $10 a month<small>Ask the Book · <a href="/cancel/">Cancel anytime</a></small></span><b data-paid hidden data-freq-show="monthly">From $10</b><a class="pkg__cancel" data-freq-show="monthly" href="/cancel/">Cancel anytime</a></p>
+            </div>
+            <div class="pfreq" role="radiogroup" aria-label="The ebook: one-time or monthly">
+              <button class="pfreq__opt" type="button" role="radio" aria-checked="false" data-pick="once"><b>One-time</b><span>$14.99 once</span></button>
+              <button class="pfreq__opt" type="button" role="radio" aria-checked="true" data-pick="monthly"><b>Monthly</b><span>From $10 a month</span></button>
             </div>
             <div class="pkg__row">
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="ebook" aria-haspopup="dialog">Donate &amp; get the ebook <span aria-hidden="true">→</span></button>
@@ -501,10 +497,14 @@
             <p class="pkg__perk pkg__perk--add" data-freq-show="once" data-addon-show data-twostep><b>Two secure Square checkouts:</b> first the ebook, $14.99, then your Ask the Book plan, $10 a month for 20 questions a day. Cancel the plan anytime.</p>
             <p class="pkg__perk pkg__perk--add" data-freq-show="once" data-addon-show data-onestep hidden><b>One secure checkout:</b> $24.99 today, the ebook ($14.99) and your first month of Ask the Book ($10), then $10 a month for 20 questions a day. Cancel the plan anytime; the ebook stays yours.</p>
           </article>
-          <article class="pkg pkg--bundle" data-addon-card>
+          <article data-freq="monthly" class="pkg pkg--bundle" data-addon-card>
             <div class="pkg__head">
               <h3 class="pkg__name">The ebook plus the entire Master Claims Document</h3>
               <p class="pkg__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway data-freq-show="once">$19.99 from Nov 4</span><span class="pkg__later" data-giveaway data-freq-show="monthly">$14.99 from Nov 4</span><b data-paid hidden data-freq-show="once">$19.99</b><span class="pkg__addon" data-paid hidden data-freq-show="once" data-addon-show>+ $10 a month<small>Ask the Book · <a href="/cancel/">Cancel anytime</a></small></span><b data-paid hidden data-freq-show="monthly">$14.99</b><a class="pkg__cancel" data-freq-show="monthly" href="/cancel/">Cancel anytime</a></p>
+            </div>
+            <div class="pfreq" role="radiogroup" aria-label="The ebook plus the entire Master Claims Document: one-time or monthly">
+              <button class="pfreq__opt" type="button" role="radio" aria-checked="false" data-pick="once"><b>One-time</b><span>$19.99 once</span></button>
+              <button class="pfreq__opt" type="button" role="radio" aria-checked="true" data-pick="monthly"><b>Monthly</b><span>$14.99 a month</span></button>
             </div>
             <div class="pkg__row">
               <button class="btn btn--red btn--lg pkg__buy" type="button" data-giveaway data-amount="bundle" aria-haspopup="dialog">Donate &amp; get both <span aria-hidden="true">→</span></button>
@@ -526,10 +526,14 @@
                One-time is a purchase at its price, no "From" (Jason: "It's a ONE TIME PURCHASE"): its Buy buttons open Square's
                checkout for exactly that (site.js data-buy; PitchZing names the line "Buy …" and records an order); Monthly stays a
                donation from its minimum, through the amount window. -->
-          <article class="pkg pkg--audio" data-audiobook hidden>
+          <article data-freq="monthly" class="pkg pkg--audio" data-audiobook hidden>
             <div class="pkg__head">
               <h3 class="pkg__name">The audiobook</h3>
               <p class="pkg__price"><b data-giveaway>From $10</b><span class="pkg__later" data-giveaway>From $19.99 on Nov 4</span><b data-paid hidden data-freq-show="once">$19.99</b><b data-paid hidden data-freq-show="monthly">From $14.99</b><a class="pkg__cancel" data-freq-show="monthly" href="/cancel/">Cancel anytime</a></p>
+            </div>
+            <div class="pfreq" role="radiogroup" aria-label="The audiobook: one-time or monthly">
+              <button class="pfreq__opt" type="button" role="radio" aria-checked="false" data-pick="once"><b>One-time</b><span>From $19.99 once</span></button>
+              <button class="pfreq__opt" type="button" role="radio" aria-checked="true" data-pick="monthly"><b>Monthly</b><span>From $14.99 a month</span></button>
             </div>
             <p class="pkg__what" id="audiobookWhat">The whole book in the author’s own voice. It plays in your protected copy, chapter by chapter, and keeps your place.</p>
             <!-- A free sample (Jason, 2026-10-27): the first half of the Introduction, fading out mid-sentence (assets/audiobook-sample-soundtrack.mp3 since 2026-10-28, with the soundtrack at level D;
@@ -1001,7 +1005,7 @@
   <p class="size__note" id="sizeNote">Measured flat, in inches (±0.5 in). Chest width is measured 1 inch below the armholes; double it for the full chest. Length is from the highest point of the shoulder to the hem. Print width is how wide the design prints across the front of that size (where the two colours differ, the narrower); the photos show size L.</p>
 </dialog>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<script src="assets/site.js?v=110" defer></script>
+<script src="assets/site.js?v=111" defer></script>
 <script src="assets/merch.js?v=14" defer></script>
 </body>
 </html>

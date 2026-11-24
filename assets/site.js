@@ -1177,41 +1177,28 @@
   // Book" under Monthly and the upsell under One-time (Jason, 2026-10-28), which switches to Monthly when tapped
   // (data-freq-to); and from Election Day each package's price and button for that option. The switch stays then
   // (Jason, 2026-10-28): one-time purchases, or monthly, the ebook from $10 and the bundle as a $14.99 subscription.
-  const freqOpts = $$('.freq__opt');
-  const freqNote = $('#freqNote');
-  const store = $('#preorder');
-  const monthlyBits = $$('[data-monthly-text]');
-  monthlyBits.forEach((el) => {
-    const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
-    el.dataset.onceText = t ? t.nodeValue.trim() : '';
-    if (el.href) el.dataset.onceHref = el.getAttribute('href');
-  });
-  const setFreq = (freq) => {
-    freqOpts.forEach((o) => o.setAttribute('aria-checked', String(o.dataset.freq === freq)));
-    if (freqNote) freqNote.style.visibility = freq === 'monthly' ? '' : 'hidden';
-    if (store) store.dataset.freq = freq;
-    monthlyBits.forEach((el) => {
-      const monthly = freq === 'monthly';
-      const t = [...el.childNodes].find((n) => n.nodeType === 3 && n.nodeValue.trim());
-      if (t) t.nodeValue = (monthly ? el.dataset.monthlyText : el.dataset.onceText) + (el.matches('a, button') ? ' ' : '');
-      if (el.dataset.onceHref) el.setAttribute('href', monthly ? el.dataset.monthlyHref : el.dataset.onceHref);
-    });
+  // Since 2026-11-23 each digital product's card has its own One-time / Monthly choice, with the price under each (Jason: "make
+  // it easier to choose a one-time purchase vs the monthly on each digital product"; a reader in South Africa could not find the
+  // one-time ebook behind the one switch that stood above the cards). The card's data-freq decides what it shows (site.css);
+  // Monthly on every visit, as before (Jason, 2026-10-17).
+  const freqCards = $$('#preorder article[data-freq]');
+  const setFreq = (card, freq) => {
+    card.dataset.freq = freq;
+    $$('.pfreq__opt', card).forEach((o) => o.setAttribute('aria-checked', String(o.dataset.pick === freq)));
   };
-  freqOpts.forEach((o) => {
-    o.addEventListener('click', () => setFreq(o.dataset.freq));
-    o.addEventListener('keydown', (e) => {
-      if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
-      e.preventDefault();
-      const next = freqOpts.find((x) => x !== o);
-      setFreq(next.dataset.freq); next.focus();
+  freqCards.forEach((card) => {
+    const opts = $$('.pfreq__opt', card);
+    opts.forEach((o) => {
+      o.addEventListener('click', () => setFreq(card, o.dataset.pick));
+      o.addEventListener('keydown', (e) => {
+        if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) return;
+        e.preventDefault();
+        const next = opts.find((x) => x !== o);
+        setFreq(card, next.dataset.pick); next.focus();
+      });
     });
+    setFreq(card, 'monthly');
   });
-  $$('[data-freq-to]').forEach((b) => b.addEventListener('click', () => {
-    setFreq(b.dataset.freqTo);
-    const toOpt = freqOpts.find((o) => o.dataset.freq === b.dataset.freqTo);
-    if (toOpt) toOpt.focus({ preventScroll: true });   // the upsell itself is now hidden
-  }));
-  if (freqOpts.length) setFreq('monthly');
 
   /* ---------- the ebook plus the entire Master Claims document: its amount is chosen here, from $10, one-time or monthly
      (Jason, 2026-10-16/17: "It must NEVER allow anyone to donate less than $10 in order to obtain The Book + The Master
@@ -1260,8 +1247,8 @@
     });
     $$('[data-amount]').forEach((b) => b.addEventListener('click', () => {
       product = KINDS[b.dataset.amount] ? b.dataset.amount : 'bundle'; K = KINDS[product];
-      const monthOpt = $('.freq__opt[data-freq="monthly"]');
-      monthly = !!monthOpt && monthOpt.getAttribute('aria-checked') === 'true';
+      const card = b.closest('article[data-freq]');   // the choice made on this product's own card
+      monthly = !!card && card.dataset.freq === 'monthly';
       // from Election Day the ebook's button opens this window only for Monthly, from $10 (Jason, 2026-10-28)
       if (Date.now() >= FULL_AT && product === 'ebook' && monthly) K = { ...K, min: 1000, start: 1000 };
       // monthly from Nov 4 the audiobook's options start lower (Jason, 2026-11-04: $14.99, $19.99, $24.99 a month)

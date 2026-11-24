@@ -14,7 +14,7 @@ if (!/[?&](donated|preorder)=/.test(location.search)) { var seen = false; try { 
    without the opening screen, and the text that site.js would fade in on scroll (.reveal, invisible until .is-in) is shown
    at once. The page as written still holds the pre-release wording and the giveaway prices; site.js swaps them by date,
    and every one of those dates has passed, so the safety net makes the same swaps (site.js: "release", "toPaid", the
-   November 4 prices). It also turns the One-time / Monthly switch to One-time: the One-time ebook buttons are plain Square
+   November 4 prices). It also turns each product card's One-time / Monthly choice to One-time: the One-time ebook buttons are plain Square
    links that work without site.js, while every Monthly button needs it. Safe to run twice. Kept to ES5 so every browser
    that runs this file can run this too. */
 (function () {
@@ -33,11 +33,10 @@ if (!/[?&](donated|preorder)=/.test(location.search)) { var seen = false; try { 
         if (n.nodeType === 3 && n.nodeValue.replace(/\s/g, '')) { n.nodeValue = el.getAttribute('data-release-text') + (/\s$/.test(n.nodeValue) ? ' ' : ''); break; }
       }
     });
-    var pre = document.getElementById('preorder');
-    if (pre) pre.setAttribute('data-freq', 'once');
-    each('.freq__opt', function (el) { el.setAttribute('aria-checked', el.getAttribute('data-freq') === 'once' ? 'true' : 'false'); });
-    var note = document.getElementById('freqNote');   // "Continue to support… Cancel anytime." is for Monthly only
-    if (note) note.hidden = true;
+    /* each product's card shows One-time (since 2026-11-23 every card has its own choice; without site.js its buttons cannot
+       switch, so they are hidden) */
+    each('#preorder article[data-freq]', function (el) { el.setAttribute('data-freq', 'once'); });
+    each('.pfreq', function (el) { el.hidden = true; });
   };
   document.addEventListener('DOMContentLoaded', giveUp);
   setTimeout(giveUp, 10000);
